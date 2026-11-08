@@ -1,6 +1,6 @@
-# Open Play (nama aplikasi belum ditentukan)
+# MySports (nama aplikasi belum fix ditentukan)
 
-Aplikasi untuk join open play, menghitung skor otomatis dengan kamera AI (YOLO), dan melacak statistik di lima cabang: basket, padel, badminton, futsal, tennis. Detail produk: [`docs/proposal.md`](docs/proposal.md).
+Aplikasi untuk join MySports, menghitung skor otomatis dengan kamera AI (YOLO), dan melacak statistik di lima cabang: basket, padel, badminton, futsal, tennis. Detail produk: [`docs/proposal.md`](docs/proposal.md).
 
 ## Isi repo
 
