@@ -1,4 +1,5 @@
-# Proposal Aplikasi Open Play, Skor & Statistik Olahraga
+# Proposal Aplikasi MySports (nama belum fix ditentukan)
+Open Play, Skor & Statistik Olahraga
 
 Nov 7, 2026 (diperbarui 8 Nov 2026) · @Jonathan
 
