@@ -1,0 +1,36 @@
+# deps & build
+node_modules/
+.next/
+dist/
+coverage/
+.vercel/
+*.log
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# model YOLO tidak masuk git (lihat rules.md bagian 7)
+*.pt
+*.onnx
+*.engine
+*.tflite
+yolo-service/models/*
+!yolo-service/models/.gitkeep
+yolo-service/tmp/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

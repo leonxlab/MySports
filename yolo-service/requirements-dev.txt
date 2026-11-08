@@ -1,0 +1,10 @@
+# Untuk CI dan test ringan: tanpa torch/ultralytics (detektor mengimpor ultralytics secara lazy)
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+httpx>=0.27
+supabase>=2.7
+numpy>=1.26
+pytest>=8.3
+ruff>=0.6

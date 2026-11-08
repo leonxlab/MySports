@@ -1,0 +1,14 @@
+{
+  "name": "openplay-backend",
+  "description": "Back end API Open Play (lihat docs/deploy.md untuk setup Heroku dari subfolder)",
+  "env": {
+    "NODE_ENV": { "value": "production" },
+    "SUPABASE_URL": { "description": "URL proyek Supabase" },
+    "SUPABASE_SERVICE_ROLE_KEY": { "description": "Service role key. Rahasia, hanya backend dan yolo-service" },
+    "YOLO_SERVICE_KEY": { "description": "Kunci bersama untuk yolo-service mengirim event" },
+    "CORS_ORIGINS": { "description": "Daftar origin frontend dipisah koma" },
+    "PAYMENT_PROVIDER": { "description": "Gateway pembayaran yang dipilih", "required": false },
+    "PAYMENT_WEBHOOK_SECRET": { "description": "Secret verifikasi webhook gateway", "required": false }
+  },
+  "buildpacks": [{ "url": "heroku/nodejs" }]
+}

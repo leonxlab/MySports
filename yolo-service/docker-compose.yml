@@ -1,0 +1,23 @@
+# Jalankan: docker compose up --build
+# Butuh NVIDIA Container Toolkit. Di Windows pakai Docker Desktop + WSL2 (lihat docs/setup-local.md).
+x-common: &common
+  build: .
+  env_file: .env
+  volumes:
+    - ./models:/srv/models
+    - ./tmp:/srv/tmp
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  api:
+    <<: *common
+    ports: ["8000:8000"]
+  worker:
+    <<: *common
+    command: ["python", "-m", "app.worker"]

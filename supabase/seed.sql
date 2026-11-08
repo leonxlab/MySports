@@ -1,0 +1,2 @@
+-- Data uji lokal. Jangan isi dengan data orang sungguhan.
+-- Buat akun uji lewat Supabase Auth, lalu beri role di sini.
