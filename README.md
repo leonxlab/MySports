@@ -38,4 +38,4 @@ cd yolo-service && uvicorn app.main:app --reload --port 8000
 
 ## Hal yang masih terbuka di proposal
 
-Nama aplikasi MySports tetapi belum fix ditentukan, penyedia GPU, gateway pembayaran (local), format segmen video, kejadian AI untuk tennis dan padel, pembeda basket 2/3 poin, isi paket VIP. Bagian yang bergantung pada itu ditandai `TODO(decision)` atau tertulis "belum diputuskan" di README modul.
+Nama aplikasi MySports tetapi belum fix ditentukan, penyedia GPU, gateway pembayaran (local), format segmen video, kejadian AI untuk tennis dan padel (karena masih dalam pencarian spesifik), pembeda basket 2/3 poin, isi paket VIP. Bagian yang bergantung pada itu ditandai `TODO(decision)` atau tertulis "belum diputuskan" di README modul.
