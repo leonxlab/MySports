@@ -7,3 +7,5 @@ Cara ukur: `python -m scripts.run_detector <cabang> <klip.mp4>` dengan klip 1 me
 | Tanggal | Mesin | Detektor | Model | Resolusi / fps klip | Detik proses per menit video | VRAM puncak | Catatan |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | | | | | | |
+
+Worker belum diukur pada laptop RTX atau klip uji; jangan mengisi angka sebelum pengukuran dilakukan.

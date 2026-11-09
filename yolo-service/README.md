@@ -22,6 +22,9 @@ models/                bobot (tidak masuk git) + VERSIONS.md
 tests/
 ```
 
+Worker menyediakan `GET /metrics` di port 8001 dalam proses worker. Di Docker Compose,
+`/health` dan `/gpu` dilayani API di port 8000, sementara `/metrics` dilayani worker.
+
 ## Menambah detektor
 
 1. Isi `modules/<cabang>/detector.py`: `load()` memuat bobot, `process()` mengembalikan daftar event sesuai `app/core/events.py`.

@@ -70,6 +70,8 @@ Menjalankan worker penuh (ambil antrean dari Supabase lokal, kirim event ke back
 python -m app.worker
 ```
 
+Metrik worker tersedia di `http://localhost:8001/metrics`.
+
 Atau lewat Docker (butuh NVIDIA Container Toolkit; di Windows lewat Docker Desktop dengan WSL2):
 
 ```bash
