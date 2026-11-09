@@ -1,6 +1,6 @@
 # Modul vip: VIP (coming soon)
 
-Belum dibangun. Backend tidak punya endpoint dan tidak ada tabel. Frontend hanya menampilkan badge VIP, tombol Langganan VIP, dan tombol Generate Highlight, semuanya nonaktif berlabel 'Coming soon'. Jangan tambah apa pun di sini sebelum isi paket VIP diputuskan.
+VIP hanya menyediakan penanda antarmuka. Backend tidak punya endpoint atau tabel. Tombol Langganan VIP dan Generate Highlight selalu nonaktif; badge hanya tampil jika suatu saat pemilik halaman memiliki status VIP. Jangan tambah endpoint, tabel, atau alur bayar sebelum keputusan produk dibuat.
 
 | | |
 | --- | --- |
@@ -12,7 +12,7 @@ Belum dibangun. Backend tidak punya endpoint dan tidak ada tabel. Frontend hanya
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+Tidak ada endpoint VIP. `GET /api/v1/vip/status` tetap 404 dengan sengaja.
 
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
@@ -20,9 +20,13 @@ Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode
 
 ## Checklist
 
-- [ ] Migrasi: `supabase/migrations/*_vip.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
-- [ ] Frontend: `frontend/src/modules/vip`
-- [ ] README ini diperbarui, status di `MODULES.md` diubah
+- [x] Tidak membuat tabel, migrasi, endpoint, atau alur pembayaran
+- [x] Tombol Coming soon nonaktif dan badge tidak ditampilkan tanpa status VIP
+- [x] Integrasi komponen ke profil dan halaman hasil match
+- [x] README dan status di `MODULES.md` diperbarui
+
+## Keputusan produk yang tertunda
+
+- TODO(decision): Fitur apa saja yang termasuk dalam paket VIP?
+- TODO(decision): Apakah VIP berbayar, berapa harganya, dan bagaimana mekanisme langganannya?
+- TODO(decision): Jika highlight dipilih, berapa lama klip disimpan dan bagaimana persetujuan pemain dikelola?

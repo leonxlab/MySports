@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { AdminRoleApprovalsPage } from "@/modules/role-requests/components/RoleRequestPages";
 
 export default function Page() {
-  return <ModuleStub module="role-requests" title="Persetujuan role (admin)" route="/admin/approvals/roles" />;
+  return <AdminRoleApprovalsPage />;
 }
