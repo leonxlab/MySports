@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { EditProfilePage } from "@/modules/accounts/components/ProfilePages";
 
 export default function Page() {
-  return <ModuleStub module="accounts" title="Ubah profil" route="/profile/edit" />;
+  return <EditProfilePage />;
 }

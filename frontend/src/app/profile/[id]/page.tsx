@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { PublicProfilePage } from "@/modules/accounts/components/ProfilePages";
 
 export default function Page() {
-  return <ModuleStub module="accounts" title="Profil pemain" route="/profile/[id]" />;
+  return <PublicProfilePage />;
 }

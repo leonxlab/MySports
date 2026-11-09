@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { LoginPage } from "@/modules/accounts/components/LoginPage";
 
 export default function Page() {
-  return <ModuleStub module="accounts" title="Daftar" route="/register" />;
+  return <LoginPage mode="signup" />;
 }

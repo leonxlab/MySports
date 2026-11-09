@@ -1,19 +1,46 @@
 import { describe, expect, it } from "vitest";
 import type { AppContext } from "../src/core/context";
+import { galleryItemSchema } from "../src/modules/accounts/schema";
 import { createAccountsService } from "../src/modules/accounts/service";
 
 function createAccountsFixture() {
   const rows: Record<string, Record<string, unknown>[]> = {
     profiles: [],
     user_roles: [],
+    profile_sport_experience: [],
+    profile_gallery: [],
   };
+  const removedFiles: string[] = [];
 
   const supabase = {
     from(table: string) {
       const filters: [string, unknown][] = [];
       let includedIds: unknown[] | null = null;
       let deleting = false;
-      const builder: any = {
+      let inserting: Record<string, unknown> | null = null;
+      let updating: Record<string, unknown> | null = null;
+
+      function selectRows() {
+        return rows[table].filter((row) => {
+          const matchesFilters = filters.every(([column, value]) => row[column] === value);
+          const matchesIds = includedIds === null || includedIds.includes(row.id);
+          return matchesFilters && matchesIds;
+        });
+      }
+
+      function execute() {
+        const selected = selectRows();
+        if (deleting) rows[table] = rows[table].filter((row) => !selected.includes(row));
+        if (inserting) rows[table].push(inserting);
+        if (updating) selected.forEach((row) => Object.assign(row, updating));
+        return selectRows();
+      }
+
+      const builder: Record<string, (...args: never[]) => unknown> & {
+        then: (
+          resolve: (result: { data: Record<string, unknown>[]; error: null }) => unknown,
+        ) => unknown;
+      } = {
         select() {
           return builder;
         },
@@ -27,6 +54,14 @@ function createAccountsFixture() {
           else if (!options?.ignoreDuplicates) Object.assign(existing, values);
           return Promise.resolve({ error: null });
         },
+        insert(values: Record<string, unknown>) {
+          inserting = values;
+          return builder;
+        },
+        update(values: Record<string, unknown>) {
+          updating = values;
+          return builder;
+        },
         delete() {
           deleting = true;
           return builder;
@@ -39,35 +74,45 @@ function createAccountsFixture() {
           includedIds = values;
           return builder;
         },
-        maybeSingle() {
-          return Promise.resolve({ data: selectRows()[0] ?? null, error: null });
+        order() {
+          return builder;
         },
-        then(resolve: (result: { data: Record<string, unknown>[]; error: null }) => unknown) {
-          if (deleting) {
-            const selected = selectRows();
-            rows[table] = rows[table].filter((row) => !selected.includes(row));
-          }
-          return Promise.resolve({ data: selectRows(), error: null }).then(resolve);
+        maybeSingle() {
+          return Promise.resolve({ data: execute()[0] ?? null, error: null });
+        },
+        single() {
+          return Promise.resolve({ data: execute()[0] ?? null, error: null });
+        },
+        then(resolve) {
+          return Promise.resolve({ data: execute(), error: null }).then(resolve);
         },
       };
 
-      function selectRows() {
-        return rows[table].filter((row) => {
-          const matchesFilters = filters.every(([column, value]) => row[column] === value);
-          const matchesIds = includedIds === null || includedIds.includes(row.id);
-          return matchesFilters && matchesIds;
-        });
-      }
-
       return builder;
+    },
+    storage: {
+      from() {
+        return {
+          remove(paths: string[]) {
+            removedFiles.push(...paths);
+            return Promise.resolve({ error: null });
+          },
+          createSignedUploadUrl(path: string) {
+            return Promise.resolve({
+              data: { path, token: "upload-token", signedUrl: "https://storage.example/upload" },
+              error: null,
+            });
+          },
+        };
+      },
     },
   };
 
   const ctx = { supabase } as unknown as AppContext;
-  return { rows, service: createAccountsService(ctx) };
+  return { rows, removedFiles, service: createAccountsService(ctx) };
 }
 
-describe("accounts service foundation", () => {
+describe("accounts service", () => {
   it("bootstrap dipanggil berulang kali tetap membuat satu profil dan satu role user", async () => {
     const { rows, service } = createAccountsFixture();
 
@@ -92,6 +137,42 @@ describe("accounts service foundation", () => {
     expect(profile.roles).toEqual(["user"]);
     expect(profile).not.toHaveProperty("is_admin");
     expect(profile.roles).not.toContain("admin");
+  });
+
+  it("hanya menghapus galeri milik pengguna dan membersihkan file terkait", async () => {
+    const { rows, removedFiles, service } = createAccountsFixture();
+    rows.profile_gallery.push({
+      id: "gallery-1",
+      user_id: "player-1",
+      storage_path: "player-1/gallery/123e4567-e89b-12d3-a456-426614174000.jpg",
+    });
+
+    await service.removeGalleryItem("player-1", "gallery-1");
+
+    expect(rows.profile_gallery).toHaveLength(0);
+    expect(removedFiles).toEqual(["player-1/gallery/123e4567-e89b-12d3-a456-426614174000.jpg"]);
+    await expect(service.removeGalleryItem("other-player", "gallery-1")).rejects.toMatchObject({
+      status: 404,
+      code: "GALLERY_ITEM_NOT_FOUND",
+    });
+  });
+
+  it("menolak path media milik pengguna lain", async () => {
+    const { service } = createAccountsFixture();
+
+    await expect(
+      service.addGalleryItem("player-1", {
+        kind: "photo",
+        storage_path: "other-player/gallery/123e4567-e89b-12d3-a456-426614174000.jpg",
+      }),
+    ).rejects.toMatchObject({ status: 400, code: "INVALID_MEDIA_PATH" });
+  });
+
+  it("mewajibkan teks untuk item kutipan", () => {
+    expect(galleryItemSchema.safeParse({ kind: "quote", quote_text: "   " }).success).toBe(false);
+    expect(
+      galleryItemSchema.safeParse({ kind: "quote", quote_text: "Final pertama saya" }).success,
+    ).toBe(true);
   });
 
   it("role admin tidak dapat diberikan melalui API modul", async () => {
