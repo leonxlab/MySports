@@ -22,7 +22,7 @@ Setiap fitur adalah **modul** dengan nama yang sama di backend, frontend, dan (b
 2. Ikuti [`docs/setup-local.md`](docs/setup-local.md).
 3. Tentukan siapa dev-a sampai dev-d (jalurnya ada di `MODULES.md`), lalu ganti `@dev-a` ... `@dev-d` di `.github/CODEOWNERS` dengan username GitHub.
 4. Nyalakan proteksi branch `main` di GitHub (daftarnya di `rules.md` bagian 4).
-5. Buka `prompts/<orang>/00-kickoff.md` milikmu, lalu kerjakan modul satu per satu dengan prompt-nya (lihat `prompts/README.md`).
+5. Buka `prompts/<nama>/00-kickoff.md` milikmu (`Leon`, `Jonathan`, `Aldo`, atau `Eugene`), lalu kerjakan modul satu per satu dengan prompt-nya (lihat `prompts/README.md`).
 
 Status awal: kerangka saja. Semua endpoint backend menjawab `501 NOT_IMPLEMENTED`, halaman frontend berisi placeholder. Yang sudah jalan: auth guard dan cek role, pencatatan aksi admin ke audit log, rumus XP/Level (dengan test), kontrak event YOLO (dengan test), antrean video di Supabase, dan worker YOLO. Tes dijalankan lokal sebelum membuka PR.
 

@@ -27,11 +27,11 @@ Kamu membantu dev-d di proyek Open Play (monorepo: `backend/`, `frontend/`, `yol
 
 ## Modul jalurmu
 
-- `prompts/dev-d/level.md` (Medium)
-- `prompts/dev-d/badminton.md` (High)
-- `prompts/dev-d/tennis.md` (High)
-- `prompts/dev-d/padel.md` (High)
-- `prompts/dev-d/play-activity.md` (High)
+- `prompts/Eugene/level.md` (Medium)
+- `prompts/Eugene/badminton.md` (High)
+- `prompts/Eugene/tennis.md` (High)
+- `prompts/Eugene/padel.md` (High)
+- `prompts/Eugene/play-activity.md` (High)
 
 Urutan pengerjaan yang disarankan, dan alasannya:
 

@@ -27,12 +27,12 @@ Kamu membantu dev-b di proyek Open Play (monorepo: `backend/`, `frontend/`, `yol
 
 ## Modul jalurmu
 
-- `prompts/dev-b/venues.md` (Medium)
-- `prompts/dev-b/open-play.md` (High)
-- `prompts/dev-b/payments.md` (High)
-- `prompts/dev-b/bracket.md` (High)
-- `prompts/dev-b/match.md` (Medium)
-- `prompts/dev-b/equipment.md` (Medium)
+- `prompts/Jonathan/venues.md` (Medium)
+- `prompts/Jonathan/open-play.md` (High)
+- `prompts/Jonathan/payments.md` (High)
+- `prompts/Jonathan/bracket.md` (High)
+- `prompts/Jonathan/match.md` (Medium)
+- `prompts/Jonathan/equipment.md` (Medium)
 
 Urutan pengerjaan yang disarankan, dan alasannya:
 

@@ -7,10 +7,10 @@ prompts/
   README.md           file ini
   INTEGRATION.md      titik temu antar orang (siapa menyediakan apa untuk siapa)
   _review.md          prompt untuk meninjau diff sebelum atau sesudah PR
-  dev-a/  00-kickoff.md  + satu file per modul
-  dev-b/  ...
-  dev-c/  ...
-  dev-d/  ...
+  Leon/     00-kickoff.md  + satu file per modul (dev-a)
+  Jonathan/ 00-kickoff.md  + satu file per modul (dev-b)
+  Aldo/     00-kickoff.md  + satu file per modul (dev-c)
+  Eugene/   00-kickoff.md  + satu file per modul (dev-d)
 ```
 
 Pembagian jalur dan bobot ada di `MODULES.md`.
@@ -18,11 +18,12 @@ Pembagian jalur dan bobot ada di `MODULES.md`.
 ## Cara pakai
 
 1. Buka Claude Code (atau sesi Claude lain yang bisa membaca repo) di akar repo.
-2. **Sekali di awal:** tempel `prompts/<kamu>/00-kickoff.md`. AI membaca konteks, meringkas jalurmu, menandai hal yang tidak jelas, dan menulis daftar issue ke `docs/work/<kamu>-issues.md`. Ia berhenti setelah itu.
-3. **Per modul:** buka sesi baru, buat branch `feat/<modul>-<hal>`, tempel isi prompt modul (bagian di bawah garis `---`). Satu modul per sesi supaya konteksnya bersih.
-4. Atur effort sesuai kolom "Effort" di header prompt. Bila sesi macet atau hasilnya dangkal untuk modul bertanda Medium, naikkan ke High.
-5. Baca diff-nya sendiri. Jalankan perintah di bagian Pengujian prompt. Baru buka PR.
-6. Minta orang lain (atau sesi AI terpisah dengan `_review.md`) meninjau sebelum merge.
+2. **Sekali di awal:** tempel `prompts/<nama>/00-kickoff.md` sesuai foldermu (`Leon`, `Jonathan`, `Aldo`, atau `Eugene`). AI membaca konteks, meringkas jalurmu, menandai hal yang tidak jelas, dan menulis daftar issue ke `docs/work/<nama>-issues.md`. Ia berhenti setelah itu.
+3. **Sebelum bekerja bersamaan:** pakai clone atau Git worktree terpisah untuk tiap dev; jangan berbagi checkout, branch, atau staging area. Ikuti langkah "Kerja paralel tanpa tabrakan" di `rules.md`.
+4. **Per modul:** buka sesi baru, buat branch unik dari `origin/main` dengan pola `feat/<modul>-<hal>`, tempel isi prompt modul yang ada di folder nama yang sama (bagian di bawah garis `---`). Satu modul per sesi supaya konteksnya bersih.
+5. Atur effort sesuai kolom "Effort" di header prompt. Bila sesi macet atau hasilnya dangkal untuk modul bertanda Medium, naikkan ke High.
+6. Baca diff-nya sendiri. Jalankan perintah di bagian Pengujian prompt. Baru buka PR.
+7. Minta orang lain (atau sesi AI terpisah dengan `_review.md`) meninjau sebelum merge.
 
 ## Effort: kapan Medium, kapan High
 
