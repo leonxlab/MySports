@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { paymentsApi } from "../api";
 import { formatDateTime, rupiah } from "../format";
-import { errorMessage, useAction, useLoad } from "../useLoad";
+import { useAction, useLoad } from "../useLoad";
 import { Card, ErrorNote, Loading } from "./Status";
 
 const ENTRY_LABEL: Record<string, string> = {
@@ -96,4 +96,3 @@ export function WithdrawForm() {
   );
 }
 
-export { errorMessage };

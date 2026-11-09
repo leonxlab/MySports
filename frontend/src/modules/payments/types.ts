@@ -64,3 +64,21 @@ export interface FeeSettings {
   model: FeeModel;
   percent: number;
 }
+
+export interface PaymentStatusView {
+  id: string;
+  status: PaymentStatus | "settled";
+  chargeAmount: number;
+}
+
+/** Contoh hitungan dari server. Frontend tidak menghitung biaya sendiri. */
+export interface FeePreview {
+  charge: {
+    chargeAmount: number;
+    creditAmount: number;
+    platformFee: number;
+    gatewayFee: number;
+    platformNet: number;
+  };
+  withdraw: { fee: number; net: number } | null;
+}

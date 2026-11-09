@@ -1,5 +1,10 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CheckoutStatus, Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="payments" title="Pembayaran" route="/checkout/[id]" />;
+export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Status pembayaran">
+      <CheckoutStatus id={id} />
+    </Page>
+  );
 }
