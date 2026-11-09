@@ -14,6 +14,9 @@ export const bracketApi = {
   /** Koreksi manual susunan pemain [coach] */
   editMatch: (id: string, matchId: string, body: { home: string[]; away: string[] }) =>
     apiClient.request<BracketView>("PATCH", "/bracket/:id/matches/:matchId", { params: { id, matchId }, body }),
+  /** Tukar dua pemain dalam satu ronde [coach] */
+  swap: (id: string, body: { roundId: string; a: string; b: string }) =>
+    apiClient.request<BracketView>("POST", "/bracket/:id/swap", { params: { id }, body }),
   /** Buat ulang bracket [coach] */
   regenerate: (id: string, body: RegenerateBracketBody = {}) =>
     apiClient.request<BracketView>("POST", "/bracket/:id/regenerate", { params: { id }, body }),

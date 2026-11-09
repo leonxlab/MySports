@@ -8,7 +8,7 @@ import { openPlayApi } from "@/modules/open-play";
 import { Card, ErrorNote, Loading, useAction, useLoad } from "@/modules/payments";
 import { bracketApi } from "../api";
 import type { BracketMode, BracketView } from "../types";
-import { BracketBoard, nameOf } from "./BracketBoard";
+import { BracketBoard, nameOf, type Picked } from "./BracketBoard";
 
 export function CoachBracket({ openPlayId }: { openPlayId: string }) {
   const bracket = useLoad(async () => {
@@ -26,7 +26,7 @@ export function CoachBracket({ openPlayId }: { openPlayId: string }) {
   const [courtCount, setCourtCount] = useState(1);
   const [matchMinutes, setMatchMinutes] = useState(15);
   const [breakMinutes, setBreakMinutes] = useState(2);
-  const [editing, setEditing] = useState<string | null>(null);
+  const [picked, setPicked] = useState<Picked | null>(null);
   const [createdMatches, setCreatedMatches] = useState<Record<string, string>>({});
   const { busy, error, run } = useAction();
 
@@ -40,11 +40,23 @@ export function CoachBracket({ openPlayId }: { openPlayId: string }) {
   async function regenerate(current: BracketView) {
     if (!window.confirm("Buat ulang bracket? Susunan sekarang diganti.")) return;
     const r = await run(() => bracketApi.regenerate(current.id, { mode, courtCount, matchMinutes, breakMinutes }));
-    if (r) bracket.setData(r);
+    if (r) {
+      bracket.setData(r);
+      setPicked(null);
+    }
   }
   async function makeMatch(bracketMatchId: string) {
     const m = await run(() => matchApi.create({ bracketMatchId }));
     if (m) setCreatedMatches((prev) => ({ ...prev, [bracketMatchId]: m.id }));
+  }
+
+  // Pilih pemain pertama, lalu pemain kedua di ronde yang sama: server yang menukar dan memeriksa.
+  async function pick(current: BracketView, roundId: string, playerId: string) {
+    if (!picked || picked.roundId !== roundId) return setPicked({ roundId, id: playerId });
+    if (picked.id === playerId) return setPicked(null);
+    const r = await run(() => bracketApi.swap(current.id, { roundId, a: picked.id, b: playerId }));
+    if (r) bracket.setData(r);
+    setPicked(null);
   }
 
   return (
@@ -82,87 +94,29 @@ export function CoachBracket({ openPlayId }: { openPlayId: string }) {
       <ErrorNote message={error} />
 
       {b && (
-        <BracketBoard
-          bracket={b}
-          names={names}
-          renderMatchActions={(matchId) => (
-            <span style={{ marginLeft: 8 }}>
-              <button type="button" onClick={() => setEditing(editing === matchId ? null : matchId)}>
-                Koreksi
-              </button>{" "}
-              {createdMatches[matchId] ? (
+        <>
+          <p role="status">
+            {picked
+              ? `Terpilih: ${nameOf(names, picked.id)}. Pilih pemain lain di ronde yang sama untuk menukar, atau pilih lagi untuk batal.`
+              : "Koreksi manual: pilih satu pemain, lalu pilih pemain lain di ronde yang sama untuk menukar posisinya."}
+          </p>
+          <BracketBoard
+            bracket={b}
+            names={names}
+            picked={picked}
+            onPick={(roundId, id) => void pick(b, roundId, id)}
+            renderMatchActions={(matchId) =>
+              createdMatches[matchId] ? (
                 <Link href={`/coach/match/${createdMatches[matchId]}`}>Buka match</Link>
               ) : (
                 <button type="button" disabled={busy} onClick={() => makeMatch(matchId)}>
                   Buat match
                 </button>
-              )}
-              {editing === matchId && (
-                <MatchEditor
-                  bracket={b}
-                  matchId={matchId}
-                  names={names}
-                  onSaved={(next) => {
-                    bracket.setData(next);
-                    setEditing(null);
-                  }}
-                />
-              )}
-            </span>
-          )}
-        />
+              )
+            }
+          />
+        </>
       )}
     </>
-  );
-}
-
-function MatchEditor({
-  bracket,
-  matchId,
-  names,
-  onSaved,
-}: {
-  bracket: BracketView;
-  matchId: string;
-  names: Map<string, string>;
-  onSaved: (b: BracketView) => void;
-}) {
-  const match = bracket.rounds.flatMap((r) => r.matches).find((m) => m.id === matchId)!;
-  const [home, setHome] = useState(match.home);
-  const [away, setAway] = useState(match.away);
-  const { busy, error, run } = useAction();
-  const everyone = [...names.keys()];
-
-  const toggle = (list: string[], set: (v: string[]) => void, id: string) =>
-    set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
-
-  async function save() {
-    const r = await run(() => bracketApi.editMatch(bracket.id, matchId, { home, away }));
-    if (r) onSaved(r);
-  }
-
-  return (
-    <div style={{ border: "1px dashed #8886", padding: 8, marginTop: 6 }}>
-      {(
-        [
-          ["Sisi 1", home, setHome],
-          ["Sisi 2", away, setAway],
-        ] as const
-      ).map(([label, list, set]) => (
-        <fieldset key={label}>
-          <legend>{label}</legend>
-          {everyone.map((id) => (
-            <label key={id} style={{ marginRight: 8 }}>
-              <input type="checkbox" checked={list.includes(id)} onChange={() => toggle(list, set, id)} /> {nameOf(names, id)}
-            </label>
-          ))}
-        </fieldset>
-      ))}
-      <button type="button" disabled={busy} onClick={save}>
-        Simpan koreksi
-      </button>
-      <ErrorNote message={error} />
-      <small>Server memeriksa susunan (pemain ganda atau tidak sesuai mode ditolak).</small>
-    </div>
   );
 }
