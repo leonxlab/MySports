@@ -25,16 +25,16 @@ Semua yang berhubungan dengan siapa penggunanya, apa yang mereka bagikan, dan si
 
 Prompt pembuka: [`prompts/Leon/00-kickoff.md`](prompts/Leon/00-kickoff.md)
 
-| Modul         | Isi                                                                  | Layer              | Fase | Bobot | Effort AI | Bergantung pada                                   | Prompt                                  | Status      |
-| ------------- | -------------------------------------------------------------------- | ------------------ | ---- | ----- | --------- | ------------------------------------------------- | --------------------------------------- | ----------- |
-| accounts      | Akun dan profil                                                      | backend + frontend | 1    | 2     | Medium    | -                                                 | [prompt](prompts/Leon/accounts.md)      | jalan       |
-| role-requests | Pengajuan Coach dan Owner Lapangan                                   | backend + frontend | 1    | 1     | Medium    | accounts                                          | [prompt](prompts/Leon/role-requests.md) | belum mulai |
-| community     | Community discussion                                                 | backend + frontend | 1    | 2     | Medium    | accounts                                          | [prompt](prompts/Leon/community.md)     | jalan       |
-| feed          | Halaman utama dan personalisasi                                      | backend + frontend | 1    | 2     | Medium    | accounts, open-play, community                    | [prompt](prompts/Leon/feed.md)          | jalan       |
-| admin         | Dasbor admin dan audit log                                           | backend + frontend | 1    | 1     | Medium    | role-requests, venues, payments, community, level | [prompt](prompts/Leon/admin.md)         | jalan       |
-| vip           | VIP (coming soon)                                                    | backend + frontend | 4    | 1     | Medium    | -                                                 | [prompt](prompts/Leon/vip.md)           | belum mulai |
-| jobs          | Worker: ambil segmen dari antrean, proses, kirim event, hapus segmen | yolo-service       | 3    | 2     | Medium    | -                                                 | [prompt](prompts/Leon/jobs.md)          | belum mulai |
-| anti_cheat    | Deteksi rekaman diputar ulang dan pola gerak identik                 | yolo-service       | 3    | 2     | High      | -                                                 | [prompt](prompts/Leon/anti-cheat.md)    | belum mulai |
+| Modul | Isi | Layer | Fase | Bobot | Effort AI | Bergantung pada | Prompt | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/Leon/accounts.md) | selesai |
+| role-requests | Pengajuan Coach dan Owner Lapangan | backend + frontend | 1 | 1 | Medium | accounts | [prompt](prompts/Leon/role-requests.md) | selesai |
+| community | Community discussion | backend + frontend | 1 | 2 | Medium | accounts | [prompt](prompts/Leon/community.md) | jalan |
+| feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/Leon/feed.md) | jalan |
+| admin | Dasbor admin dan audit log | backend + frontend | 1 | 1 | Medium | role-requests, venues, payments, community, level | [prompt](prompts/Leon/admin.md) | belum mulai |
+| vip | VIP (coming soon) | backend + frontend | 4 | 1 | Medium | - | [prompt](prompts/Leon/vip.md) | belum mulai |
+| jobs | Worker: ambil segmen dari antrean, proses, kirim event, hapus segmen | yolo-service | 3 | 2 | Medium | - | [prompt](prompts/Leon/jobs.md) | belum mulai |
+| anti_cheat | Deteksi rekaman diputar ulang dan pola gerak identik | yolo-service | 3 | 2 | High | - | [prompt](prompts/Leon/anti-cheat.md) | belum mulai |
 
 ### Jonathan (dev-b): Open play end-to-end (bobot 13)
 
@@ -42,14 +42,14 @@ Jalur Coach dan uang: dari lapangan, open play, pembayaran, sampai bracket dan j
 
 Prompt pembuka: [`prompts/Jonathan/00-kickoff.md`](prompts/Jonathan/00-kickoff.md)
 
-| Modul     | Isi                            | Layer              | Fase | Bobot | Effort AI | Bergantung pada            | Prompt                                  | Status      |
-| --------- | ------------------------------ | ------------------ | ---- | ----- | --------- | -------------------------- | --------------------------------------- | ----------- |
-| venues    | Lapangan                       | backend + frontend | 1    | 2     | Medium    | accounts, role-requests    | [prompt](prompts/Jonathan/venues.md)    | belum mulai |
-| open-play | Open play dan slot             | backend + frontend | 1    | 2     | High      | accounts, venues, payments | [prompt](prompts/Jonathan/open-play.md) | belum mulai |
-| payments  | Booking dan pembayaran         | backend + frontend | 1    | 3     | High      | accounts                   | [prompt](prompts/Jonathan/payments.md)  | belum mulai |
-| bracket   | Bracket otomatis               | backend + frontend | 2    | 3     | High      | open-play                  | [prompt](prompts/Jonathan/bracket.md)   | belum mulai |
-| match     | Setting match dan control menu | backend + frontend | 2    | 2     | Medium    | bracket                    | [prompt](prompts/Jonathan/match.md)     | belum mulai |
-| equipment | Sewa alat                      | backend + frontend | 4    | 1     | Medium    | accounts, payments         | [prompt](prompts/Jonathan/equipment.md) | belum mulai |
+| Modul | Isi | Layer | Fase | Bobot | Effort AI | Bergantung pada | Prompt | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| venues | Lapangan | backend + frontend | 1 | 2 | Medium | accounts, role-requests | [prompt](prompts/Jonathan/venues.md) | sedang dikerjakan (branch belum merge) |
+| open-play | Open play dan slot | backend + frontend | 1 | 2 | High | accounts, venues, payments | [prompt](prompts/Jonathan/open-play.md) | sedang dikerjakan (branch belum merge) |
+| payments | Booking dan pembayaran | backend + frontend | 1 | 3 | High | accounts | [prompt](prompts/Jonathan/payments.md) | sedang dikerjakan (branch belum merge) |
+| bracket | Bracket otomatis | backend + frontend | 2 | 3 | High | open-play | [prompt](prompts/Jonathan/bracket.md) | sedang dikerjakan (branch belum merge) |
+| match | Setting match dan control menu | backend + frontend | 2 | 2 | Medium | bracket | [prompt](prompts/Jonathan/match.md) | sedang dikerjakan (branch belum merge) |
+| equipment | Sewa alat | backend + frontend | 4 | 1 | Medium | accounts, payments | [prompt](prompts/Jonathan/equipment.md) | belum mulai |
 
 ### Aldo (dev-c): Skor, device, dan AI olahraga tim (bobot 13)
 

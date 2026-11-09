@@ -1,5 +1,9 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { MyBookings, Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="payments" title="Booking saya" route="/bookings" />;
+export default function BookingsPage() {
+  return (
+    <Page title="Booking saya">
+      <MyBookings />
+    </Page>
+  );
 }

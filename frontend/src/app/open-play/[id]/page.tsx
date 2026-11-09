@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { OpenPlayDetail } from "@/modules/open-play";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="open-play" title="Detail open play" route="/open-play/[id]" />;
+export default async function OpenPlayDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Detail open play">
+      <OpenPlayDetail id={id} />
+    </Page>
+  );
 }
