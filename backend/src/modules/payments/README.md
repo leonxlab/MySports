@@ -20,7 +20,7 @@ Semua uang masuk ke aplikasi lewat payment gateway, diteruskan ke Coach/Owner di
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+Berjalan: checkout (open play), webhook, wallet, withdraw, fee-settings. Masih `501`: `POST /bookings` dan `GET /bookings/mine` (menunggu modul venues di-merge, `TODO(integration)`), serta checkout untuk `court_booking` dan `equipment_rental`. Withdraw baru mencatat permintaan (`requested`), tanpa payout ke rekening (`TODO(decision)`).
 
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
@@ -37,10 +37,11 @@ Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode
 
 ## Checklist
 
-- [ ] Migrasi: `supabase/migrations/*_payments.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
+- [x] Migrasi: `20261109000200_payments_atomic.sql` (`payments_settle`, `wallet_withdraw`). Belum dijalankan dengan `supabase db reset` (Docker tidak ada di sesi ini)
+- [x] `schema.ts` untuk input
 - [x] Kerangka: `fees.ts`, `state.ts`, `gateway.ts` (FakeGateway), `createPaymentsApi` dengan `onPaid`, semuanya dengan test
-- [ ] `service.ts` penuh (checkout, webhook, settle, wallet, withdraw) dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
+- [x] `service.ts` (checkout, webhook, settle, wallet, withdraw, fee settings) dan test dengan Supabase tiruan di memori
+- [ ] Booking lapangan (butuh venues)
+- [ ] `routes.ts`: tersisa `todo` untuk `/bookings` dan `/bookings/mine`
 - [ ] Frontend: `frontend/src/modules/payments`
 - [ ] README ini diperbarui, status di `MODULES.md` diubah
