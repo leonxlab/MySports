@@ -24,7 +24,7 @@ Semua endpoint backend sudah berjalan. Frontend belum. Ubah tabel ini bersamaan 
 
 ## Catatan desain
 
-- Peserta dibaca read-only dari `open_play_participants` berstatus `confirmed`. `TODO(integration)`: ganti dengan `createOpenPlayApi(ctx).listConfirmedParticipants` setelah modul open-play siap.
+- Peserta dibaca lewat `createOpenPlayApi(ctx).listConfirmedParticipants` (peserta berstatus `confirmed`).
 - Hasil deterministik per `seed` (versi bracket). Basket/futsal memakai tim tetap bila tim lebih banyak daripada yang bisa main sekaligus; selain itu tim dibentuk ulang tiap ronde.
 - `TODO(decision)`: ukuran tim bawaan 5 bila Coach tidak mengatur; sisa pemain yang tidak habis dibagi tim bergantian istirahat.
 - Regenerate dan koreksi ditolak (409) bila match dari bracket itu sudah berjalan.
