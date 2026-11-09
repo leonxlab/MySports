@@ -52,9 +52,12 @@ Penyedia dan jadwal nyala-matinya belum diputuskan (pertanyaan terbuka #3). Lang
 4. `cd yolo-service && cp .env.example .env`, isi `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BACKEND_URL` (URL Heroku), `YOLO_SERVICE_KEY`.
 5. `docker compose up -d --build`.
 6. Unduh bobot: `docker compose exec worker python -m scripts.download_models <file>.pt`.
-7. Cek `curl localhost:8000/gpu` dan lihat log worker.
+7. Cek `curl localhost:8000/gpu`, `curl localhost:8001/metrics`, dan lihat log worker.
 
 Biaya GPU berjalan selama mesin menyala. Matikan mesin bila tidak ada match.
+
+Worker mengekspos metrik antrean di port 8001. Docker Compose merestart layanan yang gagal,
+memeriksa healthcheck API/worker, dan membatasi log container ke tiga file berukuran 10 MB.
 
 ## Rilis YOLO
 

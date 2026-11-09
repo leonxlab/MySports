@@ -33,7 +33,7 @@ Prompt pembuka: [`prompts/Leon/00-kickoff.md`](prompts/Leon/00-kickoff.md)
 | feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/Leon/feed.md) | jalan |
 | admin | Dasbor admin dan audit log | backend + frontend | 1 | 1 | Medium | role-requests, venues, payments, community, level | [prompt](prompts/Leon/admin.md) | belum mulai |
 | vip | VIP (coming soon) | backend + frontend | 4 | 1 | Medium | - | [prompt](prompts/Leon/vip.md) | belum mulai |
-| jobs | Worker: ambil segmen dari antrean, proses, kirim event, hapus segmen | yolo-service | 3 | 2 | Medium | - | [prompt](prompts/Leon/jobs.md) | belum mulai |
+| jobs | Worker: ambil segmen dari antrean, proses, kirim event, hapus segmen | yolo-service | 3 | 2 | Medium | - | [prompt](prompts/Leon/jobs.md) | jalan |
 | anti_cheat | Deteksi rekaman diputar ulang dan pola gerak identik | yolo-service | 3 | 2 | High | - | [prompt](prompts/Leon/anti-cheat.md) | belum mulai |
 
 ### Jonathan (dev-b): Open play end-to-end (bobot 13)
