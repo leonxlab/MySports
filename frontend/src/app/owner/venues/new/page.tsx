@@ -1,5 +1,10 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page } from "@/modules/payments";
+import { OwnerVenueForm } from "@/modules/venues";
 
-export default function Page() {
-  return <ModuleStub module="venues" title="Daftarkan lapangan" route="/owner/venues/new" />;
+export default function NewVenuePage() {
+  return (
+    <Page title="Daftarkan lapangan">
+      <OwnerVenueForm />
+    </Page>
+  );
 }

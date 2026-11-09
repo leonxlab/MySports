@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   Card,
@@ -67,7 +68,8 @@ function CourtSchedule({ court }: { court: CourtView }) {
       {checkout && (
         <p role="status">
           Booking dibuat. Total {rupiah(checkout.chargeAmount)}.{" "}
-          {checkout.redirectUrl ? <a href={checkout.redirectUrl}>Bayar sekarang</a> : "Menunggu instruksi pembayaran."}
+          {checkout.redirectUrl ? <a href={checkout.redirectUrl}>Bayar sekarang</a> : "Menunggu instruksi pembayaran."}{" "}
+          <Link href={`/checkout/${checkout.paymentId}`}>Lihat status</Link>
         </p>
       )}
       {free.length === 0 && <p>Tidak ada jam kosong.</p>}
