@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { correctMatchSchema, generateBracketSchema, regenerateBracketSchema } from "./schema";
+import { correctMatchSchema, generateBracketSchema, regenerateBracketSchema, swapSchema } from "./schema";
 import { createBracketService } from "./service";
 
 export async function routes(app: FastifyInstance) {
@@ -38,5 +38,11 @@ export async function routes(app: FastifyInstance) {
     { preHandler: app.requireRole("coach") },
     (request) =>
       bracket.regenerate(request.user!, request.params.id, regenerateBracketSchema.parse(request.body ?? {})),
+  );
+  // POST /api/v1/bracket/:id/swap: Tukar dua pemain dalam satu ronde [coach]
+  app.post<{ Params: { id: string } }>(
+    "/:id/swap",
+    { preHandler: app.requireRole("coach") },
+    (request) => bracket.swap(request.user!, request.params.id, swapSchema.parse(request.body)),
   );
 }

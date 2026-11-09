@@ -21,6 +21,7 @@ Semua endpoint backend sudah berjalan. Frontend belum. Ubah tabel ini bersamaan 
 | GET | `/:id` | Detail bracket | login |
 | PATCH | `/:id/matches/:matchId` | Koreksi manual susunan pemain | coach |
 | POST | `/:id/regenerate` | Buat ulang bracket | coach |
+| POST | `/:id/swap` | Tukar dua pemain dalam satu ronde (pilih-lalu-tukar) | coach |
 
 ## Catatan desain
 

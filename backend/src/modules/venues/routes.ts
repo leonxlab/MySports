@@ -17,6 +17,8 @@ export async function routes(app: FastifyInstance) {
   app.get("/", (request) => venues.search(searchVenuesSchema.parse(request.query)));
   // GET /api/v1/venues/pending: Lapangan menunggu persetujuan [admin]
   app.get("/pending", { preHandler: app.requireRole("admin") }, () => venues.listPending());
+  // GET /api/v1/venues/mine: Lapangan milik Owner, semua status [owner lapangan]
+  app.get("/mine", { preHandler: app.requireRole("owner") }, (request) => venues.listMine(request.user!));
   // GET /api/v1/venues/:id: Detail lapangan [publik]
   app.get<{ Params: { id: string } }>("/:id", (request) => venues.getVenue(request.params.id));
   // POST /api/v1/venues: Daftarkan lapangan baru [owner lapangan]

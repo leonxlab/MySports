@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { AppError } from "../../core/errors";
-import { bookingSchema, checkoutSchema, entriesQuerySchema, feeSettingsSchema, withdrawSchema } from "./schema";
+import { bookingSchema, checkoutSchema, entriesQuerySchema, feePreviewSchema, feeSettingsSchema, withdrawSchema } from "./schema";
 import { createPaymentsService } from "./service";
 
 export async function routes(app: FastifyInstance) {
@@ -60,5 +60,14 @@ export async function routes(app: FastifyInstance) {
   // PUT /api/v1/payments/fee-settings: Ubah model (potongan saat withdraw / fee ke pembayar) dan persen [admin]
   app.put("/fee-settings", { preHandler: app.requireRole("admin") }, (request) =>
     payments.updateFeeSettings(request.user!.id, feeSettingsSchema.parse(request.body)),
+  );
+  // GET /api/v1/payments/fee-preview: Contoh hitungan biaya sebelum disimpan [admin]
+  app.get("/fee-preview", { preHandler: app.requireRole("admin") }, (request) => {
+    const q = feePreviewSchema.parse(request.query);
+    return payments.previewFees(q.model, q.percent, q.amount);
+  });
+  // GET /api/v1/payments/:id: Status satu pembayaran milik sendiri [login]
+  app.get<{ Params: { id: string } }>("/:id", { preHandler: app.requireRole() }, (request) =>
+    payments.getPayment(request.user!.id, request.params.id),
   );
 }

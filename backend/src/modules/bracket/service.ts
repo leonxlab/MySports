@@ -3,8 +3,8 @@ import { AppError, forbidden, notFound } from "../../core/errors";
 import type { AuthUser } from "../../core/roles";
 import { createOpenPlayApi } from "../open-play";
 import { generateBracket, BracketError, type Mode, type Sport } from "./algorithm";
-import { validateCorrection } from "./correction";
-import type { CorrectMatchInput, GenerateBracketInput, RegenerateBracketInput } from "./schema";
+import { SwapError, swapPlayers, validateCorrection } from "./correction";
+import type { CorrectMatchInput, SwapInput, GenerateBracketInput, RegenerateBracketInput } from "./schema";
 
 export interface BracketMatchView {
   id: string;
@@ -340,6 +340,58 @@ export function createBracketService(ctx: AppContext) {
           .from("bracket_resting")
           .insert(resting.map((user_id) => ({ round_id: round.id, user_id })));
         if (insErr) throw insErr;
+      }
+      return getBracket(bracketId);
+    },
+
+    /** Tukar dua pemain dalam satu ronde (alur pilih-lalu-tukar di UI). */
+    async swap(user: AuthUser, bracketId: string, input: SwapInput): Promise<BracketView> {
+      const bracket = await getBracket(bracketId);
+      await assertCoachOf(bracket.openPlayId, user);
+      const round = bracket.rounds.find((r) => r.id === input.roundId);
+      if (!round) throw notFound("BRACKET_ROUND_NOT_FOUND", "Ronde tidak ada di bracket ini");
+
+      let next;
+      try {
+        next = swapPlayers(round, input.a, input.b);
+      } catch (e) {
+        if (e instanceof SwapError) throw new AppError(422, `BRACKET_${e.code}`, e.message);
+        throw e;
+      }
+
+      // hanya match yang isinya berubah yang diperiksa dan ditulis
+      const changed = next.matches.filter((m) => {
+        const old = round.matches.find((x) => x.id === m.id)!;
+        return old.home.join() !== m.home.join() || old.away.join() !== m.away.join();
+      });
+      if (changed.length > 0) {
+        const { data: started, error } = await db
+          .from("matches")
+          .select("id")
+          .in("bracket_match_id", changed.map((m) => m.id))
+          .neq("status", "scheduled")
+          .limit(1);
+        if (error) throw error;
+        if ((started ?? []).length > 0) {
+          throw new AppError(409, "MATCH_STARTED", "Match sudah berjalan, susunan tidak bisa diubah");
+        }
+      }
+      for (const m of changed) {
+        const { error } = await db
+          .from("bracket_matches")
+          .update({ home_players: m.home, away_players: m.away })
+          .eq("id", m.id);
+        if (error) throw error;
+      }
+      if (next.resting.join() !== round.resting.join()) {
+        const { error: delErr } = await db.from("bracket_resting").delete().eq("round_id", round.id);
+        if (delErr) throw delErr;
+        if (next.resting.length > 0) {
+          const { error: insErr } = await db
+            .from("bracket_resting")
+            .insert(next.resting.map((user_id) => ({ round_id: round.id, user_id })));
+          if (insErr) throw insErr;
+        }
       }
       return getBracket(bracketId);
     },

@@ -36,6 +36,7 @@ Semua endpoint backend sudah berjalan. Frontend belum. Ubah tabel ini bersamaan 
 | PUT | `/courts/:courtId/price` | Atur harga sewa | owner lapangan |
 | POST | `/:id/approve` | Setujui lapangan | admin |
 | POST | `/:id/reject` | Tolak lapangan | admin |
+| GET | `/mine` | Lapangan milik Owner, semua status | owner lapangan |
 
 ## Checklist
 

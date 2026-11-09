@@ -24,3 +24,10 @@ export const correctMatchSchema = z.object({
   away: z.array(z.string().uuid()).min(1),
 });
 export type CorrectMatchInput = z.infer<typeof correctMatchSchema>;
+
+export const swapSchema = z.object({
+  roundId: z.string().uuid(),
+  a: z.string().uuid(),
+  b: z.string().uuid(),
+});
+export type SwapInput = z.infer<typeof swapSchema>;

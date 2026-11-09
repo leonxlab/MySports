@@ -291,3 +291,26 @@ describe("fee settings", () => {
     expect(fake.tables.fee_settings![0]).toMatchObject({ updated_by: "admin1" });
   });
 });
+
+describe("previewFees dan getPayment", () => {
+  it("contoh hitungan payer_fee memakai pembulatan server", () => {
+    const { service } = setup();
+    const r = service.previewFees("payer_fee", 5, 100_000);
+    expect(r.charge).toMatchObject({ chargeAmount: 105_000, creditAmount: 100_000, platformFee: 5_000 });
+    expect(r.withdraw).toBeNull();
+  });
+
+  it("contoh hitungan withdraw_percent menyertakan potongan tarik", () => {
+    const { service } = setup();
+    const r = service.previewFees("withdraw_percent", 10, 100_000);
+    expect(r.charge.chargeAmount).toBe(100_000);
+    expect(r.withdraw).toEqual({ fee: 10_000, net: 90_000 });
+  });
+
+  it("getPayment hanya untuk pembayarnya", async () => {
+    const { service, fake } = setup();
+    fake.tables.payments!.push({ id: "px", payer_id: "player", payee_id: "coach", target_type: "open_play", target_id: "op1", amount: 100_000, fee_amount: 5_000, fee_model: "payer_fee", status: "pending" });
+    expect(await service.getPayment("player", "px")).toMatchObject({ id: "px", status: "pending", chargeAmount: 105_000 });
+    await expect(service.getPayment("lain", "px")).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});

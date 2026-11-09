@@ -34,6 +34,8 @@ Berjalan: checkout (open play dan sewa lapangan), booking, webhook, wallet, with
 | GET | `/withdrawals` | Riwayat penarikan | login |
 | GET | `/fee-settings` | Model dan persen biaya layanan | admin |
 | PUT | `/fee-settings` | Ubah model (potongan saat withdraw / fee ke pembayar) dan persen | admin |
+| GET | `/fee-preview` | Contoh hitungan biaya sebelum disimpan (query: model, percent, amount) | admin |
+| GET | `/:id` | Status satu pembayaran milik sendiri | login |
 
 ## Checklist
 
