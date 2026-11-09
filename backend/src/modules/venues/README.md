@@ -13,10 +13,10 @@ Owner Lapangan mendaftarkan lapangan, mengatur ketersediaan dan harga. Admin men
 ## Keputusan desain
 
 - **Satu sumber ketersediaan:** `court_slots` milik modul ini. Modul lain (payments, open-play) tidak menentukan ketersediaan dari tabelnya sendiri.
-- Slot berubah `free` -> `booked` hanya lewat `markSlotBooked(slotIds)`, dipanggil payments setelah pembayaran `paid`. UPDATE bersyarat sehingga atomik: semua slot atau tidak sama sekali, yang sudah terisi ditolak 409 `SLOT_TAKEN`. `releaseSlot` mengembalikannya.
+- Slot berubah `free` -> `booked` hanya lewat `markSlotBooked(slotIds)`, dipanggil payments saat booking dibuat (slot ditahan; dilepas lagi bila pembayaran gagal) supaya dua orang tidak membayar jam yang sama. UPDATE bersyarat sehingga atomik: semua slot atau tidak sama sekali, yang sudah terisi ditolak 409 `SLOT_TAKEN`. `releaseSlot` mengembalikannya.
 - Slot tidak boleh tumpang tindih (exclusion constraint). Slot `booked` tidak bisa diubah owner.
 - Publik hanya melihat lapangan `approved`.
-- Fungsi lintas modul: `getCourt`, `findFreeSlots`, `markSlotBooked`, `releaseSlot`, `countPending`.
+- Fungsi lintas modul: `getCourt`, `findFreeSlots`, `markSlotBooked`, `releaseSlot`, `releaseRange`, `countPending`.
 - Coach wajib membayar sewa lapangan (booking `confirmed`) sebelum membuat open play di court itu.
 
 ## Endpoint
