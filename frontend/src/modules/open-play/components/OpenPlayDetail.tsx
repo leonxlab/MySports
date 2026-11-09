@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   Card,
@@ -70,7 +71,8 @@ export function OpenPlayDetail({ id }: { id: string }) {
             <a href={joined.checkout.redirectUrl}>Bayar sekarang</a>
           ) : (
             "Menunggu instruksi pembayaran."
-          )}
+          )}{" "}
+          <Link href={`/checkout/${joined.checkout.paymentId}`}>Lihat status</Link>
         </p>
       )}
       {left && <p role="status">Kamu sudah membatalkan.</p>}
