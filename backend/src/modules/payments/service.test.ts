@@ -138,7 +138,7 @@ describe("createCheckout", () => {
   it("target yang belum didukung menjawab 501, bukan menagih sembarang jumlah", async () => {
     const { service } = setup();
     await expect(
-      service.createCheckout({ payerId: "player", targetType: "court_booking", targetId: "x" }),
+      service.createCheckout({ payerId: "player", targetType: "equipment_rental", targetId: "x" }),
     ).rejects.toMatchObject({ status: 501 });
   });
 });
