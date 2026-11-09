@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CommunityListPage } from "@/modules/community/components/CommunityPages";
 
 export default function Page() {
-  return <ModuleStub module="community" title="Komunitas" route="/community" />;
+  return <CommunityListPage />;
 }

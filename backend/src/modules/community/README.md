@@ -1,35 +1,47 @@
 # Modul community: Community discussion
 
-Thread per cabang olahraga: bagikan pencapaian, skor, pengalaman, video, foto. Ada laporan konten dan moderasi.
+Thread diskusi per cabang olahraga, balasan, media, laporan pengguna, dan moderasi.
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (Identitas, komunitas, dan admin) |
+| Pemilik | Leon (dev-a) |
 | Fase | 1 |
 | Prefix API | `/api/v1/community` |
-| Bergantung pada | accounts |
+| Bergantung pada | accounts, feed (integrasi klasifikasi/sinyal menunggu API feed) |
 | Tabel | `threads`, `thread_posts`, `content_reports` |
+| Bucket | `media` (privat; upload signed URL, maksimal 50 MB per file) |
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
-
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
-| GET | `/threads` | Daftar thread (filter cabang) | publik |
-| POST | `/threads` | Buat thread | login |
-| GET | `/threads/:id` | Detail thread dan balasan | publik |
+| GET | `/threads` | Daftar thread dengan filter `sport`, `limit`, dan `cursor` | publik |
+| POST | `/threads` | Buat thread; media hanya boleh memakai path signed upload milik pengguna | login |
+| GET | `/threads/:id` | Detail thread dan sampai 100 balasan terbaru secara kronologis | publik |
 | POST | `/threads/:id/posts` | Balas thread | login |
-| POST | `/media/sign` | Signed URL upload foto atau video | login |
-| POST | `/reports` | Laporkan konten | login |
-| GET | `/reports` | Antrean laporan | admin |
-| POST | `/reports/:id/resolve` | Tindak laporan | admin |
+| POST | `/media/sign` | Minta signed upload URL; `file_name`, `content_type`, dan `file_size` divalidasi | login |
+| POST | `/reports` | Laporkan thread atau balasan (maksimal 10 laporan/jam) | login |
+| GET | `/reports` | Antrean laporan berpaginasi; filter status | admin |
+| POST | `/reports/:id/resolve` | Selesaikan/tolak laporan dan opsional sembunyikan target | admin |
 
-## Checklist
+Pembuatan thread dibatasi 5 per pengguna per jam dan laporan dibatasi 10 per pengguna per jam. **TODO(decision):** konfirmasi nilai batas awal tersebut dengan tim produk. Database membatasi satu laporan per pengguna/target. Isi thread dan balasan dibatasi 5.000 karakter; judul 120 karakter; setiap konten maksimal 10 media. Signed URL berlaku mengikuti konfigurasi Supabase Storage. Bucket `media` sudah dibatasi 50 MB pada migrasi fondasi.
 
-- [ ] Migrasi: `supabase/migrations/*_community.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
-- [ ] Frontend: `frontend/src/modules/community`
-- [ ] README ini diperbarui, status di `MODULES.md` diubah
+## Integrasi
+
+- Ringkasan penulis diambil melalui `createAccountsApi(ctx).getProfileSummaries`.
+- Mengekspos `countOpenReports()` dan `listRecentThreads({ sport?, limit? })` melalui `createCommunityApi(ctx)`.
+- **TODO(integration):** panggil `createFeedApi(ctx).classifyContent` untuk thread baru serta `recordSignal` untuk pembuatan, balasan, dan pembacaan thread setelah API feed tersedia. Saat ini service feed masih kerangka.
+- Lokasi tidak diminta saat membuat thread; klasifikasi lokasi belum tersedia karena skema thread tidak memiliki lokasi.
+
+## Migrasi dan validasi
+
+Migrasi awal membuat RLS aktif. Migrasi `20261109141500_community_moderation_indexes.sql` menambah kolom `hidden`, batas panjang, index paginasi, dan unique index laporan. Konten tersembunyi tidak disertakan dalam daftar publik maupun balasan.
+
+## Status
+
+- [x] Skema input dan validasi media
+- [x] Service, route, rate limit, paginasi, laporan dan moderasi
+- [x] Test service dan akses endpoint publik
+- [x] Halaman komunitas, thread, pembuatan thread, antrean laporan admin
+- [x] README dan status modul
+- [ ] Integrasi klasifikasi/sinyal feed (menunggu API feed)
