@@ -4,7 +4,7 @@ Membagi pemain yang sudah bayar ke lapangan dan ronde. Selisih jumlah main antar
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (match dan AI) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 2 |
 | Prefix API | `/api/v1/bracket` |
 | Bergantung pada | open-play |

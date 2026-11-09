@@ -12,6 +12,7 @@ Aplikasi untuk join MySports, menghitung skor otomatis dengan kamera AI (YOLO), 
 | [`supabase/`](supabase) | Migrasi SQL, seed | Supabase |
 | [`contracts/`](contracts) | Kontrak event YOLO → backend | - |
 | [`docs/`](docs) | Proposal, arsitektur, setup, deploy | - |
+| [`prompts/`](prompts) | Prompt AI per modul dan per orang | - |
 
 Setiap fitur adalah **modul** dengan nama yang sama di backend, frontend, dan (bila perlu) yolo-service. Daftar modul, pemilik, dan status ada di [`MODULES.md`](MODULES.md).
 
@@ -19,9 +20,9 @@ Setiap fitur adalah **modul** dengan nama yang sama di backend, frontend, dan (b
 
 1. Baca [`rules.md`](rules.md). Isinya aturan git, kepemilikan modul, dan batas antar folder.
 2. Ikuti [`docs/setup-local.md`](docs/setup-local.md).
-3. Ganti `@dev-a` dan `@dev-b` di `.github/CODEOWNERS` dan kolom pemilik di `MODULES.md` dengan username kalian.
+3. Tentukan siapa dev-a sampai dev-d (jalurnya ada di `MODULES.md`), lalu ganti `@dev-a` ... `@dev-d` di `.github/CODEOWNERS` dengan username GitHub.
 4. Nyalakan proteksi branch `main` di GitHub (daftarnya di `rules.md` bagian 4).
-5. Ambil modul dari `MODULES.md`, buat issue, mulai.
+5. Buka `prompts/<orang>/00-kickoff.md` milikmu, lalu kerjakan modul satu per satu dengan prompt-nya (lihat `prompts/README.md`).
 
 Status awal: kerangka saja. Semua endpoint backend menjawab `501 NOT_IMPLEMENTED`, halaman frontend berisi placeholder. Yang sudah jalan: auth guard dan cek role, pencatatan aksi admin ke audit log, rumus XP/Level (dengan test), kontrak event YOLO (dengan test), antrean video di Supabase, worker YOLO, dan CI.
 

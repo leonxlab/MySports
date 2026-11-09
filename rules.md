@@ -1,6 +1,6 @@
 # rules.md
 
-Aturan kerja untuk semua yang commit ke repo ini. Kalau ada yang bentrok dengan kebiasaan pribadi, ikut file ini. Mau mengubah aturan? Buka PR ke `rules.md` dan setujui berdua.
+Aturan kerja untuk semua yang commit ke repo ini. Kalau ada yang bentrok dengan kebiasaan pribadi, ikut file ini. Mau mengubah aturan? Buka PR ke `rules.md` dan minta persetujuan semua (empat) pemilik jalur.
 
 Sumber kebutuhan produk ada di `docs/proposal.md`. Pembagian modul dan status ada di `MODULES.md`.
 
@@ -16,6 +16,7 @@ Sumber kebutuhan produk ada di `docs/proposal.md`. Pembagian modul dan status ad
 
 ```
 openplay-app/
+├── prompts/          Prompt AI per orang dan per modul
 ├── backend/          API (Fastify + TypeScript) → Heroku
 ├── frontend/         Web (Next.js + TypeScript) → Vercel
 ├── yolo-service/     Deteksi (Python + FastAPI + YOLO) → GPU hosting sewa
@@ -59,10 +60,10 @@ supabase/migrations/<timestamp>_<modul>.sql
 Aturan kepemilikan:
 
 - Pemilik modul tercatat di `MODULES.md` dan `.github/CODEOWNERS`. Hanya pemilik yang mengubah isi modulnya.
-- Butuh perubahan di modul teman? Tulis di issue, atau kerjakan sendiri lewat PR dan minta teman me-review. Jangan langsung merge.
-- Modul tidak boleh mengimpor `service.ts` modul lain secara langsung. Kalau perlu data modul lain, panggil fungsi yang diekspor lewat `index.ts` modul itu, atau baca tabelnya lewat query read-only. Ketergantungan harus tertulis di README modul (bagian "Bergantung pada").
+- Butuh perubahan di modul orang lain? Tulis di issue, atau kerjakan sendiri lewat PR dan minta pemilik modul itu me-review. Jangan langsung merge.
+- Modul tidak boleh mengimpor `service.ts` modul lain secara langsung. Kalau perlu data modul lain, panggil `create<Modul>Api(ctx)` yang diekspor `index.ts` modul itu (contoh: `createAccountsApi(app.ctx)`), atau baca tabelnya lewat query read-only. Ketergantungan harus tertulis di README modul (bagian "Bergantung pada") dan di `prompts/INTEGRATION.md`.
 - Halaman admin tinggal di modul yang memilikinya (misal persetujuan Coach di `role-requests`, pengaturan biaya di `payments`). Modul `admin` hanya dasbor dan audit log.
-- Kode inti (`backend/src/core`, `frontend/src/lib`, `yolo-service/app/core`), `contracts/`, dan `supabase/migrations` milik berdua. Perubahan di sana butuh persetujuan keduanya.
+- Kode inti (`backend/src/core`, `frontend/src/lib`, `yolo-service/app/core`), `contracts/`, dan `supabase/migrations` milik bersama. Perubahan di sana butuh persetujuan pemilik tiap sisi yang terdampak (backend, frontend, yolo-service), minimal dua orang. Beri waktu review 24 jam sebelum menganggap setuju diam-diam.
 - Pemilik modul bisa dipindah. Ubah `MODULES.md` dan `CODEOWNERS` dalam satu PR kecil.
 
 ## 4. Alur git
@@ -77,7 +78,7 @@ Aturan kepemilikan:
 
 Pengaturan yang perlu dinyalakan di GitHub (Settings → Branches → `main`):
 
-- Require a pull request, 1 approval
+- Require a pull request, 1 approval, dan nyalakan **Require review from Code Owners**
 - Require status checks: `backend`, `frontend`, `yolo` (CI lewat path filter, job yang tidak relevan dilewati)
 - Block force pushes
 - Hanya izinkan **squash merge**
@@ -155,14 +156,14 @@ Kalau rebase menghasilkan konflik di file yang bukan milikmu, jangan pilih salah
 - Fitur VIP hanya badge dan tombol nonaktif berlabel "Coming soon". Jangan tambah endpoint atau alur bayar VIP sebelum isi paketnya diputuskan (lihat proposal bagian VIP).
 
 **Kontrak lintas layanan**
-- Event dari YOLO ke backend didefinisikan di `contracts/detection-event.schema.json`. Mengubahnya = PR terpisah yang masuk lebih dulu, disetujui berdua, lalu backend dan yolo-service menyesuaikan di PR masing-masing.
+- Event dari YOLO ke backend didefinisikan di `contracts/detection-event.schema.json`. Mengubahnya = PR terpisah yang masuk lebih dulu, disetujui pemilik tiap sisi yang terdampak, lalu backend dan yolo-service menyesuaikan di PR masing-masing.
 - Event punya `event_id` yang dibuat YOLO. Backend menyimpan dengan kunci itu supaya kirim ulang tidak menggandakan skor.
 - AI hanya mengusulkan kejadian (bola masuk ring, bola mendarat di luar garis, dst.). Aturan poin, game, dan set dihitung di backend (`scoring/rules/`). Event AI masuk dengan status `suggested`, Coach yang mengonfirmasi lewat controller. Input manual penuh selalu tersedia sebagai cadangan.
 
 ## 6. Database dan migrasi
 
 - Skema database hanya berubah lewat file di `supabase/migrations/`. Dilarang mengubah tabel lewat dashboard Supabase.
-- Nama file: `YYYYMMDDHHMMSS_<modul>_<ringkasan>.sql`. Timestamp mencegah bentrok nomor urut antara kamu dan teman.
+- Nama file: `YYYYMMDDHHMMSS_<modul>_<ringkasan>.sql`. Timestamp mencegah bentrok nomor urut antar anggota tim. Migrasi yang menyentuh tabel modul lain diberi tahu ke pemilik tabelnya.
 - Migrasi yang sudah di-merge ke `main` tidak diedit lagi. Perbaikan = migrasi baru.
 - Setiap tabel baru wajib `alter table ... enable row level security;` di migrasi yang sama. Klien tidak mengakses tabel langsung, hanya backend dengan service role, jadi tanpa policy berarti tertutup untuk umum. Tambahkan policy hanya bila ada alasan jelas dan catat di README modul.
 - Setiap modul hanya menulis ke tabelnya sendiri (daftar tabel ada di README modul). Menulis ke tabel modul lain lewat fungsi yang diekspor modul itu.
@@ -215,12 +216,15 @@ Aturan test:
 - yolo-service: `pytest`. Detektor diuji dengan klip pendek di `yolo-service/tests/fixtures/` (maksimal beberapa MB, tanpa wajah yang bisa dikenali, sudah ada izin).
 - Sebelum merge fitur yang menyentuh alur pembayaran, uji di mode sandbox gateway.
 
-## 11. Cara bekerja berdua
+## 11. Cara bekerja berempat
 
 - Ambil tugas lewat issue: tetapkan dirimu sebagai assignee sebelum mulai, supaya tidak dobel.
 - Label issue: `mod:<modul>`, `fase:1`–`fase:4`, `backend` / `frontend` / `yolo` / `db`.
 - Pantau gate fase di `MODULES.md`. Jangan mulai fase berikutnya sebelum gate fase sekarang terpenuhi, kecuali modulnya tidak bergantung.
-- Sinkronisasi singkat tiap beberapa hari (chat cukup): apa yang selesai, apa yang menghalangi, kontrak mana yang akan berubah.
+- Sinkronisasi singkat tiap beberapa hari (chat cukup): apa yang selesai, apa yang menghalangi, kontrak mana yang akan berubah. Tiga baris per orang sudah cukup.
+- Titik temu antar jalur dicatat di `prompts/INTEGRATION.md`. Penyedia merge **kerangka tipe** (tanda tangan fungsi `create<Modul>Api`, bentuk respons) lebih dulu, baru implementasi penuh, supaya pemakai tidak menunggu.
+- Pekerjaan yang dibantu AI (prompt di `prompts/`) tetap ditinjau manusia. Jalankan test sendiri sebelum buka PR, dan baca diff-nya. Keputusan baru yang muncul di chat dengan AI harus dicatat di PR atau `docs/`, bukan hanya tinggal di chat.
+- Prompt adalah bagian repo. Mengubahnya lewat PR, dan pemilik jalurnya yang menyetujui.
 - Keputusan yang mengubah proposal (stack, aturan skor, kebijakan video) dicatat di `docs/proposal.md` lewat PR.
 - Pertanyaan terbuka di proposal diperlakukan sebagai asumsi sementara. Jangan membangun fitur di atas pertanyaan yang belum dijawab tanpa menandainya `TODO(decision)`.
 
@@ -233,4 +237,5 @@ Aturan test:
 - Aturan bisnis di frontend
 - Membuat endpoint, tabel, atau UI langganan VIP sebelum paketnya diputuskan
 - Menyimpan video lebih lama dari proses deteksi
-- Mengubah isi modul teman tanpa review pemiliknya
+- Mengubah isi modul orang lain tanpa review pemiliknya
+- Menerima keluaran AI tanpa menjalankan test dan membaca diff-nya

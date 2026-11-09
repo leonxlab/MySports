@@ -16,7 +16,7 @@ npm run build
 src/
   app/                 route Next.js. Tipis: tiap page.tsx memanggil komponen modul
   components/          komponen bersama (sementara hanya ModuleStub)
-  lib/                 milik berdua: api-client, supabase (auth saja), env
+  lib/                 milik bersama: api-client, supabase (auth saja), env
   modules/<modul>/     api.ts, types.ts, components/, README.md
 ```
 

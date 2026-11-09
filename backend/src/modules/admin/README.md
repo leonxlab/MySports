@@ -4,7 +4,7 @@ Dasbor ringkasan dan audit log tindakan admin. Layar persetujuan, biaya, moderas
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 1 |
 | Prefix API | `/api/v1/admin` |
 | Bergantung pada | role-requests, venues, payments, community, level |

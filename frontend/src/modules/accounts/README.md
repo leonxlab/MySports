@@ -9,5 +9,3 @@ Halaman:
 - `/profile`: Profil saya
 - `/profile/[id]`: Profil pemain
 - `/profile/edit`: Ubah profil
-
-Login hanya menggunakan Google melalui Supabase Auth.

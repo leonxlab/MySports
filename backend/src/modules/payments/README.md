@@ -4,7 +4,7 @@ Semua uang masuk ke aplikasi lewat payment gateway, diteruskan ke Coach/Owner di
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 1 |
 | Prefix API | `/api/v1/payments` |
 | Bergantung pada | accounts |

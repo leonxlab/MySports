@@ -4,7 +4,7 @@ Belum dibangun. Backend tidak punya endpoint dan tidak ada tabel. Frontend hanya
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 4 |
 | Prefix API | `/api/v1/vip` |
 | Bergantung pada | tidak ada |

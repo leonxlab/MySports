@@ -21,5 +21,5 @@ class BasketballDetector(SportDetector):
         log.info("basketball: load() belum diimplementasi")
 
     def process(self, video_path: Path, ctx: SegmentContext) -> list[DetectionEvent]:
-        # TODO: baca frame, deteksi, ubah menjadi kejadian dengan event_id uuid4 baru per kejadian
+        # TODO: baca frame, deteksi, ubah menjadi kejadian. event_id = make_event_id(...) dari app.core.events (deterministik, jangan uuid4)
         return []

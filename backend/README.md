@@ -17,7 +17,7 @@ src/
   server.ts            titik masuk (baca env, buat client Supabase, listen)
   app.ts               rakit Fastify: cors, websocket, auth, error handler, semua modul
   config/env.ts        validasi environment (zod)
-  core/                milik berdua: auth+role, error, realtime hub, tipe konteks
+  core/                milik bersama: auth+role, error, realtime hub, tipe konteks
   modules/<modul>/     satu folder per fitur (index, routes, service, schema, README)
   modules/index.ts     daftar modul
 tests/                 test tingkat aplikasi
@@ -46,3 +46,7 @@ Buat `modules/<nama>/` dengan pola yang sama, daftarkan di `modules/index.ts`, t
 ## Deploy
 
 Lihat `docs/deploy.md`. `Procfile` dan `app.json` sudah ada. Build berjalan lewat `heroku-postbuild`.
+
+## Dipanggil modul lain
+
+Tiap `modules/<modul>/index.ts` mengekspor `create<Modul>Api(ctx)` (alias `create<Modul>Service`). Itu satu-satunya pintu untuk modul lain, contoh `createAccountsApi(app.ctx).getProfileSummaries(ids)`. Daftar fungsi lintas modul ada di `prompts/INTEGRATION.md`.

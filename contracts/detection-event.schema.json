@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "detection-event.schema.json",
   "title": "Kontrak event YOLO -> backend",
-  "description": "Dikirim yolo-service ke POST /api/v1/devices/events dengan header x-service-key. AI hanya mengusulkan kejadian, poin dihitung backend. Perubahan file ini = PR terpisah yang disetujui berdua (rules.md bagian 5).",
+  "description": "Dikirim yolo-service ke POST /api/v1/devices/events dengan header x-service-key. AI hanya mengusulkan kejadian, poin dihitung backend. Perubahan file ini = PR terpisah yang disetujui pemilik semua sisi yang terdampak (rules.md bagian 5).",
   "type": "object",
   "properties": {
     "events": {

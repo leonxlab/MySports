@@ -12,7 +12,7 @@ declare module "fastify" {
   }
   interface FastifyRequest {
     user?: AuthUser;
-    /** true bila admin lolos hanya karena bypass. Dicatat ke admin_audit_log. */
+    /** true bila admin memakai endpoint berrole (bypass atau khusus admin). Dicatat ke admin_audit_log. */
     adminBypass?: boolean;
   }
 }

@@ -1,39 +1,42 @@
-# Ganti @dev-a dan @dev-b dengan username GitHub kalian.
-# Aturan: file paling bawah yang cocok yang berlaku.
+# Ganti @dev-a ... @dev-d dengan username GitHub kalian.
+# Aturan GitHub: pola paling bawah yang cocok yang berlaku. Dengan beberapa nama dalam satu baris,
+# persetujuan dari salah satu sudah cukup. Aturan 'minimal satu orang tiap sisi terdampak' ada di rules.md.
 
-* @dev-a @dev-b
-/rules.md @dev-a @dev-b
-/MODULES.md @dev-a @dev-b
-/contracts/ @dev-a @dev-b
-/supabase/migrations/ @dev-a @dev-b
-/backend/src/core/ @dev-a @dev-b
-/frontend/src/lib/ @dev-a @dev-b
-/yolo-service/app/core/ @dev-a @dev-b
-/.github/ @dev-a @dev-b
+* @dev-a @dev-b @dev-c @dev-d
+/rules.md @dev-a @dev-b @dev-c @dev-d
+/MODULES.md @dev-a @dev-b @dev-c @dev-d
+/prompts/ @dev-a @dev-b @dev-c @dev-d
+/contracts/ @dev-a @dev-b @dev-c @dev-d
+/supabase/migrations/ @dev-a @dev-b @dev-c @dev-d
+/backend/src/core/ @dev-a @dev-b @dev-c @dev-d
+/frontend/src/lib/ @dev-a @dev-b @dev-c @dev-d
+/frontend/src/components/ @dev-a @dev-b @dev-c @dev-d
+/yolo-service/app/core/ @dev-a @dev-b @dev-c @dev-d
+/.github/ @dev-a @dev-b @dev-c @dev-d
 
 # Modul
 /backend/src/modules/accounts/ @dev-a
 /frontend/src/modules/accounts/ @dev-a
 /backend/src/modules/role-requests/ @dev-a
 /frontend/src/modules/role-requests/ @dev-a
-/backend/src/modules/venues/ @dev-a
-/frontend/src/modules/venues/ @dev-a
-/backend/src/modules/open-play/ @dev-a
-/frontend/src/modules/open-play/ @dev-a
-/backend/src/modules/payments/ @dev-a
-/frontend/src/modules/payments/ @dev-a
-/backend/src/modules/equipment/ @dev-a
-/frontend/src/modules/equipment/ @dev-a
+/backend/src/modules/venues/ @dev-b
+/frontend/src/modules/venues/ @dev-b
+/backend/src/modules/open-play/ @dev-b
+/frontend/src/modules/open-play/ @dev-b
+/backend/src/modules/payments/ @dev-b
+/frontend/src/modules/payments/ @dev-b
+/backend/src/modules/equipment/ @dev-b
+/frontend/src/modules/equipment/ @dev-b
 /backend/src/modules/bracket/ @dev-b
 /frontend/src/modules/bracket/ @dev-b
 /backend/src/modules/match/ @dev-b
 /frontend/src/modules/match/ @dev-b
-/backend/src/modules/scoring/ @dev-b
-/frontend/src/modules/scoring/ @dev-b
-/backend/src/modules/devices/ @dev-b
-/frontend/src/modules/devices/ @dev-b
-/backend/src/modules/level/ @dev-b
-/frontend/src/modules/level/ @dev-b
+/backend/src/modules/scoring/ @dev-c
+/frontend/src/modules/scoring/ @dev-c
+/backend/src/modules/devices/ @dev-c
+/frontend/src/modules/devices/ @dev-c
+/backend/src/modules/level/ @dev-d
+/frontend/src/modules/level/ @dev-d
 /backend/src/modules/community/ @dev-a
 /frontend/src/modules/community/ @dev-a
 /backend/src/modules/feed/ @dev-a
@@ -42,12 +45,12 @@
 /frontend/src/modules/vip/ @dev-a
 /backend/src/modules/admin/ @dev-a
 /frontend/src/modules/admin/ @dev-a
-/yolo-service/app/modules/basketball/ @dev-b
-/yolo-service/app/modules/futsal/ @dev-b
-/yolo-service/app/modules/badminton/ @dev-a
-/yolo-service/app/modules/tennis/ @dev-a
-/yolo-service/app/modules/padel/ @dev-a
-/yolo-service/app/modules/play_activity/ @dev-b
-/yolo-service/app/modules/anti_cheat/ @dev-b
-/yolo-service/app/modules/calibration/ @dev-b
-/yolo-service/app/modules/jobs/ @dev-b
+/yolo-service/app/modules/basketball/ @dev-c
+/yolo-service/app/modules/futsal/ @dev-c
+/yolo-service/app/modules/badminton/ @dev-d
+/yolo-service/app/modules/tennis/ @dev-d
+/yolo-service/app/modules/padel/ @dev-d
+/yolo-service/app/modules/play_activity/ @dev-d
+/yolo-service/app/modules/anti_cheat/ @dev-a
+/yolo-service/app/modules/calibration/ @dev-c
+/yolo-service/app/modules/jobs/ @dev-a

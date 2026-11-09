@@ -4,7 +4,7 @@ Menerima kejadian skor dari AI (status suggested) dan dari Coach (manual), mengh
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (match dan AI) |
+| Pemilik | dev-c (Skor, device, dan AI olahraga tim) |
 | Fase | 2 |
 | Prefix API | `/api/v1/scoring` |
 | Bergantung pada | match |

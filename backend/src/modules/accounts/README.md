@@ -4,7 +4,7 @@ Profil pemain (nama, usia, pengalaman per cabang, foto, galeri) dan role. Login/
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 1 |
 | Prefix API | `/api/v1/accounts` |
 | Bergantung pada | tidak ada |

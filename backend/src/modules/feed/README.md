@@ -4,7 +4,7 @@ Dua jalur: 'Let me choose for you' (dari pencarian, open play yang diikuti, topi
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 1 |
 | Prefix API | `/api/v1/feed` |
 | Bergantung pada | accounts, open-play, community |

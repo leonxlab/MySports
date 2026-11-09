@@ -4,7 +4,7 @@ Setting match per cabang (mode, waktu, jumlah pemain, time out, hydration break,
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (match dan AI) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 2 |
 | Prefix API | `/api/v1/match` |
 | Bergantung pada | bracket |

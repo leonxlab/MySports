@@ -8,7 +8,7 @@ Layanan ini hanya mengambil segmen video dari antrean, mendeteksi **kejadian** (
 app/
   main.py              FastAPI: /health, /gpu, /detectors
   worker.py            python -m app.worker  (loop antrean)
-  core/                milik berdua: config, kontrak event, antarmuka detektor, client
+  core/                milik bersama: config, kontrak event, antarmuka detektor, client
   modules/
     basketball/ futsal/ badminton/ tennis/ padel/     satu detektor per cabang
     play_activity/     menit main untuk Level

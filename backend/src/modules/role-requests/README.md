@@ -4,7 +4,7 @@ User mengajukan diri jadi Coach (bukti pengalaman: teks, gambar, video, URL) ata
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 1 |
 | Prefix API | `/api/v1/role-requests` |
 | Bergantung pada | accounts |

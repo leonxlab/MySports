@@ -4,7 +4,7 @@ Level 0 sampai 300 dari menit main yang diverifikasi AI: Open Play terdaftar 2 X
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (match dan AI) |
+| Pemilik | dev-d (AI olahraga raket, Level, dan fondasi UI) |
 | Fase | 3 |
 | Prefix API | `/api/v1/level` |
 | Bergantung pada | devices |

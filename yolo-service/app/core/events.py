@@ -5,7 +5,7 @@ Ubah file contracts dulu (PR terpisah), lalu file ini dan backend/src/modules/de
 """
 
 from typing import Annotated, Literal
-from uuid import UUID
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from pydantic import BaseModel, Field
 
@@ -64,3 +64,13 @@ class PlayActivity(_Base):
 
 
 DetectionEvent = BasketMade | Goal | BallLanded | PlayActivity
+
+
+def make_event_id(segment_id: UUID, event_type: str, timestamp_ms: int, index: int = 0) -> UUID:
+    """ID kejadian yang deterministik.
+
+    Segmen yang diproses ulang (percobaan ulang, worker mati di tengah) menghasilkan ID yang sama,
+    jadi backend yang menyimpan dengan kunci event_id tidak menggandakan skor.
+    `index` membedakan dua kejadian bertipe sama pada milidetik yang sama.
+    """
+    return uuid5(NAMESPACE_URL, f"openplay:{segment_id}:{event_type}:{timestamp_ms}:{index}")

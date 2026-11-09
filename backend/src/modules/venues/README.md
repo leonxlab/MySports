@@ -4,7 +4,7 @@ Owner Lapangan mendaftarkan lapangan, mengatur ketersediaan dan harga. Admin men
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 1 |
 | Prefix API | `/api/v1/venues` |
 | Bergantung pada | accounts, role-requests |

@@ -4,7 +4,7 @@ Coach membuat open play dan mengatur slot (kuota, jam, harga). User mencari berd
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 1 |
 | Prefix API | `/api/v1/open-play` |
 | Bergantung pada | accounts, venues, payments |

@@ -4,7 +4,7 @@ Thread per cabang olahraga: bagikan pencapaian, skor, pengalaman, video, foto. A
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-a (Identitas, komunitas, dan admin) |
 | Fase | 1 |
 | Prefix API | `/api/v1/community` |
 | Bergantung pada | accounts |

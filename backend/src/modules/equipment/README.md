@@ -4,7 +4,7 @@ Rekomendasi dan sewa alat dari Coach atau user terdekat. Di proposal statusnya '
 
 | | |
 | --- | --- |
-| Pemilik | dev-a (platform) |
+| Pemilik | dev-b (Open play end-to-end) |
 | Fase | 4 |
 | Prefix API | `/api/v1/equipment` |
 | Bergantung pada | accounts, payments |

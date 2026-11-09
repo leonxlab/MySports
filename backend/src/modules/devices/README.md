@@ -4,7 +4,7 @@ Pairing sampai 3 device per sesi (kamera home, kamera away, controller) lewat QR
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (match dan AI) |
+| Pemilik | dev-c (Skor, device, dan AI olahraga tim) |
 | Fase | 3 |
 | Prefix API | `/api/v1/devices` |
 | Bergantung pada | match, scoring |
