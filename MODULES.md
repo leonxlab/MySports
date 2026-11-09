@@ -30,7 +30,7 @@ Prompt pembuka: [`prompts/Leon/00-kickoff.md`](prompts/Leon/00-kickoff.md)
 | accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/Leon/accounts.md) | jalan |
 | role-requests | Pengajuan Coach dan Owner Lapangan | backend + frontend | 1 | 1 | Medium | accounts | [prompt](prompts/Leon/role-requests.md) | belum mulai |
 | community | Community discussion | backend + frontend | 1 | 2 | Medium | accounts | [prompt](prompts/Leon/community.md) | jalan |
-| feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/Leon/feed.md) | belum mulai |
+| feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/Leon/feed.md) | jalan |
 | admin | Dasbor admin dan audit log | backend + frontend | 1 | 1 | Medium | role-requests, venues, payments, community, level | [prompt](prompts/Leon/admin.md) | belum mulai |
 | vip | VIP (coming soon) | backend + frontend | 4 | 1 | Medium | - | [prompt](prompts/Leon/vip.md) | belum mulai |
 | jobs | Worker: ambil segmen dari antrean, proses, kirim event, hapus segmen | yolo-service | 3 | 2 | Medium | - | [prompt](prompts/Leon/jobs.md) | belum mulai |
