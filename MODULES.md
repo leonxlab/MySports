@@ -27,8 +27,8 @@ Prompt pembuka: [`prompts/Leon/00-kickoff.md`](prompts/Leon/00-kickoff.md)
 
 | Modul | Isi | Layer | Fase | Bobot | Effort AI | Bergantung pada | Prompt | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/Leon/accounts.md) | jalan |
-| role-requests | Pengajuan Coach dan Owner Lapangan | backend + frontend | 1 | 1 | Medium | accounts | [prompt](prompts/Leon/role-requests.md) | belum mulai |
+| accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/Leon/accounts.md) | selesai |
+| role-requests | Pengajuan Coach dan Owner Lapangan | backend + frontend | 1 | 1 | Medium | accounts | [prompt](prompts/Leon/role-requests.md) | selesai |
 | community | Community discussion | backend + frontend | 1 | 2 | Medium | accounts | [prompt](prompts/Leon/community.md) | belum mulai |
 | feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/Leon/feed.md) | belum mulai |
 | admin | Dasbor admin dan audit log | backend + frontend | 1 | 1 | Medium | role-requests, venues, payments, community, level | [prompt](prompts/Leon/admin.md) | belum mulai |
