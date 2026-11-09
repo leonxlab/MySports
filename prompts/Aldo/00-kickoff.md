@@ -27,11 +27,11 @@ Kamu membantu dev-c di proyek Open Play (monorepo: `backend/`, `frontend/`, `yol
 
 ## Modul jalurmu
 
-- `prompts/dev-c/scoring.md` (High)
-- `prompts/dev-c/devices.md` (High)
-- `prompts/dev-c/calibration.md` (Medium)
-- `prompts/dev-c/basketball.md` (High)
-- `prompts/dev-c/futsal.md` (High)
+- `prompts/Aldo/scoring.md` (High)
+- `prompts/Aldo/devices.md` (High)
+- `prompts/Aldo/calibration.md` (Medium)
+- `prompts/Aldo/basketball.md` (High)
+- `prompts/Aldo/futsal.md` (High)
 
 Urutan pengerjaan yang disarankan, dan alasannya:
 

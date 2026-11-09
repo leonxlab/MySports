@@ -27,14 +27,14 @@ Kamu membantu dev-a di proyek Open Play (monorepo: `backend/`, `frontend/`, `yol
 
 ## Modul jalurmu
 
-- `prompts/dev-a/accounts.md` (Medium)
-- `prompts/dev-a/role-requests.md` (Medium)
-- `prompts/dev-a/community.md` (Medium)
-- `prompts/dev-a/feed.md` (Medium)
-- `prompts/dev-a/admin.md` (Medium)
-- `prompts/dev-a/vip.md` (Medium)
-- `prompts/dev-a/jobs.md` (Medium)
-- `prompts/dev-a/anti-cheat.md` (High)
+- `prompts/Leon/accounts.md` (Medium)
+- `prompts/Leon/role-requests.md` (Medium)
+- `prompts/Leon/community.md` (Medium)
+- `prompts/Leon/feed.md` (Medium)
+- `prompts/Leon/admin.md` (Medium)
+- `prompts/Leon/vip.md` (Medium)
+- `prompts/Leon/jobs.md` (Medium)
+- `prompts/Leon/anti-cheat.md` (High)
 
 Urutan pengerjaan yang disarankan, dan alasannya:
 

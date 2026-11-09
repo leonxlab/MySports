@@ -2,6 +2,8 @@
 
 Siapa menyediakan apa untuk siapa. Setiap baris adalah janji antar dua orang. Kalau tanda tangan atau bentuknya berubah, beri tahu pemakai dan ubah baris ini dalam PR yang sama.
 
+Folder prompt: `Leon`, `Jonathan`, `Aldo`, dan `Eugene`, sesuai nama di `prompts/`.
+
 Konvensi (rules.md bagian 3):
 
 - Modul lain hanya dipanggil lewat `create<Modul>Api(ctx)` dari `backend/src/modules/<modul>/index.ts`. Contoh: `createAccountsApi(app.ctx).getProfileSummaries(ids)`.
@@ -13,50 +15,50 @@ Konvensi (rules.md bagian 3):
 
 | Penyedia | Fungsi | Pemakai | Keterangan |
 | --- | --- | --- | --- |
-| accounts (dev-a) | `getProfileSummary(userId)`, `getProfileSummaries(ids)` | open-play, community, scoring, bracket, admin | `id`, `display_name`, `photo_path`, `level` (sementara `0` sampai modul level siap) |
-| accounts (dev-a) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles`; role admin hanya melalui penunjukan internal |
-| role-requests (dev-a) | `countPending()` | admin | |
-| community (dev-a) | `countOpenReports()`, `listRecentThreads(filter)` | admin, feed | |
-| feed (dev-a) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |
-| venues (dev-b) | `getCourt(courtId)`, `markSlotBooked`, `releaseSlot`, `countPending()` | payments, open-play, equipment, admin | `getCourt` memuat lokasi venue |
-| payments (dev-b) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)` | open-play, equipment | `onPaid` menghindari impor melingkar |
-| open-play (dev-b) | `listConfirmedParticipants(openPlayId)`, `getOpenPlay(id)`, `listNearby(filters)` | bracket, match, feed | |
-| bracket (dev-b) | `getBracketMatch(id)` | match, scoring | Pemain per sisi |
-| match (dev-b) | `getMatch(id)`, `getMatchSettings(id)` | scoring, devices | |
-| scoring (dev-c) | `ingestSuggestedEvents(events)`, `getScoreSnapshot(matchId)` | devices, match | Idempoten lewat `event_key` |
-| devices (dev-c) | `getSession(id)` | match | |
-| level (dev-d) | `ingestPlayActivity(...)`, `getLevelSummary(userId)`, `countOpenFlags()` | devices, accounts, feed, admin | Rumus tidak berubah |
+| accounts (Leon) | `getProfileSummary(userId)`, `getProfileSummaries(ids)` | open-play, community, scoring, bracket, admin | `id`, `display_name`, `photo_path`, `level` (sementara `0` sampai modul level siap) |
+| accounts (Leon) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles`; role admin hanya melalui penunjukan internal |
+| role-requests (Leon) | `countPending()` | admin | |
+| community (Leon) | `countOpenReports()`, `listRecentThreads(filter)` | admin, feed | |
+| feed (Leon) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |
+| venues (Jonathan) | `getCourt(courtId)`, `markSlotBooked`, `releaseSlot`, `countPending()` | payments, open-play, equipment, admin | `getCourt` memuat lokasi venue |
+| payments (Jonathan) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)` | open-play, equipment | `onPaid` menghindari impor melingkar |
+| open-play (Jonathan) | `listConfirmedParticipants(openPlayId)`, `getOpenPlay(id)`, `listNearby(filters)` | bracket, match, feed | |
+| bracket (Jonathan) | `getBracketMatch(id)` | match, scoring | Pemain per sisi |
+| match (Jonathan) | `getMatch(id)`, `getMatchSettings(id)` | scoring, devices | |
+| scoring (Aldo) | `ingestSuggestedEvents(events)`, `getScoreSnapshot(matchId)` | devices, match | Idempoten lewat `event_key` |
+| devices (Aldo) | `getSession(id)` | match | |
+| level (Eugene) | `ingestPlayActivity(...)`, `getLevelSummary(userId)`, `countOpenFlags()` | devices, accounts, feed, admin | Rumus tidak berubah |
 
 ## Komponen frontend lintas modul
 
 | Penyedia | Komponen | Dipasang di | Pemilik halaman |
 | --- | --- | --- | --- |
-| accounts (dev-a) | `SessionProvider`, `useMe` | semua halaman yang butuh login | semua |
-| vip (dev-a) | `VipBadge`, `VipSubscribeButton` | `profile` | dev-a |
-| vip (dev-a) | `GenerateHighlightButton` | `match/[id]/result` | dev-c (PR kecil, review dev-c) |
-| level (dev-d) | `LevelBadge`, `LevelProgress` | `profile`, kartu member di open-play | dev-a, dev-b |
-| match (dev-b) | layout control menu, `useMatchLive` | `coach/match/[id]` | dev-b |
-| scoring (dev-c) | `ScorerPicker`, `ManualActionPanel`, `FoulPanel`, `SuggestionQueue` | `coach/match/[id]` | dev-b |
-| UI kit (dev-d, Fase 0) | komponen dasar, layout, navigasi | semua | semua |
+| accounts (Leon) | `SessionProvider`, `useMe` | semua halaman yang butuh login | semua |
+| vip (Leon) | `VipBadge`, `VipSubscribeButton` | `profile` | Leon |
+| vip (Leon) | `GenerateHighlightButton` | `match/[id]/result` | Aldo (PR kecil, review Aldo) |
+| level (Eugene) | `LevelBadge`, `LevelProgress` | `profile`, kartu member di open-play | Leon, Jonathan |
+| match (Jonathan) | layout control menu, `useMatchLive` | `coach/match/[id]` | Jonathan |
+| scoring (Aldo) | `ScorerPicker`, `ManualActionPanel`, `FoulPanel`, `SuggestionQueue` | `coach/match/[id]` | Jonathan |
+| UI kit (Eugene, Fase 0) | komponen dasar, layout, navigasi | semua | semua |
 
 ## Kontrak dan migrasi lintas jalur
 
 | Yang berubah | Pembuat | Perlu review dari | Catatan |
 | --- | --- | --- | --- |
-| `contracts/calibration.schema.json` baru | dev-c | dev-d, dev-b | PR terpisah, sebelum detektor mulai |
-| Event atau endpoint tanda kecurigaan (anti-cheat) | dev-a | dev-c, dev-d | PR kontrak terpisah. Level menerima, devices meneruskan |
-| Event pantulan dinding padel (opsional) | dev-d | dev-a, dev-c | Hanya bila disetujui masuk cakupan |
-| Migrasi kolom `video_segments` (`duration_ms`, `started_at_ms`), `device_sessions` (`consent_at`, `sport`) dan fungsi `requeue_stale_segments` | dev-c | dev-a (worker `jobs`) | Nama kolom dibahas dulu |
-| Migrasi kolom `hidden` pada `threads` dan `thread_posts` | dev-a | satu orang lain (review migrasi) | Hanya menyentuh modul sendiri, dicatat karena migrasi bersifat bersama |
-| `core/realtime.ts`: autentikasi WebSocket | dev-c | dev-a atau dev-b | Dipakai match dan devices |
+| `contracts/calibration.schema.json` baru | Aldo | Eugene, Jonathan | PR terpisah, sebelum detektor mulai |
+| Event atau endpoint tanda kecurigaan (anti-cheat) | Leon | Aldo, Eugene | PR kontrak terpisah. Level menerima, devices meneruskan |
+| Event pantulan dinding padel (opsional) | Eugene | Leon, Aldo | Hanya bila disetujui masuk cakupan |
+| Migrasi kolom `video_segments` (`duration_ms`, `started_at_ms`), `device_sessions` (`consent_at`, `sport`) dan fungsi `requeue_stale_segments` | Aldo | Leon (worker `jobs`) | Nama kolom dibahas dulu |
+| Migrasi kolom `hidden` pada `threads` dan `thread_posts` | Leon | satu orang lain (review migrasi) | Hanya menyentuh modul sendiri, dicatat karena migrasi bersifat bersama |
+| `core/realtime.ts`: autentikasi WebSocket | Aldo | Leon atau Jonathan | Dipakai match dan devices |
 
 ## Urutan merge di awal (jalur kritis)
 
-1. dev-a: `accounts` minimal (bootstrap, `getMe`, `createAccountsApi`, `SessionProvider`).
-2. dev-b: kerangka `createPaymentsApi` (tanda tangan saja), `FakeGateway`.
-3. dev-c: `core/realtime.ts` dengan autentikasi, dan PR kontrak kalibrasi.
-4. dev-d: memo UI stack dan, setelah disetujui, kerangka tampilan.
-5. dev-b: kerangka `createMatchApi` (tipe `getMatch`, `getMatchSettings`) supaya scoring bisa mulai.
+1. Leon: `accounts` minimal (bootstrap, `getMe`, `createAccountsApi`, `SessionProvider`).
+2. Jonathan: kerangka `createPaymentsApi` (tanda tangan saja), `FakeGateway`.
+3. Aldo: `core/realtime.ts` dengan autentikasi, dan PR kontrak kalibrasi.
+4. Eugene: memo UI stack dan, setelah disetujui, kerangka tampilan.
+5. Jonathan: kerangka `createMatchApi` (tipe `getMatch`, `getMatchSettings`) supaya scoring bisa mulai.
 6. Setelah itu tiap orang bebas bergerak di jalurnya, dengan titik temu di tabel di atas.
 
 ## Keputusan bersama yang masih menggantung
@@ -66,7 +68,7 @@ Disarikan dari "Pertanyaan Terbuka" di proposal dan yang muncul saat membagi ker
 | Keputusan | Menyentuh |
 | --- | --- |
 | Nama aplikasi | accounts, frontend (konstanta) |
-| Library UI dan styling | dev-d (memo), semua frontend |
+| Library UI dan styling | Eugene (memo), semua frontend |
 | Penyedia payment gateway dan metode payout | payments |
 | Penyedia GPU dan jadwal nyala-mati | jobs, devices |
 | Format segmen video (HLS atau MediaRecorder) | devices |

@@ -76,6 +76,22 @@ Aturan kepemilikan:
 - Umur branch pendek. Targetnya merge dalam 1–3 hari. Fitur besar dipecah jadi beberapa PR kecil, bukan satu branch yang hidup dua minggu.
 - Sebelum buka PR: `git fetch && git rebase origin/main`.
 
+### Kerja paralel tanpa tabrakan
+
+- Setiap dev bekerja di checkout terpisah: clone masing-masing atau Git worktree sendiri. Jangan berbagi folder kerja, index/staging area, atau branch karena `git add`, commit, dan pergantian branch bisa saling mengganggu.
+- Buat satu branch unik untuk tiap pekerjaan dari `origin/main`, misalnya `feat/accounts-profile` atau `feat/payments-api`. Jangan dua dev mengerjakan branch yang sama.
+- Contoh membuat worktree terpisah dari clone utama:
+
+  ```bash
+  git fetch origin
+  git worktree add ../MySports-Leon -b feat/accounts-profile origin/main
+  ```
+
+- Di worktree masing-masing, stage hanya file pekerjaan sendiri, commit di branch tersebut, lalu push branch itu dan buka PR ke `main`. Jangan commit atau push langsung ke `main`.
+- Sebelum push atau setelah PR lain masuk ke `main`, jalankan `git fetch origin` dan rebase branch kerja ke `origin/main`. Jangan rebase branch yang sedang dipakai dev lain.
+- Satu file hanya punya satu penulis aktif pada satu waktu. Untuk perubahan lintas modul atau file bersama, sepakati pemilik PR terlebih dahulu; modul lain memberi review atau mengirim PR terpisah setelah perubahan pertama masuk.
+- Jika dua PR mengubah file yang sama, pemilik file menyelesaikan konflik setelah rebase. Jangan menimpa perubahan dari branch lain dengan `git push --force`.
+
 Pengaturan yang perlu dinyalakan di GitHub (Settings → Branches → `main`):
 
 - Require a pull request, 1 approval, dan nyalakan **Require review from Code Owners**
