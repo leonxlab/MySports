@@ -24,7 +24,7 @@ describe("server", () => {
   });
 
   it("endpoint publik yang belum jadi menjawab 501", async () => {
-    const res = await app.inject({ method: "GET", url: "/api/v1/venues" });
+    const res = await app.inject({ method: "GET", url: "/api/v1/community/threads" });
     expect(res.statusCode).toBe(501);
     expect(res.json().error.code).toBe("NOT_IMPLEMENTED");
   });

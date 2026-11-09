@@ -1,4 +1,3 @@
-
 from app.core.config import settings
 from app.core.supabase_client import get_supabase
 
@@ -19,7 +18,9 @@ def delete_segment(storage_path: str) -> None:
 
 
 def mark_done(segment_id: str) -> None:
-    get_supabase().table("video_segments").update({"status": "done"}).eq("id", segment_id).execute()
+    get_supabase().table("video_segments").update(
+        {"status": "done", "locked_by": None, "locked_at": None, "error": None}
+    ).eq("id", segment_id).execute()
 
 
 def mark_failed(segment_id: str, error: str, attempts: int) -> str:
@@ -34,3 +35,19 @@ def mark_failed(segment_id: str, error: str, attempts: int) -> str:
         }
     ).eq("id", segment_id).execute()
     return "failed" if final else "queued"
+
+
+def requeue_stale_segments(stale_seconds: int) -> int:
+    res = get_supabase().rpc("requeue_stale_segments", {"p_stale_seconds": stale_seconds}).execute()
+    return len(res.data or [])
+
+
+def queue_depth() -> int:
+    res = (
+        get_supabase()
+        .table("video_segments")
+        .select("id", count="exact", head=True)
+        .eq("status", "queued")
+        .execute()
+    )
+    return res.count or 0

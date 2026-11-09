@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { OwnerApplicationPage } from "@/modules/role-requests/components/RoleRequestPages";
 
 export default function Page() {
-  return <ModuleStub module="role-requests" title="Ajukan Owner Lapangan" route="/apply/owner" />;
+  return <OwnerApplicationPage />;
 }

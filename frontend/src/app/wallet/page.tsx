@@ -1,5 +1,9 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page, WalletPanel } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="payments" title="Saldo" route="/wallet" />;
+export default function WalletPage() {
+  return (
+    <Page title="Saldo">
+      <WalletPanel />
+    </Page>
+  );
 }

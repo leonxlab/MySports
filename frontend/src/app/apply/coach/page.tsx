@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CoachApplicationPage } from "@/modules/role-requests/components/RoleRequestPages";
 
 export default function Page() {
-  return <ModuleStub module="role-requests" title="Ajukan Coach" route="/apply/coach" />;
+  return <CoachApplicationPage />;
 }

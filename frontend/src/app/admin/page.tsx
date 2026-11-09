@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { AdminOverviewPage } from "@/modules/admin/components/AdminPages";
 
 export default function Page() {
-  return <ModuleStub module="admin" title="Dasbor admin" route="/admin" />;
+  return <AdminOverviewPage />;
 }

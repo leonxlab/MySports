@@ -1,43 +1,70 @@
 """Worker YOLO: python -m app.worker"""
 
 import logging
+import signal
 import socket
-import time
-from pathlib import Path
+from threading import Event
 from uuid import UUID, uuid4
 
 from app.core.backend_client import post_events
 from app.core.config import settings
 from app.core.detector import SegmentContext, SportDetector, registry
 from app.core.device import resolve_device
+from app.core.events import DetectionEvent
 from app.core.supabase_client import get_supabase
 from app.modules import load_all
 from app.modules.jobs import queue
+from app.modules.jobs.metrics import start_metrics_server
+from app.modules.jobs.runner import Metrics, SegmentWorker, event_context_offset, run_worker
 from app.modules.play_activity.activity import measure_activity
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("worker")
 
 
+class BackendAdapter:
+    def post_events(self, events: list[DetectionEvent]) -> None:
+        post_events(events)
+
+
 def build_context(segment: dict) -> SegmentContext:
     """Gabungkan baris video_segments dengan sesi dan perangkatnya."""
     sb = get_supabase()
     session = (
-        sb.table("device_sessions").select("*").eq("id", segment["session_id"]).single().execute().data
+        sb.table("device_sessions")
+        .select("*")
+        .eq("id", segment["session_id"])
+        .single()
+        .execute()
+        .data
     )
     device = (
-        sb.table("session_devices").select("role").eq("id", segment["device_id"]).single().execute().data
+        sb.table("session_devices")
+        .select("role")
+        .eq("id", segment["device_id"])
+        .single()
+        .execute()
+        .data
     )
     match_sport = None
     if session.get("match_id"):
-        match = sb.table("matches").select("sport").eq("id", session["match_id"]).single().execute().data
+        match = (
+            sb.table("matches")
+            .select("sport")
+            .eq("id", session["match_id"])
+            .single()
+            .execute()
+            .data
+        )
         match_sport = match["sport"]
+    # TODO(integration): devices migration belum menambahkan sport sesi dan start_offset_ms.
     return SegmentContext(
         segment_id=UUID(segment["id"]),
         session_id=UUID(segment["session_id"]),
         match_id=UUID(session["match_id"]) if session.get("match_id") else None,
         camera="home" if device["role"] == "camera_home" else "away",
-        sport=match_sport or "basketball",  # TODO(decision): sesi main sendiri tanpa match, cabang dari sesi
+        sport=match_sport or session.get("sport") or "basketball",
+        start_offset_ms=event_context_offset(segment),
         calibration=session.get("calibration") or {},
     )
 
@@ -46,47 +73,41 @@ def main() -> None:
     load_all()
     device = resolve_device()
     worker_id = f"{socket.gethostname()}-{uuid4().hex[:6]}"
-    log.info("worker %s mulai, device=%s, detektor=%s", worker_id, device, sorted(registry()))
-
-    detectors: dict[str, SportDetector] = {}
+    log.info("worker started", extra={"worker_id": worker_id, "device": device})
     settings.tmp_dir.mkdir(parents=True, exist_ok=True)
 
-    while True:
-        segment = queue.claim_next(worker_id)
-        if not segment:
-            time.sleep(settings.poll_interval_seconds)
-            continue
+    detectors: dict[str, SportDetector] = {}
 
-        requeued = False
-        path = Path(segment["storage_path"])
-        local = settings.tmp_dir / f"{segment['id']}{path.suffix or '.mp4'}"
-        try:
-            local.write_bytes(queue.download(segment["storage_path"]))
-            ctx = build_context(segment)
+    def load_detector(sport: str) -> SportDetector:
+        if sport not in detectors:
+            detector_type = registry().get(sport)
+            if detector_type is None:
+                raise ValueError(f"unsupported sport: {sport}")
+            detectors[sport] = detector_type(device, settings.models_dir)
+            detectors[sport].load()
+        return detectors[sport]
 
-            if ctx.sport not in detectors:
-                detectors[ctx.sport] = registry()[ctx.sport](device, settings.models_dir)
-                detectors[ctx.sport].load()
-
-            events = detectors[ctx.sport].process(local, ctx)
-            activity = measure_activity(local, ctx)
-            if activity:
-                events.append(activity)
-
-            post_events(events)
-            queue.mark_done(segment["id"])
-        except Exception as exc:  # noqa: BLE001
-            log.exception("segmen %s gagal", segment["id"])
-            requeued = queue.mark_failed(segment["id"], str(exc), segment.get("attempts", 1)) == "queued"
-        finally:
-            # Video tidak boleh tertinggal (rules.md bagian 7), baik sukses maupun gagal
-            local.unlink(missing_ok=True)
-            # Segmen yang masuk antrean lagi untuk percobaan ulang masih dibutuhkan
-            if not requeued:
-                try:
-                    queue.delete_segment(segment["storage_path"])
-                except Exception:  # noqa: BLE001
-                    log.warning("gagal menghapus segmen %s dari storage", segment["id"])
+    metrics = Metrics()
+    worker = SegmentWorker(
+        worker_id=worker_id,
+        tmp_dir=settings.tmp_dir,
+        queue=queue,
+        storage=queue,
+        backend=BackendAdapter(),
+        build_context=build_context,
+        load_detector=load_detector,
+        measure_activity=measure_activity,
+        metrics=metrics,
+    )
+    stop = Event()
+    signal.signal(signal.SIGTERM, lambda _signum, _frame: stop.set())
+    signal.signal(signal.SIGINT, lambda _signum, _frame: stop.set())
+    metrics_server, metrics_thread = start_metrics_server(metrics, queue)
+    try:
+        run_worker(worker, queue, stop, settings.poll_interval_seconds)
+    finally:
+        metrics_server.should_exit = True
+        metrics_thread.join(timeout=5)
 
 
 if __name__ == "__main__":
