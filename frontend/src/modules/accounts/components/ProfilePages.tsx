@@ -7,6 +7,7 @@ import { getSupabase } from "@/lib/supabase";
 import { accountsApi, type GalleryItemInput } from "../api";
 import { useMe } from "./SessionProvider";
 import type { GalleryItem, MeProfile, Sport } from "../types";
+import { VipBadge, VipSubscribeButton } from "@/modules/vip";
 
 const sports: { value: Sport; label: string }[] = [
   { value: "basketball", label: "Basket" },
@@ -78,8 +79,15 @@ function ProfileContent({ profile, editable = false }: { profile: MeProfile; edi
           <p style={{ color: "#475569", margin: "6px 0" }}>
             Level {profile.level} · {profile.roles.filter((role) => role !== "admin").join(", ")}
           </p>
+          {/* TODO(integration): accounts profile belum menyediakan status VIP. */}
+          <VipBadge isVip={false} />
         </div>
-        {editable ? <Link href="/profile/edit">Ubah profil</Link> : null}
+        {editable ? (
+          <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 12 }}>
+            <VipSubscribeButton />
+            <Link href="/profile/edit">Ubah profil</Link>
+          </div>
+        ) : null}
       </header>
       {profile.age !== null ? <p>Usia: {profile.age}</p> : null}
       {profile.bio ? <p>{profile.bio}</p> : null}
