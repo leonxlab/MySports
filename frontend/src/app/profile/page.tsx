@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { MyProfilePage } from "@/modules/accounts/components/ProfilePages";
 
 export default function Page() {
-  return <ModuleStub module="accounts" title="Profil saya" route="/profile" />;
+  return <MyProfilePage />;
 }

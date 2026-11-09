@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 
-export function LoginPage() {
+export function LoginPage({ mode = "login" }: { mode?: "login" | "signup" }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -58,10 +58,10 @@ export function LoginPage() {
         }}
       >
         <h1 id="login-title" style={{ color: "#0f172a", margin: "0 0 8px" }}>
-          Masuk ke Open Play
+          {mode === "signup" ? "Daftar ke Open Play" : "Masuk ke Open Play"}
         </h1>
         <p style={{ color: "#475569", margin: "0 0 24px" }}>
-          Gunakan akun Google untuk melanjutkan.
+          Gunakan akun Google {mode === "signup" ? "untuk membuat akun atau" : "untuk"} melanjutkan.
         </p>
         <button
           disabled={isLoading}
@@ -84,12 +84,7 @@ export function LoginPage() {
           }}
           type="button"
         >
-          <svg
-            aria-hidden="true"
-            height="20"
-            viewBox="0 0 48 48"
-            width="20"
-          >
+          <svg aria-hidden="true" height="20" viewBox="0 0 48 48" width="20">
             <path
               d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z"
               fill="#4285F4"
@@ -107,14 +102,14 @@ export function LoginPage() {
               fill="#EA4335"
             />
           </svg>
-          {isLoading ? "Menghubungkan ke Google..." : "Lanjutkan dengan Google"}
+          {isLoading
+            ? "Menghubungkan ke Google..."
+            : mode === "signup"
+            ? "Daftar dengan Google"
+            : "Lanjutkan dengan Google"}
         </button>
         {errorMessage ? (
-          <p
-            aria-live="polite"
-            role="alert"
-            style={{ color: "#b91c1c", margin: "16px 0 0" }}
-          >
+          <p aria-live="polite" role="alert" style={{ color: "#b91c1c", margin: "16px 0 0" }}>
             Login gagal: {errorMessage}
           </p>
         ) : null}
