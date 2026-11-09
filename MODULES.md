@@ -44,11 +44,11 @@ Prompt pembuka: [`prompts/Jonathan/00-kickoff.md`](prompts/Jonathan/00-kickoff.m
 
 | Modul | Isi | Layer | Fase | Bobot | Effort AI | Bergantung pada | Prompt | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| venues | Lapangan | backend + frontend | 1 | 2 | Medium | accounts, role-requests | [prompt](prompts/Jonathan/venues.md) | belum mulai |
-| open-play | Open play dan slot | backend + frontend | 1 | 2 | High | accounts, venues, payments | [prompt](prompts/Jonathan/open-play.md) | belum mulai |
-| payments | Booking dan pembayaran | backend + frontend | 1 | 3 | High | accounts | [prompt](prompts/Jonathan/payments.md) | belum mulai |
-| bracket | Bracket otomatis | backend + frontend | 2 | 3 | High | open-play | [prompt](prompts/Jonathan/bracket.md) | belum mulai |
-| match | Setting match dan control menu | backend + frontend | 2 | 2 | Medium | bracket | [prompt](prompts/Jonathan/match.md) | belum mulai |
+| venues | Lapangan | backend + frontend | 1 | 2 | Medium | accounts, role-requests | [prompt](prompts/Jonathan/venues.md) | sedang dikerjakan (branch belum merge) |
+| open-play | Open play dan slot | backend + frontend | 1 | 2 | High | accounts, venues, payments | [prompt](prompts/Jonathan/open-play.md) | sedang dikerjakan (branch belum merge) |
+| payments | Booking dan pembayaran | backend + frontend | 1 | 3 | High | accounts | [prompt](prompts/Jonathan/payments.md) | sedang dikerjakan (branch belum merge) |
+| bracket | Bracket otomatis | backend + frontend | 2 | 3 | High | open-play | [prompt](prompts/Jonathan/bracket.md) | sedang dikerjakan (branch belum merge) |
+| match | Setting match dan control menu | backend + frontend | 2 | 2 | Medium | bracket | [prompt](prompts/Jonathan/match.md) | sedang dikerjakan (branch belum merge) |
 | equipment | Sewa alat | backend + frontend | 4 | 1 | Medium | accounts, payments | [prompt](prompts/Jonathan/equipment.md) | belum mulai |
 
 ### Aldo (dev-c): Skor, device, dan AI olahraga tim (bobot 13)
