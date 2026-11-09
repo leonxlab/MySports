@@ -1,26 +1,41 @@
-import { apiClient, type RequestOptions } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
+import type {
+  BookingView,
+  CheckoutResult,
+  CreateBookingBody,
+  CreateBookingResult,
+  FeeSettings,
+  PaymentTargetType,
+  Wallet,
+  WalletEntry,
+  WithdrawalResult,
+  WithdrawalView,
+} from "./types";
 
 // Panggilan API modul payments. Daftar endpoint: backend/src/modules/payments/README.md
-// TODO: ganti tipe opts dan T dengan tipe spesifik di types.ts saat endpoint jadi.
+// paymentWebhook sengaja tidak ada: webhook dipanggil gateway, bukan frontend.
 export const paymentsApi = {
   /** Buat pembayaran untuk open play, sewa lapangan, atau sewa alat */
-  createCheckout: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/payments/checkout", opts),
-  /** Callback gateway (verifikasi signature, idempotent) */
-  paymentWebhook: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/payments/webhook/:provider", opts),
+  createCheckout: (body: { targetType: PaymentTargetType; targetId: string }) =>
+    apiClient.request<CheckoutResult>("POST", "/payments/checkout", { body }),
   /** Sewa lapangan */
-  createCourtBooking: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/payments/bookings", opts),
+  createCourtBooking: (body: CreateBookingBody) =>
+    apiClient.request<CreateBookingResult>("POST", "/payments/bookings", { body }),
   /** Booking milik sendiri */
-  listMyBookings: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/payments/bookings/mine", opts),
+  listMyBookings: () => apiClient.request<BookingView[]>("GET", "/payments/bookings/mine"),
   /** Saldo */
-  getWallet: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/payments/wallet", opts),
+  getWallet: () => apiClient.request<Wallet>("GET", "/payments/wallet"),
   /** Riwayat saldo */
-  listWalletEntries: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/payments/wallet/entries", opts),
+  listWalletEntries: (limit = 50) =>
+    apiClient.request<WalletEntry[]>("GET", "/payments/wallet/entries", { query: { limit } }),
   /** Tarik saldo */
-  requestWithdrawal: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/payments/withdrawals", opts),
+  requestWithdrawal: (amount: number) =>
+    apiClient.request<WithdrawalResult>("POST", "/payments/withdrawals", { body: { amount } }),
   /** Riwayat penarikan */
-  listWithdrawals: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/payments/withdrawals", opts),
-  /** Model dan persen biaya layanan */
-  getFeeSettings: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/payments/fee-settings", opts),
-  /** Ubah model (potongan saat withdraw / fee ke pembayar) dan persen */
-  updateFeeSettings: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("PUT", "/payments/fee-settings", opts),
+  listWithdrawals: () => apiClient.request<WithdrawalView[]>("GET", "/payments/withdrawals"),
+  /** Model dan persen biaya layanan [admin] */
+  getFeeSettings: () => apiClient.request<FeeSettings>("GET", "/payments/fee-settings"),
+  /** Ubah model dan persen biaya layanan [admin] */
+  updateFeeSettings: (body: FeeSettings) =>
+    apiClient.request<FeeSettings>("PUT", "/payments/fee-settings", { body }),
 };
