@@ -4,35 +4,53 @@ Setting match per cabang (mode, waktu, jumlah pemain, time out, hydration break,
 
 | | |
 | --- | --- |
-| Pemilik | dev-b (Open play end-to-end) |
+| Pemilik | Jonathan (Open play end-to-end) |
 | Fase | 2 |
 | Prefix API | `/api/v1/match` |
-| Bergantung pada | bracket |
+| Bergantung pada | bracket (`getBracketMatch`), open_plays (dibaca untuk cek pemilik) |
 | Tabel | `matches` |
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+| Method | Path | Fungsi | Akses | Status |
+| --- | --- | --- | --- | --- |
+| GET | `/defaults/:sport` | Nilai bawaan aturan per cabang | coach | jadi |
+| POST | `/` | Buat match dari bracket match atau manual | coach | jadi |
+| GET | `/:id` | Detail dan status match | login | jadi |
+| PATCH | `/:id/settings` | Edit setting (hanya sebelum mulai) | login, pemilik | jadi |
+| POST | `/:id/start` | Mulai | coach, pemilik | jadi |
+| POST | `/:id/pause` | Pause | coach, pemilik | jadi |
+| POST | `/:id/resume` | Lanjut | coach, pemilik | jadi |
+| POST | `/:id/finish` | Selesai | coach, pemilik | jadi |
+| POST | `/:id/timeout` | Time out (memakai jatah) | coach, pemilik | jadi |
+| POST | `/:id/hydration` | Hydration break (memakai jatah) | coach, pemilik | jadi |
+| WS | `/:id/live` | Timer dan skor langsung | publik | tersambung, autentikasi menunggu dev-c |
 
-| Method | Path | Fungsi | Akses |
-| --- | --- | --- | --- |
-| GET | `/defaults/:sport` | Nilai bawaan aturan per cabang | coach |
-| POST | `/` | Buat match dari bracket match atau manual | coach |
-| GET | `/:id` | Detail dan status match | login |
-| PATCH | `/:id/settings` | Edit setting match (Coach atau User sesuai kepemilikan) | login |
-| POST | `/:id/start` | Mulai | coach |
-| POST | `/:id/pause` | Pause | coach |
-| POST | `/:id/resume` | Lanjut | coach |
-| POST | `/:id/finish` | Selesai | coach |
-| POST | `/:id/timeout` | Time out | coach |
-| POST | `/:id/hydration` | Hydration break | coach |
-| WS | `/:id/live` | Timer dan skor langsung | publik |
+"Pemilik" = pembuat match. Admin boleh mengontrol semua match.
+
+## Aturan
+
+- **Status**: `scheduled` → `running` ⇄ `paused` → `finished`; `cancelled` dari status mana pun yang belum selesai. Aturannya murni di `rules.ts` (`applyAction`) dan diuji tanpa database.
+- **Timer dihitung server.** Yang disimpan hanya `elapsed_seconds` (akumulasi sampai jeda terakhir) dan `runtime.resumedAt`. Waktu berjalan = `elapsed_seconds` + (sekarang − `resumedAt`) saat `running`. Klien memakai `elapsedSeconds` dan `serverTime` dari respons atau pesan WS lalu menghitung sendiri per detik; jam perangkat tidak ikut menentukan.
+- **Aksi serentak aman**: setiap perubahan memakai `UPDATE ... WHERE status = <status lama>`. Dua time out bersamaan tidak bisa memakai satu jatah dua kali; yang kalah dapat `409 MATCH_CONFLICT`.
+- **Setting** disimpan penuh di `matches.settings` saat dibuat (nilai bawaan cabang + penimpa Coach). Edit hanya boleh saat `scheduled`. Penghitung (`runtime`) ada di kolom terpisah supaya edit setting tidak bisa meresetnya.
+- **Satu bracket match = satu match** (indeks unik parsial). Membuat match dari bracket match mensyaratkan pembuatnya pemilik open play-nya (atau admin).
+- Setiap perubahan disiarkan ke kanal `match:<id>` berupa `{ type: "match", match: <MatchView> }`.
+
+## Untuk modul lain
+
+`createMatchApi(ctx).getMatchSettings(id)` mengembalikan `{ id, sport, bracketMatchId, createdBy, status, settings }`. Modul scoring membaca aturan skor dari `settings.rules`.
+
+## TODO(decision)
+
+- **Angka bawaan per cabang** (durasi, jumlah pemain, jatah dan lama time out, hydration, jeda) adalah placeholder di `rules.ts` (`DEFAULT_SETTINGS`). Proposal hanya menyebut parameternya. Ganti di satu tempat itu setelah tim memutuskan.
+- Match yang lewat dari `durationMinutes` belum selesai otomatis; Coach menekan selesai sendiri.
+- Autentikasi WebSocket ada di `core/realtime.ts` (milik dev-c).
 
 ## Checklist
 
-- [ ] Migrasi: `supabase/migrations/*_match.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
+- [x] Migrasi: `20261108000800_match.sql` (kerangka) + `20261109000400_match_runtime.sql` (kolom `runtime`, indeks unik)
+- [x] `schema.ts`, `rules.ts`, `service.ts`, `routes.ts`, test
+- [ ] Migrasi dijalankan ke database sungguhan (belum diuji di sesi ini)
 - [ ] Frontend: `frontend/src/modules/match`
-- [ ] README ini diperbarui, status di `MODULES.md` diubah
+- [ ] Status di `MODULES.md` diubah

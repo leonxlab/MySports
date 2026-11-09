@@ -1,5 +1,10 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CoachOpenPlayForm } from "@/modules/open-play";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="open-play" title="Buat open play" route="/coach/open-play/new" />;
+export default function NewOpenPlayPage() {
+  return (
+    <Page title="Buat open play">
+      <CoachOpenPlayForm />
+    </Page>
+  );
 }

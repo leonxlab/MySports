@@ -1,24 +1,33 @@
-import { apiClient, type RequestOptions } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
+import type {
+  CreateOpenPlayBody,
+  JoinResult,
+  MemberSummary,
+  OpenPlayView,
+  SearchOpenPlayQuery,
+  UpdateOpenPlayBody,
+} from "./types";
 
 // Panggilan API modul open-play. Daftar endpoint: backend/src/modules/open-play/README.md
-// TODO: ganti tipe opts dan T dengan tipe spesifik di types.ts saat endpoint jadi.
 export const openPlayApi = {
   /** Cari open play berdasarkan jarak, cabang, tanggal */
-  searchOpenPlays: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/open-play", opts),
-  /** Coach mencari pemain */
-  searchMembers: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/open-play/members/search", opts),
-  /** Info lengkap member (nama, umur, pengalaman, Level, galeri) */
-  getMemberInfo: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/open-play/members/:userId", opts),
+  search: (query: SearchOpenPlayQuery = {}) =>
+    apiClient.request<OpenPlayView[]>("GET", "/open-play", { query: { ...query } }),
   /** Detail open play */
-  getOpenPlay: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/open-play/:id", opts),
-  /** Buat open play */
-  createOpenPlay: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/open-play", opts),
-  /** Setting slot: kuota, jam, harga, status */
-  updateSlot: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("PATCH", "/open-play/:id", opts),
+  get: (id: string) => apiClient.request<OpenPlayView>("GET", "/open-play/:id", { params: { id } }),
+  /** Buat open play [coach] */
+  create: (body: CreateOpenPlayBody) => apiClient.request<OpenPlayView>("POST", "/open-play", { body }),
+  /** Setting slot: kuota, jam, harga, status [coach] */
+  update: (id: string, body: UpdateOpenPlayBody) =>
+    apiClient.request<OpenPlayView>("PATCH", "/open-play/:id", { params: { id }, body }),
   /** Join dan mulai pembayaran */
-  joinOpenPlay: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("POST", "/open-play/:id/join", opts),
+  join: (id: string) => apiClient.request<JoinResult>("POST", "/open-play/:id/join", { params: { id } }),
   /** Batal join */
-  leaveOpenPlay: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("DELETE", "/open-play/:id/join", opts),
-  /** Peserta terkonfirmasi */
-  listParticipants: <T = unknown>(opts?: RequestOptions) => apiClient.request<T>("GET", "/open-play/:id/participants", opts),
+  leave: (id: string) => apiClient.request<void>("DELETE", "/open-play/:id/join", { params: { id } }),
+  /** Peserta terkonfirmasi [coach] */
+  listParticipants: (id: string) =>
+    apiClient.request<MemberSummary[]>("GET", "/open-play/:id/participants", { params: { id } }),
+  /** Coach mencari pemain [coach] */
+  searchMembers: (q: string, sport?: string) =>
+    apiClient.request<MemberSummary[]>("GET", "/open-play/members/search", { query: { q, sport } }),
 };

@@ -12,7 +12,7 @@ Membagi pemain yang sudah bayar ke lapangan dan ronde. Selisih jumlah main antar
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+Semua endpoint backend sudah berjalan. Frontend belum. Ubah tabel ini bersamaan dengan kode.
 
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
@@ -22,11 +22,18 @@ Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode
 | PATCH | `/:id/matches/:matchId` | Koreksi manual susunan pemain | coach |
 | POST | `/:id/regenerate` | Buat ulang bracket | coach |
 
+## Catatan desain
+
+- Peserta dibaca lewat `createOpenPlayApi(ctx).listConfirmedParticipants` (peserta berstatus `confirmed`).
+- Hasil deterministik per `seed` (versi bracket). Basket/futsal memakai tim tetap bila tim lebih banyak daripada yang bisa main sekaligus; selain itu tim dibentuk ulang tiap ronde.
+- `TODO(decision)`: ukuran tim bawaan 5 bila Coach tidak mengatur; sisa pemain yang tidak habis dibagi tim bergantian istirahat.
+- Regenerate dan koreksi ditolak (409) bila match dari bracket itu sudah berjalan.
+
 ## Checklist
 
 - [ ] Migrasi: `supabase/migrations/*_bracket.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
+- [x] `schema.ts` untuk input
+- [x] `algorithm.ts`, `correction.ts`, `service.ts` dan test (service diuji lewat fungsi murni; query Supabase belum punya test integrasi)
+- [x] `routes.ts` (hapus `todo(...)` satu per satu)
 - [ ] Frontend: `frontend/src/modules/bracket`
 - [ ] README ini diperbarui, status di `MODULES.md` diubah
