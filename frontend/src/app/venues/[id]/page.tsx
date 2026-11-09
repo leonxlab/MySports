@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page } from "@/modules/payments";
+import { VenueDetail } from "@/modules/venues";
 
-export default function Page() {
-  return <ModuleStub module="venues" title="Detail lapangan" route="/venues/[id]" />;
+export default async function VenuePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Detail lapangan">
+      <VenueDetail id={id} />
+    </Page>
+  );
 }
