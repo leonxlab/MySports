@@ -74,7 +74,7 @@ export function computeFees(
     creditAmount: amount,
     platformFee: 0,
     gatewayFee,
-    platformNet: -gatewayFee,
+    platformNet: 0 - gatewayFee, // bukan -gatewayFee: itu menghasilkan -0 saat gatewayFee = 0
   };
 }
 
