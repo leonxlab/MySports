@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { MatchSettingsEditor } from "@/modules/match";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="match" title="Setting match" route="/match/[id]/settings" />;
+export default async function MatchSettingsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Setting match">
+      <MatchSettingsEditor id={id} />
+    </Page>
+  );
 }
