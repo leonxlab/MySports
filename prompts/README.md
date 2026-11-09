@@ -44,10 +44,10 @@ Prompt adalah bagian repo. Ubah lewat PR dan minta pemilik jalurnya menyetujui. 
 
 ## Prompt bantu
 
-Untuk perbaikan setelah review atau CI merah, tempel ini di sesi modul yang sama:
+Untuk perbaikan setelah review atau test lokal gagal, tempel ini di sesi modul yang sama:
 
 ```
-Baca komentar review / log CI di bawah. Kerjakan hanya yang diminta, di modul ini saja.
+Baca komentar review / log test di bawah. Kerjakan hanya yang diminta, di modul ini saja.
 Jangan merombak hal lain. Jalankan ulang pemeriksaan di bagian Pengujian prompt modul,
 lalu laporkan apa yang berubah dan apa yang tidak kamu ubah beserta alasannya.
 

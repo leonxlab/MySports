@@ -23,7 +23,7 @@ openplay-app/
 ├── supabase/         Migrasi SQL (satu-satunya sumber skema database)
 ├── contracts/        Kontrak lintas layanan (event YOLO → backend)
 ├── docs/             Proposal, arsitektur, setup, deploy
-├── .github/          CI, template PR dan issue, CODEOWNERS
+├── .github/          template PR dan issue, CODEOWNERS
 ├── MODULES.md        Daftar modul, pemilik, fase, status
 └── rules.md          File ini
 ```
@@ -79,9 +79,11 @@ Aturan kepemilikan:
 Pengaturan yang perlu dinyalakan di GitHub (Settings → Branches → `main`):
 
 - Require a pull request, 1 approval, dan nyalakan **Require review from Code Owners**
-- Require status checks: `backend`, `frontend`, `yolo` (CI lewat path filter, job yang tidak relevan dilewati)
 - Block force pushes
 - Hanya izinkan **squash merge**
+
+Workflow GitHub Actions tidak digunakan. Jalankan test dan typecheck yang relevan secara lokal sebelum membuka PR dan cantumkan hasilnya di deskripsi PR.
+Jika branch protection atau ruleset masih mewajibkan status check dari workflow ini, hapus required check tersebut di pengaturan GitHub agar PR tidak tertahan.
 
 ### Commit
 
@@ -113,14 +115,14 @@ Satu commit = satu perubahan yang masuk akal. Jangan campur refactor besar denga
 - Pakai template PR yang ada. Isi bagian "Modul" dan centang checklist dengan jujur.
 - Ukuran ideal di bawah 400 baris diff (di luar lockfile dan migrasi).
 - Reviewer membalas dalam 24 jam. Kalau belum sempat, bilang saja.
-- Penulis yang menekan merge setelah approve dan CI hijau. Hapus branch setelah merge.
+- Penulis yang menekan merge setelah approve dan validasi lokal selesai. Hapus branch setelah merge.
 - Komentar review tentang selera ("aku lebih suka begini") boleh, tapi tidak memblokir. Yang memblokir: bug, pelanggaran aturan di file ini, dan test yang kurang.
 
 ### Merge dan deploy
 
 | Layanan | Sumber | Pemicu |
 | --- | --- | --- |
-| Backend (Heroku) | folder `backend/` | Auto deploy dari `main` setelah CI lolos |
+| Backend (Heroku) | folder `backend/` | Auto deploy dari `main` |
 | Frontend (Vercel) | folder `frontend/` | Preview per PR, produksi dari `main` |
 | yolo-service (GPU sewa) | folder `yolo-service/` | Manual. Server GPU hanya menjalankan tag `yolo-vX.Y.Z` |
 | Database (Supabase) | folder `supabase/migrations/` | `supabase db push` oleh pemilik modul setelah PR merge |
@@ -207,7 +209,7 @@ Fitur dianggap selesai kalau semua ini benar:
 - [ ] Logika bisnis ada test. Wajib untuk: bracket, rumus Level/XP, aturan skor per cabang, hitungan fee, cek role
 - [ ] Migrasi sudah ada, RLS aktif, `supabase db reset` lolos di lokal
 - [ ] Frontend memakai `api.ts` modul, state loading dan error tertangani
-- [ ] CI hijau
+- [ ] Test, typecheck, dan build yang relevan dijalankan lokal
 - [ ] Checklist di README modul diperbarui dan `MODULES.md` diubah statusnya
 
 Aturan test:

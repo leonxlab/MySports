@@ -47,7 +47,7 @@ Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, Fast
 - Segmen video dan frame tidak boleh tertinggal di disk setelah selesai, tidak boleh masuk log, dan nama atau wajah pemain tidak boleh ditulis ke log.
 - Bobot model tidak masuk git. Simpan di bucket `models`, catat versinya di `yolo-service/models/VERSIONS.md`.
 - Lisensi repo dan dataset referensi harus dicek dan dicatat di README modul sebelum kode atau bobotnya dipakai. Jangan menyalin kode dari repo tanpa lisensi yang jelas.
-- Impor `ultralytics`/`torch` di dalam fungsi (lazy) supaya test ringan di CI tidak butuh GPU.
+- Impor `ultralytics`/`torch` di dalam fungsi (lazy) supaya test ringan tetap bisa dijalankan lokal tanpa GPU.
 
 ## Tujuan
 

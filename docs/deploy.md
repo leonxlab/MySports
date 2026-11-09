@@ -29,7 +29,7 @@ heroku config:set \
   YOLO_SERVICE_KEY=... CORS_ORIGINS=https://<domain-vercel>
 ```
 
-Lalu di dashboard Heroku: Deploy → GitHub → pilih repo → branch `main` → centang **Wait for CI to pass before deploy** → Enable Automatic Deploys. Cek buildpack itu masih terawat sebelum dipakai. Alternatifnya deploy lewat GitHub Actions dengan `git subtree push --prefix backend heroku main`.
+Lalu di dashboard Heroku: Deploy → GitHub → pilih repo → branch `main` → Enable Automatic Deploys. Cek buildpack itu masih terawat sebelum dipakai. Workflow CI GitHub Actions tidak digunakan; validasi dilakukan lokal sebelum merge.
 
 Catatan:
 - Router Heroku memutus request yang tidak dijawab dalam 30 detik. Karena itu video tidak pernah lewat backend, hanya signed URL.
