@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { HomeFeedPage } from "@/modules/feed/components/FeedPages";
 
 export default function Page() {
-  return <ModuleStub module="feed" title="Halaman utama" route="/" />;
+  return <HomeFeedPage />;
 }

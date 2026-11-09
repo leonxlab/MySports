@@ -19,7 +19,7 @@ Konvensi (rules.md bagian 3):
 | accounts (Leon) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles`; role admin hanya melalui penunjukan internal |
 | role-requests (Leon) | `countPending()` | admin | |
 | community (Leon) | `countOpenReports()`, `listRecentThreads({ sport?, limit? })` | admin, feed | Mengembalikan thread publik terbaru dengan author dan signed media URL |
-| feed (Leon) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |
+| feed (Leon) | `classifyContent(input)`, `recordSignal(userId, input)` | community, open-play | Menyimpan klasifikasi konten dan sinyal terverifikasi di tabel milik feed |
 | venues (Jonathan) | `getCourt(courtId)`, `markSlotBooked`, `releaseSlot`, `countPending()` | payments, open-play, equipment, admin | `getCourt` memuat lokasi venue |
 | payments (Jonathan) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)`, `getFeeSettings()` | open-play, equipment | `onPaid` menghindari impor melingkar |
 | open-play (Jonathan) | `listConfirmedParticipants(openPlayId)`, `getOpenPlay(id)`, `listNearby(filters)` | bracket, match, feed | |

@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { ExploreFeedPage } from "@/modules/feed/components/FeedPages";
 
 export default function Page() {
-  return <ModuleStub module="feed" title="Semua olahraga" route="/explore" />;
+  return <ExploreFeedPage />;
 }
