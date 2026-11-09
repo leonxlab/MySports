@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { AdminAuditPage } from "@/modules/admin/components/AdminPages";
 
 export default function Page() {
-  return <ModuleStub module="admin" title="Audit log" route="/admin/audit" />;
+  return <AdminAuditPage />;
 }
