@@ -7,12 +7,20 @@ Semua uang masuk ke aplikasi lewat payment gateway, diteruskan ke Coach/Owner di
 | Pemilik | dev-b (Open play end-to-end) |
 | Fase | 1 |
 | Prefix API | `/api/v1/payments` |
-| Bergantung pada | accounts |
+| Bergantung pada | accounts, venues (`markSlotBooked`, `getCourt`) |
 | Tabel | `payments`, `wallets`, `wallet_entries`, `withdrawals`, `fee_settings`, `court_bookings` |
+
+## Keputusan desain
+
+- `court_bookings` hanya catatan transaksi sewa lapangan. Ketersediaan lapangan satu sumber, yaitu `court_slots` di modul venues; payments mengubahnya hanya lewat `venues.markSlotBooked` / `releaseSlot` / `releaseRange`.
+- Ada dua aliran uang: sewa lapangan (Coach membayar Owner Lapangan) dan open play (peserta membayar Coach). Coach wajib punya booking `confirmed` sebelum membuat open play.
+- Uang selalu bilangan bulat rupiah di kode (`fees.ts`), `numeric` di database. Pembulatan setengah ke atas hanya di `percentOf`.
+- Biaya gateway: `TODO(decision)` siapa yang menanggung. Asumsi sementara aplikasi menanggung.
+- Refund: `TODO(decision)`. Asumsi sementara hanya dari status `paid`.
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+Berjalan: checkout (open play dan sewa lapangan), booking, webhook, wallet, withdraw, fee-settings. Masih `501`: checkout `equipment_rental` (Fase 4). Withdraw baru mencatat permintaan (`requested`), tanpa payout ke rekening (`TODO(decision)`).
 
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
@@ -29,9 +37,11 @@ Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode
 
 ## Checklist
 
-- [ ] Migrasi: `supabase/migrations/*_payments.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
-- [ ] `routes.ts` (hapus `todo(...)` satu per satu)
+- [x] Migrasi: `20261109000200_payments_atomic.sql` (`payments_settle`, `wallet_withdraw`). Belum dijalankan dengan `supabase db reset` (Docker tidak ada di sesi ini)
+- [x] `schema.ts` untuk input
+- [x] Kerangka: `fees.ts`, `state.ts`, `gateway.ts` (FakeGateway), `createPaymentsApi` dengan `onPaid`, semuanya dengan test
+- [x] `service.ts` (checkout, webhook, settle, wallet, withdraw, fee settings) dan test dengan Supabase tiruan di memori
+- [x] Booking lapangan: slot ditahan atomik saat booking dibuat (`venues.markSlotBooked`), dilepas bila pembayaran gagal. `TODO(decision)`: batas waktu tahan slot yang tidak dibayar
+- [x] `routes.ts`
 - [ ] Frontend: `frontend/src/modules/payments`
 - [ ] README ini diperbarui, status di `MODULES.md` diubah

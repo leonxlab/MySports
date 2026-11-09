@@ -21,7 +21,7 @@ Konvensi (rules.md bagian 3):
 | community (Leon) | `countOpenReports()`, `listRecentThreads(filter)` | admin, feed | |
 | feed (Leon) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |
 | venues (Jonathan) | `getCourt(courtId)`, `markSlotBooked`, `releaseSlot`, `countPending()` | payments, open-play, equipment, admin | `getCourt` memuat lokasi venue |
-| payments (Jonathan) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)` | open-play, equipment | `onPaid` menghindari impor melingkar |
+| payments (Jonathan) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)`, `getFeeSettings()` | open-play, equipment | `onPaid` menghindari impor melingkar |
 | open-play (Jonathan) | `listConfirmedParticipants(openPlayId)`, `getOpenPlay(id)`, `listNearby(filters)` | bracket, match, feed | |
 | bracket (Jonathan) | `getBracketMatch(id)` | match, scoring | Pemain per sisi |
 | match (Jonathan) | `getMatch(id)`, `getMatchSettings(id)` | scoring, devices | |
