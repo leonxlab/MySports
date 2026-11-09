@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import type {
   CreateOpenPlayBody,
   JoinResult,
+  MemberDetail,
   MemberSummary,
   OpenPlayView,
   SearchOpenPlayQuery,
@@ -30,4 +31,7 @@ export const openPlayApi = {
   /** Coach mencari pemain [coach] */
   searchMembers: (q: string, sport?: string) =>
     apiClient.request<MemberSummary[]>("GET", "/open-play/members/search", { query: { q, sport } }),
+  /** Info lengkap member [coach] */
+  getMember: (userId: string) =>
+    apiClient.request<MemberDetail>("GET", "/open-play/members/:userId", { params: { userId } }),
 };

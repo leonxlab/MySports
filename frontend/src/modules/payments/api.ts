@@ -4,7 +4,9 @@ import type {
   CheckoutResult,
   CreateBookingBody,
   CreateBookingResult,
+  FeePreview,
   FeeSettings,
+  PaymentStatusView,
   PaymentTargetType,
   Wallet,
   WalletEntry,
@@ -35,6 +37,12 @@ export const paymentsApi = {
   listWithdrawals: () => apiClient.request<WithdrawalView[]>("GET", "/payments/withdrawals"),
   /** Model dan persen biaya layanan [admin] */
   getFeeSettings: () => apiClient.request<FeeSettings>("GET", "/payments/fee-settings"),
+  /** Contoh hitungan biaya dari server sebelum disimpan [admin] */
+  previewFees: (query: { model: string; percent: number; amount: number }) =>
+    apiClient.request<FeePreview>("GET", "/payments/fee-preview", { query }),
+  /** Status satu pembayaran milik sendiri */
+  getPayment: (id: string) =>
+    apiClient.request<PaymentStatusView>("GET", "/payments/:id", { params: { id } }),
   /** Ubah model dan persen biaya layanan [admin] */
   updateFeeSettings: (body: FeeSettings) =>
     apiClient.request<FeeSettings>("PUT", "/payments/fee-settings", { body }),

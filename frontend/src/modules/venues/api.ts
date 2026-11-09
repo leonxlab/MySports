@@ -8,6 +8,8 @@ export const venuesApi = {
     apiClient.request<VenueView[]>("GET", "/venues", { query: { ...query } }),
   /** Lapangan menunggu persetujuan [admin] */
   listPendingVenues: () => apiClient.request<VenueView[]>("GET", "/venues/pending"),
+  /** Lapangan milik Owner, semua status [owner] */
+  listMine: () => apiClient.request<VenueView[]>("GET", "/venues/mine"),
   /** Detail lapangan */
   getVenue: (id: string) => apiClient.request<VenueView>("GET", "/venues/:id", { params: { id } }),
   /** Daftarkan lapangan baru [owner] */

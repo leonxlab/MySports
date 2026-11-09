@@ -58,3 +58,13 @@ export interface MemberSummary {
   photoPath?: string | null;
   level?: number;
 }
+
+export interface MemberDetail {
+  id: string;
+  displayName?: string;
+  display_name?: string;
+  age?: number | null;
+  bio?: string | null;
+  experience: { sport: string; years: number | null; notes: string | null }[];
+  gallery: { id: string; kind: string; storage_path: string | null; quote_text: string | null }[];
+}

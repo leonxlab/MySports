@@ -1,5 +1,9 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { AdminFees, Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="payments" title="Biaya layanan (admin)" route="/admin/fees" />;
+export default function AdminFeesPage() {
+  return (
+    <Page title="Biaya layanan">
+      <AdminFees />
+    </Page>
+  );
 }

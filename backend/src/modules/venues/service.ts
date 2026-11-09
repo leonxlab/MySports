@@ -214,6 +214,19 @@ export function createVenuesService(ctx: AppContext) {
       return ids.flatMap((id) => (venues.has(id) ? [venues.get(id)!] : []));
     },
 
+    /** Lapangan milik Owner (semua status), untuk halaman kelola. */
+    async listMine(user: AuthUser): Promise<VenueView[]> {
+      const { data, error } = await db
+        .from("venues")
+        .select("id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const ids = (data ?? []).map((r) => r.id as string);
+      const venues = await loadVenues(ids);
+      return ids.flatMap((id) => (venues.has(id) ? [venues.get(id)!] : []));
+    },
+
     approve: (id: string) => setVenueStatus(id, "approved"),
     reject: (id: string) => setVenueStatus(id, "rejected"),
 

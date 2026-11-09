@@ -481,6 +481,14 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       }));
     },
 
+    /** Contoh hitungan biaya untuk layar admin. Murni, tidak menyimpan apa pun. */
+    previewFees(model: FeeModel, percent: number, amount: number) {
+      return {
+        charge: computeFees(model, percent, amount),
+        withdraw: model === "withdraw_percent" ? computeWithdrawFee(percent, amount) : null,
+      };
+    },
+
     /** Pembayaran milik pemanggil saja. */
     async getPayment(userId: string, id: string) {
       const p = await loadPayment(id);

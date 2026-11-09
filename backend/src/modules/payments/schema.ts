@@ -31,3 +31,10 @@ export const bookingSchema = z
     endsAt: z.string().datetime({ offset: true }),
   })
   .refine((v) => new Date(v.endsAt) > new Date(v.startsAt), { message: "endsAt harus setelah startsAt" });
+
+export const feePreviewSchema = z.object({
+  model: z.enum(["withdraw_percent", "payer_fee"]),
+  percent: z.coerce.number().min(0).max(100),
+  /** Rupiah bulat. */
+  amount: z.coerce.number().int().min(0).max(1_000_000_000),
+});
