@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CommunityThreadPage } from "@/modules/community/components/CommunityPages";
 
 export default function Page() {
-  return <ModuleStub module="community" title="Thread" route="/community/[id]" />;
+  return <CommunityThreadPage />;
 }

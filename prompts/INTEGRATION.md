@@ -18,7 +18,7 @@ Konvensi (rules.md bagian 3):
 | accounts (Leon) | `getProfileSummary(userId)`, `getProfileSummaries(ids)` | open-play, community, scoring, bracket, admin | `id`, `display_name`, `photo_path`, `level` (sementara `0` sampai modul level siap) |
 | accounts (Leon) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles`; role admin hanya melalui penunjukan internal |
 | role-requests (Leon) | `countPending()` | admin | |
-| community (Leon) | `countOpenReports()`, `listRecentThreads(filter)` | admin, feed | |
+| community (Leon) | `countOpenReports()`, `listRecentThreads({ sport?, limit? })` | admin, feed | Mengembalikan thread publik terbaru dengan author dan signed media URL |
 | feed (Leon) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |
 | venues (Jonathan) | `getCourt(courtId)`, `markSlotBooked`, `releaseSlot`, `countPending()` | payments, open-play, equipment, admin | `getCourt` memuat lokasi venue |
 | payments (Jonathan) | `createCheckout(...)`, `onPaid(targetType, handler)`, `settle(paymentId)`, `getFeeSettings()` | open-play, equipment | `onPaid` menghindari impor melingkar |
