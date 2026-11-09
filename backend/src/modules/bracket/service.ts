@@ -1,6 +1,7 @@
 import type { AppContext } from "../../core/context";
 import { AppError, forbidden, notFound } from "../../core/errors";
 import type { AuthUser } from "../../core/roles";
+import { createOpenPlayApi } from "../open-play";
 import { generateBracket, BracketError, type Mode, type Sport } from "./algorithm";
 import { validateCorrection } from "./correction";
 import type { CorrectMatchInput, GenerateBracketInput, RegenerateBracketInput } from "./schema";
@@ -55,7 +56,7 @@ function mapError(e: unknown): never {
 /**
  * Logika bisnis modul bracket. Aturan ditulis di sini, bukan di routes.ts.
  * Tabel milik modul ini: brackets, bracket_rounds, bracket_matches, bracket_resting.
- * Tabel open_plays dan open_play_participants hanya dibaca (modul open-play pemiliknya).
+ * Tabel open_plays hanya dibaca; peserta lewat createOpenPlayApi.
  */
 export function createBracketService(ctx: AppContext) {
   const db = ctx.supabase;
@@ -71,17 +72,9 @@ export function createBracketService(ctx: AppContext) {
     return data as { id: string; coach_id: string; sport: Sport; starts_at: string; ends_at: string };
   }
 
-  // TODO(integration): ganti dengan createOpenPlayApi(ctx).listConfirmedParticipants setelah open-play merge.
-  async function confirmedParticipants(openPlayId: string): Promise<string[]> {
-    const { data, error } = await db
-      .from("open_play_participants")
-      .select("user_id")
-      .eq("open_play_id", openPlayId)
-      .eq("status", "confirmed")
-      .order("joined_at", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map((r) => r.user_id as string);
-  }
+  // Peserta terkonfirmasi lewat pintu resmi modul open-play (rules.md bagian 3).
+  const confirmedParticipants = (openPlayId: string): Promise<string[]> =>
+    createOpenPlayApi(ctx).listConfirmedParticipants(openPlayId);
 
   async function assertCoachOf(openPlayId: string, user: AuthUser) {
     const op = await loadOpenPlay(openPlayId);
