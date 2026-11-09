@@ -1,17 +1,55 @@
 import type { FastifyInstance } from "fastify";
-import { todo } from "../../core/errors";
+import {
+  coachRequestSchema,
+  listRequestsSchema,
+  ownerRequestSchema,
+  rejectRequestSchema,
+  requestIdSchema,
+} from "./schema";
+import { createRoleRequestsService } from "./service";
 
 export async function routes(app: FastifyInstance) {
-  // POST /api/v1/role-requests/coach: Ajukan jadi Coach dengan bukti pengalaman dan prestasi [login]
-  app.post("/coach", { preHandler: app.requireRole() }, todo("Ajukan jadi Coach dengan bukti pengalaman dan prestasi"));
-  // POST /api/v1/role-requests/owner: Ajukan jadi Owner Lapangan [login]
-  app.post("/owner", { preHandler: app.requireRole() }, todo("Ajukan jadi Owner Lapangan"));
-  // GET /api/v1/role-requests/mine: Status pengajuan milik sendiri [login]
-  app.get("/mine", { preHandler: app.requireRole() }, todo("Status pengajuan milik sendiri"));
-  // GET /api/v1/role-requests: Daftar pengajuan menunggu [admin]
-  app.get("/", { preHandler: app.requireRole("admin") }, todo("Daftar pengajuan menunggu"));
-  // POST /api/v1/role-requests/:id/approve: Setujui pengajuan (memberi role) [admin]
-  app.post("/:id/approve", { preHandler: app.requireRole("admin") }, todo("Setujui pengajuan (memberi role)"));
-  // POST /api/v1/role-requests/:id/reject: Tolak pengajuan [admin]
-  app.post("/:id/reject", { preHandler: app.requireRole("admin") }, todo("Tolak pengajuan"));
+  const roleRequests = createRoleRequestsService(app.ctx);
+
+  app.post("/coach", { preHandler: app.requireRole() }, async (request) => {
+    const input = coachRequestSchema.parse(request.body);
+    return roleRequests.submitCoachRequest(request.user!.id, input);
+  });
+
+  app.post("/owner", { preHandler: app.requireRole() }, async (request) => {
+    const input = ownerRequestSchema.parse(request.body ?? {});
+    return roleRequests.submitOwnerRequest(request.user!.id, input);
+  });
+
+  app.get("/mine", { preHandler: app.requireRole() }, (request) =>
+    roleRequests.listMine(request.user!.id),
+  );
+
+  app.get<{ Querystring: Record<string, unknown> }>(
+    "/",
+    { preHandler: app.requireRole("admin") },
+    async (request) => {
+      const input = listRequestsSchema.parse(request.query);
+      return roleRequests.listRequests(input);
+    },
+  );
+
+  app.post<{ Params: { id: string } }>(
+    "/:id/approve",
+    { preHandler: app.requireRole("admin") },
+    (request) => {
+      const { id } = requestIdSchema.parse(request.params);
+      return roleRequests.approve(id, request.user!.id);
+    },
+  );
+
+  app.post<{ Params: { id: string } }>(
+    "/:id/reject",
+    { preHandler: app.requireRole("admin") },
+    async (request) => {
+      const { id } = requestIdSchema.parse(request.params);
+      const input = rejectRequestSchema.parse(request.body);
+      return roleRequests.reject(id, request.user!.id, input);
+    },
+  );
 }

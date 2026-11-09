@@ -16,6 +16,13 @@ export interface GalleryItem {
   created_at: string;
 }
 
+export interface ProfileSummary {
+  id: string;
+  display_name: string;
+  photo_path: string | null;
+  level: number;
+}
+
 export interface MeProfile {
   id: string;
   display_name: string;
