@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { AppError, todo } from "../../core/errors";
-import { checkoutSchema, entriesQuerySchema, feeSettingsSchema, withdrawSchema } from "./schema";
+import { AppError } from "../../core/errors";
+import { bookingSchema, checkoutSchema, entriesQuerySchema, feeSettingsSchema, withdrawSchema } from "./schema";
 import { createPaymentsService } from "./service";
 
 export async function routes(app: FastifyInstance) {
@@ -31,11 +31,15 @@ export async function routes(app: FastifyInstance) {
     return payments.handleWebhook(request.body, headers);
   });
 
-  // TODO(integration): booking lapangan menunggu venues.findFreeSlots / markSlotBooked (modul venues)
   // POST /api/v1/payments/bookings: Sewa lapangan [login]
-  app.post("/bookings", { preHandler: app.requireRole() }, todo("Sewa lapangan"));
+  app.post("/bookings", { preHandler: app.requireRole() }, async (request, reply) => {
+    const input = bookingSchema.parse(request.body);
+    return reply.code(201).send(await payments.createBooking({ bookedBy: request.user!.id, ...input }));
+  });
   // GET /api/v1/payments/bookings/mine: Booking milik sendiri [login]
-  app.get("/bookings/mine", { preHandler: app.requireRole() }, todo("Booking milik sendiri"));
+  app.get("/bookings/mine", { preHandler: app.requireRole() }, (request) =>
+    payments.listMyBookings(request.user!.id),
+  );
 
   // GET /api/v1/payments/wallet: Saldo [login]
   app.get("/wallet", { preHandler: app.requireRole() }, (request) => payments.getWallet(request.user!.id));

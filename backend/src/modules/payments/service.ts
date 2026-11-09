@@ -3,6 +3,7 @@ import { AppError, forbidden, notFound } from "../../core/errors";
 import { computeFees, computeWithdrawFee, type FeeModel } from "./fees";
 import { createGateway, type PaymentGateway } from "./gateway";
 import type { PaymentStatus } from "./state";
+import { createVenuesApi, type VenuesApi } from "../venues";
 
 export type PaymentTargetType = "open_play" | "court_booking" | "equipment_rental";
 
@@ -55,10 +56,24 @@ interface PaymentRow {
   status: PaymentStatus;
 }
 
+export type VenuesPort = Pick<VenuesApi, "getCourt" | "findFreeSlots" | "markSlotBooked" | "releaseSlot" | "releaseRange">;
+
 export interface Dependencies {
   /** Untuk test. Default: dari env (PAYMENT_PROVIDER). */
   gateway?: PaymentGateway;
+  /** Untuk test. Default: createVenuesApi(ctx). */
+  venues?: VenuesPort;
 }
+
+export interface CreateBookingInput {
+  bookedBy: string;
+  courtId: string;
+  startsAt: string;
+  endsAt: string;
+}
+
+// handler internal (konfirmasi booking) cukup didaftarkan sekali per AppContext
+const initialized = new WeakSet<AppContext>();
 
 // Satu registri per AppContext, supaya createPaymentsApi(ctx) yang dipanggil berulang
 // oleh modul berbeda (open-play, equipment) memakai daftar handler yang sama.
@@ -79,6 +94,12 @@ const money = (v: number | string) => Math.round(Number(v));
 const chargeOf = (p: Pick<PaymentRow, "amount" | "fee_amount" | "fee_model">) =>
   money(p.amount) + (p.fee_model === "payer_fee" ? money(p.fee_amount) : 0);
 
+/** Harga sewa: tarif per jam x durasi, dibulatkan ke rupiah terdekat. */
+export function bookingPrice(pricePerHour: number, startsAt: string, endsAt: string): number {
+  const minutes = (new Date(endsAt).getTime() - new Date(startsAt).getTime()) / 60000;
+  return Math.round((pricePerHour * minutes) / 60);
+}
+
 /**
  * Logika bisnis modul payments. Aturan ditulis di sini, bukan di routes.ts.
  * Tabel milik modul ini: payments, wallets, wallet_entries, withdrawals, fee_settings, court_bookings.
@@ -86,6 +107,7 @@ const chargeOf = (p: Pick<PaymentRow, "amount" | "fee_amount" | "fee_model">) =>
 export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) {
   const db = ctx.supabase;
   let gatewayInstance = deps.gateway;
+  const venues: VenuesPort = deps.venues ?? createVenuesApi(ctx);
 
   function gateway(): PaymentGateway {
     if (gatewayInstance) return gatewayInstance;
@@ -130,7 +152,36 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       }
       return { amount: money(op.price), payeeId: op.coach_id as string, description: "Open play" };
     }
+    if (input.targetType === "court_booking") {
+      const { data: b, error } = await db
+        .from("court_bookings")
+        .select("id, booked_by, court_id, starts_at, ends_at, status")
+        .eq("id", input.targetId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!b || b.booked_by !== input.payerId) throw notFound("BOOKING_NOT_FOUND", "Booking tidak ditemukan");
+      if (b.status !== "pending") throw new AppError(409, "BOOKING_NOT_PENDING", "Booking sudah diproses");
+      const court = await venues.getCourt(b.court_id as string);
+      return {
+        amount: bookingPrice(court.pricePerHour, b.starts_at as string, b.ends_at as string),
+        payeeId: court.venue.ownerId,
+        description: `Sewa ${court.venue.name} - ${court.name}`,
+      };
+    }
     throw new AppError(501, "NOT_IMPLEMENTED", `Checkout untuk ${input.targetType} belum diimplementasi`);
+  }
+
+  /** Lepas tahanan slot dan batalkan booking yang belum dibayar. */
+  async function cancelBooking(bookingId: string) {
+    const { data: b, error } = await db
+      .from("court_bookings")
+      .update({ status: "cancelled" })
+      .eq("id", bookingId)
+      .eq("status", "pending")
+      .select("court_id, starts_at, ends_at");
+    if (error) throw error;
+    const row = (b ?? [])[0];
+    if (row) await venues.releaseRange(row.court_id as string, row.starts_at as string, row.ends_at as string);
   }
 
   async function loadPayment(id: string): Promise<PaymentRow> {
@@ -152,6 +203,65 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       for (const handler of handlersFor(ctx).get(payment.targetType) ?? []) {
         await handler(payment);
       }
+    },
+
+    /**
+     * Sewa lapangan. Slot ditahan (atomik) sejak booking dibuat supaya dua orang tidak membayar
+     * jam yang sama; dilepas lagi bila pembayaran gagal. TODO(decision): batas waktu tahan slot
+     * yang tidak dibayar (belum ada penjadwal).
+     */
+    async createBooking(input: CreateBookingInput) {
+      const court = await venues.getCourt(input.courtId);
+      if (!court.active || court.venue.status !== "approved") {
+        throw new AppError(409, "COURT_UNAVAILABLE", "Court tidak tersedia");
+      }
+      if (court.venue.ownerId === input.bookedBy) {
+        throw new AppError(400, "SELF_PAYMENT", "Tidak bisa menyewa lapangan sendiri");
+      }
+      const slots = await venues.findFreeSlots(input.courtId, input.startsAt, input.endsAt);
+      if (!slots) throw new AppError(409, "SLOT_UNAVAILABLE", "Jam yang dipilih tidak tersedia");
+      await venues.markSlotBooked(slots.map((s) => s.id));
+
+      try {
+        const { data, error } = await db
+          .from("court_bookings")
+          .insert({
+            booked_by: input.bookedBy,
+            court_id: input.courtId,
+            starts_at: input.startsAt,
+            ends_at: input.endsAt,
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        const bookingId = data.id as string;
+        const checkout = await service.createCheckout({
+          payerId: input.bookedBy,
+          targetType: "court_booking",
+          targetId: bookingId,
+        });
+        return { bookingId, checkout };
+      } catch (e) {
+        await venues.releaseSlot(slots.map((s) => s.id));
+        throw e;
+      }
+    },
+
+    async listMyBookings(userId: string) {
+      const { data, error } = await db
+        .from("court_bookings")
+        .select("id, court_id, starts_at, ends_at, status, payment_id, created_at")
+        .eq("booked_by", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((b) => ({
+        id: b.id as string,
+        courtId: b.court_id as string,
+        startsAt: b.starts_at as string,
+        endsAt: b.ends_at as string,
+        status: b.status as string,
+        paymentId: (b.payment_id as string | null) ?? null,
+      }));
     },
 
     async createCheckout(input: CreateCheckoutInput): Promise<CheckoutResult> {
@@ -260,7 +370,10 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       if (upErr) throw upErr;
       if ((changed ?? []).length === 0) return { outcome: "duplicate" };
 
-      if (event.status === "failed") return { outcome: "failed" };
+      if (event.status === "failed") {
+        if (payment.target_type === "court_booking") await cancelBooking(payment.target_id);
+        return { outcome: "failed" };
+      }
 
       await service.dispatchPaid({
         paymentId: payment.id,
@@ -375,6 +488,21 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       return { id: p.id, status: p.status, chargeAmount: chargeOf(p) };
     },
   };
+
+  if (!initialized.has(ctx)) {
+    initialized.add(ctx);
+    // Booking lapangan lunas: konfirmasi booking, lalu teruskan dana ke Owner segera.
+    // TODO(decision): kapan settle untuk court_booking (asumsi: segera setelah dibayar).
+    service.onPaid("court_booking", async (p) => {
+      const { error } = await db
+        .from("court_bookings")
+        .update({ status: "confirmed", payment_id: p.paymentId })
+        .eq("id", p.targetId)
+        .eq("status", "pending");
+      if (error) throw error;
+      await service.settle(p.paymentId);
+    });
+  }
   return service;
 }
 

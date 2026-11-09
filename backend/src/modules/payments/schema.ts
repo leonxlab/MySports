@@ -23,3 +23,11 @@ export type FeeSettingsBody = z.infer<typeof feeSettingsSchema>;
 export const entriesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
+
+export const bookingSchema = z
+  .object({
+    courtId: z.string().uuid(),
+    startsAt: z.string().datetime({ offset: true }),
+    endsAt: z.string().datetime({ offset: true }),
+  })
+  .refine((v) => new Date(v.endsAt) > new Date(v.startsAt), { message: "endsAt harus setelah startsAt" });
