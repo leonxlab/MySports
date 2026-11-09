@@ -317,6 +317,20 @@ export function createVenuesService(ctx: AppContext) {
       if (error) throw error;
     },
 
+    /** Lepas semua slot `booked` yang berada di dalam rentang (dipakai saat booking dibatalkan). */
+    async releaseRange(courtId: string, startsAt: string, endsAt: string): Promise<void> {
+      const slots = await getAvailability(courtId, startsAt, endsAt);
+      const ids = slots
+        .filter(
+          (s) =>
+            s.status === "booked" &&
+            new Date(s.startsAt) >= new Date(startsAt) &&
+            new Date(s.endsAt) <= new Date(endsAt),
+        )
+        .map((s) => s.id);
+      if (ids.length > 0) await this.releaseSlot(ids);
+    },
+
     async countPending(): Promise<number> {
       const { count, error } = await db
         .from("venues")
