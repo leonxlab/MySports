@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { ApplicationStatusPage } from "@/modules/role-requests/components/RoleRequestPages";
 
 export default function Page() {
-  return <ModuleStub module="role-requests" title="Status pengajuan" route="/apply/status" />;
+  return <ApplicationStatusPage />;
 }

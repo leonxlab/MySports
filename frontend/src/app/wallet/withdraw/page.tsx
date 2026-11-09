@@ -1,5 +1,9 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page, WithdrawForm } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="payments" title="Tarik saldo" route="/wallet/withdraw" />;
+export default function WithdrawPage() {
+  return (
+    <Page title="Tarik saldo">
+      <WithdrawForm />
+    </Page>
+  );
 }

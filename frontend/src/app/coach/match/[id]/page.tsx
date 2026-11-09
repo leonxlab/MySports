@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CoachMatchControl } from "@/modules/match";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="match" title="Control menu (controller)" route="/coach/match/[id]" />;
+export default async function CoachMatchPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Kontrol match">
+      <CoachMatchControl id={id} />
+    </Page>
+  );
 }

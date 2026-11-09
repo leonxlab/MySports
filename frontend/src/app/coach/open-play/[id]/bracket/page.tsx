@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CoachBracket } from "@/modules/bracket";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="bracket" title="Bracket (coach)" route="/coach/open-play/[id]/bracket" />;
+export default async function CoachBracketPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <Page title="Bracket">
+      <CoachBracket openPlayId={id} />
+    </Page>
+  );
 }

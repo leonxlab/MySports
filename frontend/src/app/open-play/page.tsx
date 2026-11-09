@@ -1,5 +1,10 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { OpenPlayList } from "@/modules/open-play";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="open-play" title="Cari open play" route="/open-play" />;
+export default function OpenPlayPage() {
+  return (
+    <Page title="Cari open play">
+      <OpenPlayList />
+    </Page>
+  );
 }
