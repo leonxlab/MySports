@@ -27,7 +27,7 @@ Prompt pembuka: [`prompts/dev-a/00-kickoff.md`](prompts/dev-a/00-kickoff.md)
 
 | Modul | Isi | Layer | Fase | Bobot | Effort AI | Bergantung pada | Prompt | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/dev-a/accounts.md) | belum mulai |
+| accounts | Akun dan profil | backend + frontend | 1 | 2 | Medium | - | [prompt](prompts/dev-a/accounts.md) | jalan |
 | role-requests | Pengajuan Coach dan Owner Lapangan | backend + frontend | 1 | 1 | Medium | accounts | [prompt](prompts/dev-a/role-requests.md) | belum mulai |
 | community | Community discussion | backend + frontend | 1 | 2 | Medium | accounts | [prompt](prompts/dev-a/community.md) | belum mulai |
 | feed | Halaman utama dan personalisasi | backend + frontend | 1 | 2 | Medium | accounts, open-play, community | [prompt](prompts/dev-a/feed.md) | belum mulai |

@@ -1,5 +1,7 @@
-// Skema zod untuk body dan query modul accounts.
-// Tipe respons yang dipakai frontend ditulis ulang di frontend/src/modules/accounts/types.ts.
-// import { z } from "zod";
+import { z } from "zod";
 
-export {};
+export const bootstrapProfileSchema = z.object({
+  display_name: z.string().trim().min(1).max(80),
+});
+
+export type BootstrapProfileInput = z.infer<typeof bootstrapProfileSchema>;

@@ -13,8 +13,8 @@ Konvensi (rules.md bagian 3):
 
 | Penyedia | Fungsi | Pemakai | Keterangan |
 | --- | --- | --- | --- |
-| accounts (dev-a) | `getProfileSummary(userId)`, `getProfileSummaries(ids)` | open-play, community, scoring, bracket, admin | id, nama, foto, level |
-| accounts (dev-a) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles` |
+| accounts (dev-a) | `getProfileSummary(userId)`, `getProfileSummaries(ids)` | open-play, community, scoring, bracket, admin | `id`, `display_name`, `photo_path`, `level` (sementara `0` sampai modul level siap) |
+| accounts (dev-a) | `getRoles`, `grantRole`, `revokeRole` | role-requests | Hanya accounts yang menulis `user_roles`; role admin hanya melalui penunjukan internal |
 | role-requests (dev-a) | `countPending()` | admin | |
 | community (dev-a) | `countOpenReports()`, `listRecentThreads(filter)` | admin, feed | |
 | feed (dev-a) | `classifyContent(...)`, `recordSignal(...)` | community, open-play | |

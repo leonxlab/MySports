@@ -12,7 +12,7 @@ Profil pemain (nama, usia, pengalaman per cabang, foto, galeri) dan role. Login/
 
 ## Endpoint
 
-Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode.
+Endpoint bootstrap, profil sendiri, dan profil publik sudah aktif. Endpoint lain masih `501 NOT_IMPLEMENTED`.
 
 | Method | Path | Fungsi | Akses |
 | --- | --- | --- | --- |
@@ -28,8 +28,9 @@ Semua endpoint masih `501 NOT_IMPLEMENTED`. Ubah tabel ini bersamaan dengan kode
 ## Checklist
 
 - [ ] Migrasi: `supabase/migrations/*_accounts.sql` (sudah ada kerangkanya, periksa)
-- [ ] `schema.ts` untuk input
-- [ ] `service.ts` dan test
+- [x] Skema bootstrap
+- [x] Service bootstrap, baca profil, role, dan ringkasan profil untuk modul lain
+- [x] `POST /bootstrap`, `GET /me`, dan `GET /:id`
 - [ ] `routes.ts` (hapus `todo(...)` satu per satu)
 - [ ] Frontend: `frontend/src/modules/accounts`
-- [ ] README ini diperbarui, status di `MODULES.md` diubah
+- [x] README ini diperbarui, status di `MODULES.md` diubah
