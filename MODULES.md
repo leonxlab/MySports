@@ -59,7 +59,7 @@ Prompt pembuka: [`prompts/Aldo/00-kickoff.md`](prompts/Aldo/00-kickoff.md)
 
 | Modul       | Isi                                                                       | Layer              | Fase | Bobot | Effort AI | Bergantung pada | Prompt                                | Status      |
 | ----------- | ------------------------------------------------------------------------- | ------------------ | ---- | ----- | --------- | --------------- | ------------------------------------- | ----------- |
-| scoring     | Skor dan statistik                                                        | backend + frontend | 2    | 3     | High      | match           | [prompt](prompts/Aldo/scoring.md)     | belum mulai |
+| scoring     | Skor dan statistik                                                        | backend + frontend | 2    | 3     | High      | match           | [prompt](prompts/Aldo/scoring.md)     | kode selesai, test dan migrasi belum dijalankan |
 | devices     | Device dan deteksi AI                                                     | backend + frontend | 3    | 3     | High      | match, scoring  | [prompt](prompts/Aldo/devices.md)     | belum mulai |
 | calibration | Titik ring, gawang, dan garis dari Coach                                  | yolo-service       | 3    | 1     | Medium    | -               | [prompt](prompts/Aldo/calibration.md) | belum mulai |
 | basketball  | Bola masuk ring. Pembeda 2/3 poin belum tercakup (pertanyaan terbuka #10) | yolo-service       | 3    | 3     | High      | -               | [prompt](prompts/Aldo/basketball.md)  | belum mulai |
