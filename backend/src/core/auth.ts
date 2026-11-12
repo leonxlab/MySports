@@ -1,11 +1,19 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { forbidden, unauthorized } from "./errors";
-import { evaluateAccess, type Role } from "./roles";
+import { type AuthUser, evaluateAccess, type Role } from "./roles";
 
 async function authenticate(app: FastifyInstance, req: FastifyRequest) {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) throw unauthorized();
-  const token = header.slice(7);
+  req.user = await resolveUser(app, header.slice(7));
+}
+
+/**
+ * Verifikasi token Supabase dan ambil role user. Dipakai HTTP (header Authorization)
+ * dan WebSocket (query ?token=, lihat core/realtime.ts).
+ */
+export async function resolveUser(app: FastifyInstance, token: string | undefined): Promise<AuthUser> {
+  if (!token) throw unauthorized();
 
   const { data, error } = await app.ctx.supabase.auth.getUser(token);
   if (error || !data.user) throw unauthorized("Token tidak valid");
@@ -19,7 +27,7 @@ async function authenticate(app: FastifyInstance, req: FastifyRequest) {
   const roles = (rows ?? []).map((r) => r.role as Role);
   // akun yang baru signup dan belum bootstrap tetap dianggap "user"
   if (!roles.includes("user")) roles.push("user");
-  req.user = { id: data.user.id, roles };
+  return { id: data.user.id, roles };
 }
 
 export function registerAuth(app: FastifyInstance) {
