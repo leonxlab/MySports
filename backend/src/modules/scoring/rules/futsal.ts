@@ -1,13 +1,20 @@
-import type { ScoreRules } from "./types";
+import { assertKind, type ScoreRules } from "./types";
 
-/** Gol = 1 poin. Dihitung dari kejadian bola masuk gawang. */
-export const futsalRules: ScoreRules = {
+export interface FutsalSettings {
+  /** Batas gol untuk game pendek. `null` = selesai oleh waktu (timer modul match). */
+  targetGoals: number | null;
+}
+
+/** Gol = 1 poin. Dihitung dari kejadian bola masuk gawang. Jenis tendangan dan pencetak diinput Coach. */
+export const futsalRules: ScoreRules<FutsalSettings> = {
   sport: "futsal",
-  defaults: {},
+  kinds: ["goal"],
+  defaults: { targetGoals: null },
   initial: () => ({ home: 0, away: 0, detail: {} }),
-  apply: () => {
-    // TODO: terapkan kejadian ke skor
-    throw new Error("TODO: futsalRules.apply");
+  apply(state, event) {
+    assertKind(futsalRules, event);
+    return { ...state, [event.team]: state[event.team] + 1 };
   },
-  isFinished: () => false,
+  isFinished: (state, settings) =>
+    settings.targetGoals !== null && Math.max(state.home, state.away) >= settings.targetGoals,
 };

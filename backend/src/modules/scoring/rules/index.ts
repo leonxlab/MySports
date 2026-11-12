@@ -5,10 +5,14 @@ import { padelRules } from "./padel";
 import { tennisRules } from "./tennis";
 import type { ScoreRules } from "./types";
 
-export const rulesBySport: Record<string, ScoreRules> = {
+export type ScoringSport = "basketball" | "futsal" | "badminton" | "tennis" | "padel";
+
+export const rulesBySport: Record<ScoringSport, ScoreRules<object>> = {
   basketball: basketballRules,
   futsal: futsalRules,
   badminton: badmintonRules,
   tennis: tennisRules,
   padel: padelRules,
 };
+
+export * from "./types";
