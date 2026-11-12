@@ -1,5 +1,15 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CoachSessionNew } from "@/modules/devices";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="devices" title="Buat sesi (tampilkan QR)" route="/coach/session/new" />;
+export default async function CoachSessionNewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ matchId?: string }>;
+}) {
+  const { matchId } = await searchParams;
+  return (
+    <Page title="Sesi device">
+      <CoachSessionNew matchId={matchId} />
+    </Page>
+  );
 }
