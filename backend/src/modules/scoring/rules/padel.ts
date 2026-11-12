@@ -1,13 +1,14 @@
-import type { ScoreRules } from "./types";
+import { gamesAndSetsRules } from "./games-and-sets";
 
-/** Poin. Kejadian AI belum ditentukan. Padel tunggal memakai lapangan dan aturan skor yang sama dengan ganda (asumsi sementara). */
-export const padelRules: ScoreRules = {
-  sport: "padel",
-  defaults: {},
-  initial: () => ({ home: 0, away: 0, detail: {} }),
-  apply: () => {
-    // TODO: terapkan kejadian ke skor
-    throw new Error("TODO: padelRules.apply");
-  },
-  isFinished: () => false,
-};
+/**
+ * Padel memakai struktur game dan set seperti tennis. Golden point (`noAd`) bisa dinyalakan Coach.
+ * Padel tunggal memakai lapangan dan aturan skor yang sama dengan ganda (asumsi sementara, pertanyaan #2).
+ * Kejadian AI belum ditentukan (TODO(decision), pertanyaan terbuka #11).
+ */
+export const padelRules = gamesAndSetsRules("padel", {
+  gamesPerSet: 6,
+  setsToWin: 2,
+  tiebreakAt: 6,
+  tiebreakPoints: 7,
+  noAd: false,
+});
