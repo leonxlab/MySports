@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Cek format Conventional Commits dengan scope modul.
+# Aktifkan sekali: git config core.hooksPath .githooks
+msg_file="$1"
+first_line="$(head -n1 "$msg_file")"
+
+# biarkan merge dan revert lewat
+if [[ "$first_line" =~ ^(Merge|Revert) ]]; then exit 0; fi
+
+types="feat|fix|refactor|perf|test|docs|chore|build|ci|style"
+scopes="accounts|role-requests|venues|open-play|payments|equipment|bracket|match|scoring|devices|level|community|feed|vip|admin|backend-core|frontend-core|yolo-core|basketball|futsal|badminton|tennis|padel|play-activity|anti-cheat|jobs|calibration|db|contracts|infra|docs|deps|repo"
+regex="^(${types})\((${scopes})(,(${scopes}))*\)!?: .{3,72}$"
+
+if [[ ! "$first_line" =~ $regex ]]; then
+  echo "Commit ditolak. Format: tipe(scope): ringkasan"
+  echo "Contoh : feat(bracket): hitung jumlah ronde dari durasi"
+  echo "Tipe   : ${types//|/, }"
+  echo "Scope  : lihat rules.md bagian 4"
+  exit 1
+fi

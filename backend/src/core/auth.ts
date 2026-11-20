@@ -1,0 +1,56 @@
+import { timingSafeEqual } from "node:crypto";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { forbidden, unauthorized } from "./errors";
+import { evaluateAccess, type Role } from "./roles";
+
+async function authenticate(app: FastifyInstance, req: FastifyRequest) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith("Bearer ")) throw unauthorized();
+  const token = header.slice(7);
+
+  const { data, error } = await app.ctx.supabase.auth.getUser(token);
+  if (error || !data.user) throw unauthorized("Token tidak valid");
+
+  const { data: rows, error: roleError } = await app.ctx.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", data.user.id);
+  if (roleError) throw roleError;
+
+  const roles = (rows ?? []).map((r) => r.role as Role);
+  // akun yang baru signup dan belum bootstrap tetap dianggap "user"
+  if (!roles.includes("user")) roles.push("user");
+  req.user = { id: data.user.id, roles };
+}
+
+export function registerAuth(app: FastifyInstance) {
+  app.decorate("requireRole", (...roles: Role[]) => {
+    return async (req: FastifyRequest, _reply: FastifyReply) => {
+      await authenticate(app, req);
+      const { allowed, audit } = evaluateAccess(req.user!.roles, roles);
+      if (audit) req.adminBypass = true;
+      if (!allowed) throw forbidden();
+    };
+  });
+
+  app.decorate("requireServiceKey", async (req: FastifyRequest, _reply: FastifyReply) => {
+    const given = String(req.headers["x-service-key"] ?? "");
+    const expected = app.ctx.env.YOLO_SERVICE_KEY;
+    // perbandingan constant-time supaya tidak bocor lewat timing
+    const a = Buffer.from(given, "utf8");
+    const b = Buffer.from(expected, "utf8");
+    if (a.length !== b.length || !timingSafeEqual(a, b)) throw unauthorized();
+  });
+
+  // Catat aksi admin pada endpoint berrole (rules.md bagian 5)
+  app.addHook("onResponse", async (req, reply) => {
+    if (!req.adminBypass || reply.statusCode >= 400 || req.method === "GET") return;
+    const { error } = await app.ctx.supabase.from("admin_audit_log").insert({
+      admin_id: req.user!.id,
+      method: req.method,
+      path: req.url,
+      target: { params: req.params ?? null },
+    });
+    if (error) req.log.error({ error }, "gagal menulis audit log");
+  });
+}
