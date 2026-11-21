@@ -12,6 +12,11 @@ Ringkasan semua variabel per layanan. Contoh siap salin ada di `.env.example` ti
 | `SUPABASE_URL` | ya | URL proyek Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | ya | service role key (jangan pernah ke frontend) |
 | `YOLO_SERVICE_KEY` | ya | kunci bersama ≥16 karakter, harus sama dengan yolo-service |
+| `RESEND_API_KEY` | untuk OTP | API key Resend — juga dipakai sebagai password SMTP (`smtp.resend.com:465`, user `resend`). Kosong = mode dev, kode OTP ke log |
+| `RESEND_SMTP_HOST` | tidak | default `smtp.resend.com` |
+| `RESEND_SMTP_PORT` | tidak | default `465` |
+| `RESEND_FROM_EMAIL` | untuk OTP | `Peluit OTP <otp@id.leonxlab.com>` — ganti setelah domain terverifikasi di Resend |
+| `OTP_PEPPER` | ya (produksi) | pepper hash OTP, acak ≥32 karakter |
 | `PAYMENT_PROVIDER` | sementara | masih `undecided` |
 | `PAYMENT_WEBHOOK_SECRET` | sementara | kosong sampai gateway dipilih |
 

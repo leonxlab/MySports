@@ -1,6 +1,7 @@
 // Daftar semua modul. Modul baru: buat foldernya, lalu impor di sini.
 import type { AppModule } from "../core/module";
 import accounts from "./accounts";
+import authOtp from "./auth-otp";
 import roleRequests from "./role-requests";
 import venues from "./venues";
 import openPlay from "./open-play";
@@ -18,6 +19,7 @@ import admin from "./admin";
 
 export const modules: AppModule[] = [
   accounts,
+  authOtp,
   roleRequests,
   venues,
   openPlay,

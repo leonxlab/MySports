@@ -108,6 +108,29 @@ export function LoginPage({ mode = "login" }: { mode?: "login" | "signup" }) {
             ? "Daftar dengan Google"
             : "Lanjutkan dengan Google"}
         </button>
+        <p style={{ color: "#94a3b8", margin: "12px 0 0" }}>atau</p>
+        <a
+          href={mode === "signup" ? "/register/email" : "/login/email"}
+          style={{
+            alignItems: "center",
+            background: "#fff",
+            border: "1px solid #cbd5e1",
+            borderRadius: 8,
+            color: "#0f172a",
+            cursor: "pointer",
+            display: "flex",
+            font: "inherit",
+            fontWeight: 600,
+            gap: 12,
+            justifyContent: "center",
+            minHeight: 48,
+            marginTop: 12,
+            textDecoration: "none",
+            width: "100%",
+          }}
+        >
+          {mode === "signup" ? "Daftar dengan kode email" : "Masuk dengan kode email"}
+        </a>
         {errorMessage ? (
           <p aria-live="polite" role="alert" style={{ color: "#b91c1c", margin: "16px 0 0" }}>
             Login gagal: {errorMessage}

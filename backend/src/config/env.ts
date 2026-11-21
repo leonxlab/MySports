@@ -10,6 +10,12 @@ const schema = z.object({
   YOLO_SERVICE_KEY: z.string().min(16),
   PAYMENT_PROVIDER: z.string().default("undecided"),
   PAYMENT_WEBHOOK_SECRET: z.string().default(""),
+  // OTP email via SMTP Resend (modul auth-otp). Nonaktif bila API key kosong.
+  RESEND_API_KEY: z.string().default(""),
+  RESEND_SMTP_HOST: z.string().default("smtp.resend.com"),
+  RESEND_SMTP_PORT: z.coerce.number().default(465),
+  RESEND_FROM_EMAIL: z.string().default("Peluit OTP <otp@id.leonxlab.com>"),
+  OTP_PEPPER: z.string().default(""),
 });
 
 export type Env = z.infer<typeof schema>;
