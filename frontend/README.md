@@ -1,6 +1,6 @@
 # frontend
 
-Web Open Play. Next.js (App Router) + TypeScript, deploy ke Vercel.
+Web Peluit. Next.js (App Router) + TypeScript, deploy ke Vercel.
 
 ```bash
 cp .env.example .env.local

@@ -18,7 +18,7 @@ Salin semua yang ada di bawah garis ini sebagai pesan pertama sesi baru (satu mo
 
 ---
 
-Kamu bekerja di monorepo Open Play: backend Fastify + TypeScript (`backend/`), frontend Next.js (`frontend/`), layanan deteksi Python (`yolo-service/`), migrasi di `supabase/`. Tugasmu: mengerjakan modul `devices` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-c, dan kamu bekerja atas namanya.
+Kamu bekerja di monorepo Peluit: backend Fastify + TypeScript (`backend/`), frontend Next.js (`frontend/`), layanan deteksi Python (`yolo-service/`), migrasi di `supabase/`. Tugasmu: mengerjakan modul `devices` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-c, dan kamu bekerja atas namanya.
 
 ## Baca dulu, berurutan
 
@@ -32,6 +32,7 @@ Kamu bekerja di monorepo Open Play: backend Fastify + TypeScript (`backend/`), f
 8. `supabase/migrations/20261108001000_devices.sql` (sesi, device, antrean, `claim_next_segment`)
 9. `contracts/detection-event.schema.json` dan `backend/src/modules/devices/schema.ts`
 10. `yolo-service/app/worker.py` (konsumen antrean)
+11. `docs/environment.md` (variabel lintas host: BACKEND_URL, YOLO_SERVICE_KEY)
 
 ## Yang sudah ada di repo
 

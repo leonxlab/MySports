@@ -232,7 +232,7 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
   return (
     <main style={styles.main}>
       <header style={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}>
-        <h1>{showTabs ? "Open Play" : "Jelajahi"}</h1>
+        <h1>{showTabs ? "Peluit" : "Jelajahi"}</h1>
         <Link href="/community">Komunitas</Link>
       </header>
       {showTabs ? (

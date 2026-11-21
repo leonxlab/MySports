@@ -46,6 +46,8 @@ Catatan:
 
 Penyedia dan jadwal nyala-matinya belum diputuskan (pertanyaan terbuka #3). Langkah di bawah berlaku untuk penyedia mana pun yang memberi mesin Linux dengan GPU NVIDIA dan Docker.
 
+yolo-service berjalan di **host terpisah** dari app utama (backend Heroku + frontend Vercel). Titik temu dan variabel yang harus cocok dirangkum di [`docs/environment.md`](environment.md) bagian "Integrasi antar host".
+
 1. Ukur dulu di laptop RTX: catat FPS, memori GPU, dan detik proses per menit video di `docs/benchmarks.md`. Pilih paket GPU dari angka itu.
 2. Di mesin sewa: pasang Docker dan NVIDIA Container Toolkit.
 3. `git clone` repo, lalu `git checkout yolo-vX.Y.Z` (hanya tag rilis).
@@ -66,3 +68,13 @@ git tag yolo-v0.1.0 && git push origin yolo-v0.1.0
 ```
 
 Tag dibuat setelah versi itu lolos uji di laptop RTX.
+
+## Checklist sebelum go-live
+
+- [ ] `CORS_ORIGINS` berisi domain produksi Vercel (dipisah koma, tanpa spasi).
+- [ ] `YOLO_SERVICE_KEY` acak ≥16 karakter dan identik di backend dan yolo-service; rotasi dilakukan di keduanya bersamaan.
+- [ ] Service role key hanya ada di backend dan yolo-service (server-side), tidak pernah di frontend.
+- [ ] Smoke test: `curl https://<backend>/health` tanpa key → `{"status":"ok"}`; `curl https://<backend>/healthz` dengan `x-service-key` → `{"status":"ok","app":"peluit"}`.
+- [ ] Dari GPU host: `curl $BACKEND_URL/healthz -H "x-service-key: ..."` untuk memastikan URL publik dan shared key benar.
+- [ ] Proteksi branch `main` aktif; admin pertama sudah dibuat lewat [docs/admin-bootstrap.md](admin-bootstrap.md).
+- [ ] Alur berbayar dibiarkan nonaktif sampai [docs/decisions/payment-gateway.md](decisions/payment-gateway.md) selesai.

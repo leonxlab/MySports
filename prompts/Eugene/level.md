@@ -18,7 +18,7 @@ Salin semua yang ada di bawah garis ini sebagai pesan pertama sesi baru (satu mo
 
 ---
 
-Kamu bekerja di monorepo Open Play: backend Fastify + TypeScript (`backend/`), frontend Next.js (`frontend/`), layanan deteksi Python (`yolo-service/`), migrasi di `supabase/`. Tugasmu: mengerjakan modul `level` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-d, dan kamu bekerja atas namanya.
+Kamu bekerja di monorepo Peluit: backend Fastify + TypeScript (`backend/`), frontend Next.js (`frontend/`), layanan deteksi Python (`yolo-service/`), migrasi di `supabase/`. Tugasmu: mengerjakan modul `level` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-d, dan kamu bekerja atas namanya.
 
 ## Baca dulu, berurutan
 
@@ -46,7 +46,7 @@ Menghitung Level 0 sampai 300 dari menit main yang diverifikasi AI. Rumus sudah 
 ## Spesifikasi dari proposal
 
 - Level mengukur jam terbang terverifikasi, bukan skor atau kemenangan. Satu Level global untuk semua cabang.
-- Hanya menit saat YOLO mendeteksi aktivitas main nyata yang dihitung. Open Play terdaftar (ada bracket dan pemain lain): 2 XP per menit. Main sendiri (hanya satu pemain terdeteksi): 1 XP per menit. Batas harian maksimal 180 menit terverifikasi per hari.
+- Hanya menit saat YOLO mendeteksi aktivitas main nyata yang dihitung. open play terdaftar (ada bracket dan pemain lain): 2 XP per menit. Main sendiri (hanya satu pemain terdeteksi): 1 XP per menit. Batas harian maksimal 180 menit terverifikasi per hari.
 - Kurva: Level 1 di 0 XP, Level 2 butuh 50 XP, Level 3 butuh 100 XP tambahan, lalu selisih naik 200 XP tiap level mulai Level 4. Level 0 berarti belum ada sesi terverifikasi. Kurva dipakai apa adanya.
 - Anti-cheat: rekaman yang diputar ulang atau pola gerakan identik berulang ditandai untuk review manual oleh Admin, bukan hukuman otomatis.
 - Penerimaan data: menit main datang dari event `play_activity` yang diteruskan modul devices lewat `createLevelApi(ctx).ingestPlayActivity`. Idempoten per (`segment_id`, `user_id`). Endpoint `/internal/play-activity` redundan karena jalurnya lewat devices. Hapus lewat PR bila tidak dipakai dan perbarui README.

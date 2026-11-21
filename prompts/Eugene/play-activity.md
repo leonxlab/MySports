@@ -18,7 +18,7 @@ Salin semua yang ada di bawah garis ini sebagai pesan pertama sesi baru (satu mo
 
 ---
 
-Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `play_activity` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-d, dan kamu bekerja atas namanya.
+Kamu bekerja di monorepo Peluit, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `play_activity` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-d, dan kamu bekerja atas namanya.
 
 ## Baca dulu, berurutan
 
@@ -57,7 +57,7 @@ Mengukur menit main nyata dari video untuk perhitungan Level. Kamera menyala tan
 
 - Yang dihitung hanya menit saat YOLO mendeteksi aktivitas main nyata, seperti dribble, lari, tembakan, atau interaksi dengan bola. Kamera menyala tanpa gerakan main tidak dihitung.
 - Deteksi aktivitas tidak terbatas pada ring, gawang, atau garis. Model YOLO standar (COCO) sudah mengenal kelas orang dan bola, mulai dari sana (mis. `yolo11n`).
-- Keluaran per segmen: event `play_activity` dengan `active_seconds` dan `players_detected`. Modul level memakai `players_detected` untuk membedakan Open Play (ada bracket dan pemain lain, 2 XP per menit) dari main sendiri (satu pemain terdeteksi, 1 XP per menit). Definisikan 'pemain terdeteksi' dengan jelas (jumlah maksimum bersamaan, atau jumlah track unik) dan tulis alasannya.
+- Keluaran per segmen: event `play_activity` dengan `active_seconds` dan `players_detected`. Modul level memakai `players_detected` untuk membedakan open play (ada bracket dan pemain lain, 2 XP per menit) dari main sendiri (satu pemain terdeteksi, 1 XP per menit). Definisikan 'pemain terdeteksi' dengan jelas (jumlah maksimum bersamaan, atau jumlah track unik) dan tulis alasannya.
 - Harus berjalan untuk lima cabang. Bola raket (kok badminton sulit dikenali kelas 'sports ball') membuat aturannya berbeda per cabang. Tulis aturan per cabang (misalnya untuk raket andalkan gerak orang dan pose, bola sebagai tambahan) dan tandai sebagai asumsi.
 - Murah secara komputasi. Aktivitas tidak perlu fps tinggi. Sampel rendah (mis. 5 fps) dan ukur biayanya.
 

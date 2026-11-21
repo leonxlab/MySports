@@ -15,7 +15,7 @@ Salin semua yang ada di bawah garis ini.
 
 ---
 
-Kamu membantu dev-c di proyek Open Play (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-c adalah **Skor, device, dan AI olahraga tim**.
+Kamu membantu dev-c di proyek Peluit (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-c adalah **Skor, device, dan AI olahraga tim**.
 
 ## Baca dulu, berurutan
 

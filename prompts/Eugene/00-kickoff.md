@@ -15,7 +15,7 @@ Salin semua yang ada di bawah garis ini.
 
 ---
 
-Kamu membantu dev-d di proyek Open Play (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-d adalah **AI olahraga raket, Level, dan fondasi UI**.
+Kamu membantu dev-d di proyek Peluit (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-d adalah **AI olahraga raket, Level, dan fondasi UI**.
 
 ## Baca dulu, berurutan
 

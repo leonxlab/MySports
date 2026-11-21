@@ -18,7 +18,7 @@ Salin semua yang ada di bawah garis ini sebagai pesan pertama sesi baru (satu mo
 
 ---
 
-Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `calibration` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-c, dan kamu bekerja atas namanya.
+Kamu bekerja di monorepo Peluit, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `calibration` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-c, dan kamu bekerja atas namanya.
 
 ## Baca dulu, berurutan
 
@@ -31,6 +31,7 @@ Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, Fast
 7. `docs/setup-local.md` bagian YOLO di laptop RTX, dan `docs/benchmarks.md`.
 8. `yolo-service/app/modules/calibration/points.py` (kerangka)
 9. `backend/src/modules/devices/README.md` (kolom `device_sessions.calibration`)
+10. `docs/environment.md` (variabel lintas host: BACKEND_URL, YOLO_SERVICE_KEY)
 
 ## Yang sudah ada di repo
 

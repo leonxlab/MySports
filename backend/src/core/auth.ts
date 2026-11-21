@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { forbidden, unauthorized } from "./errors";
 import { evaluateAccess, type Role } from "./roles";
@@ -33,7 +34,12 @@ export function registerAuth(app: FastifyInstance) {
   });
 
   app.decorate("requireServiceKey", async (req: FastifyRequest, _reply: FastifyReply) => {
-    if (req.headers["x-service-key"] !== app.ctx.env.YOLO_SERVICE_KEY) throw unauthorized();
+    const given = String(req.headers["x-service-key"] ?? "");
+    const expected = app.ctx.env.YOLO_SERVICE_KEY;
+    // perbandingan constant-time supaya tidak bocor lewat timing
+    const a = Buffer.from(given, "utf8");
+    const b = Buffer.from(expected, "utf8");
+    if (a.length !== b.length || !timingSafeEqual(a, b)) throw unauthorized();
   });
 
   // Catat aksi admin pada endpoint berrole (rules.md bagian 5)

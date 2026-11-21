@@ -6,7 +6,7 @@ from app.modules import load_all
 
 load_all()
 
-app = FastAPI(title="Open Play YOLO service")
+app = FastAPI(title="Peluit YOLO service")
 
 
 @app.get("/health")

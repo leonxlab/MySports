@@ -1,6 +1,6 @@
 # backend
 
-API Open Play. Fastify + TypeScript + zod, data di Supabase, deploy ke Heroku.
+API Peluit. Fastify + TypeScript + zod, data di Supabase, deploy ke Heroku.
 
 ```bash
 cp .env.example .env

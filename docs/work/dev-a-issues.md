@@ -32,7 +32,7 @@
 - Kebijakan pencabutan role Coach/Owner dan masa retensi audit log belum ditentukan.
 - Isi, harga, mekanisme langganan VIP, persetujuan pemain, dan retensi klip VIP belum ditentukan; jangan membuat endpoint, tabel, atau pembayaran VIP.
 - Retensi klip/hash anti-cheat, ambang awal, dan bentuk kontrak tanda kecurigaan memerlukan keputusan serta pengukuran.
-- Nama aplikasi dan library UI belum diputuskan, tetapi tidak menghalangi issue Fase 0 atau modul pertama.
+- Library UI belum diputuskan; nama aplikasi sudah ditetapkan: Peluit. Tidak menghalangi issue Fase 0 atau modul pertama.
 
 ## Daftar issue
 

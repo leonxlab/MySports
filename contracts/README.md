@@ -13,3 +13,7 @@ Cara mengubah:
 3. Test di kedua sisi memeriksa bahwa daftar tipe event cocok dengan file ini.
 
 Jenis event: `basket_made`, `goal`, `ball_landed` (bola mendarat di dalam atau di luar garis), `play_activity` (menit main untuk Level). Backend menyimpan event dengan kunci `event_id`, jadi aman dikirim ulang.
+
+## Kontrak yang dijanjikan, belum dibuat
+
+- `calibration.schema.json` (yolo-service → backend, titik kalibrasi): dijanjikan di `prompts/Aldo/calibration.md` dan `prompts/INTEGRATION.md`. Dibuat saat modul `calibration` mulai dikerjakan; sampai saat itu referensi di prompt tersebut bukan referensi mati.

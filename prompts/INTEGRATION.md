@@ -67,7 +67,6 @@ Disarikan dari "Pertanyaan Terbuka" di proposal dan yang muncul saat membagi ker
 
 | Keputusan | Menyentuh |
 | --- | --- |
-| Nama aplikasi | accounts, frontend (konstanta) |
 | Library UI dan styling | Eugene (memo), semua frontend |
 | Penyedia payment gateway dan metode payout | payments |
 | Penyedia GPU dan jadwal nyala-mati | jobs, devices |

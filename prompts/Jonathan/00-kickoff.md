@@ -15,7 +15,7 @@ Salin semua yang ada di bawah garis ini.
 
 ---
 
-Kamu membantu dev-b di proyek Open Play (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-b adalah **Open play end-to-end**.
+Kamu membantu dev-b di proyek Peluit (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-b adalah **Open play end-to-end**.
 
 ## Baca dulu, berurutan
 

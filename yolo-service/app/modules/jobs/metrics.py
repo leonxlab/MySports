@@ -9,7 +9,7 @@ from app.modules.jobs.runner import Metrics, Queue
 
 
 def create_metrics_app(metrics: Metrics, queue: Queue) -> FastAPI:
-    app = FastAPI(title="Open Play worker metrics")
+    app = FastAPI(title="Peluit worker metrics")
 
     @app.get("/metrics")
     def metrics_snapshot():

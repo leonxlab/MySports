@@ -15,7 +15,7 @@ Sumber kebutuhan produk ada di `docs/proposal.md`. Pembagian modul dan status ad
 ## 2. Struktur repo
 
 ```
-openplay-app/
+peluit-app/
 ├── prompts/          Prompt AI per orang dan per modul
 ├── backend/          API (Fastify + TypeScript) → Heroku
 ├── frontend/         Web (Next.js + TypeScript) → Vercel
@@ -84,7 +84,7 @@ Aturan kepemilikan:
 
   ```bash
   git fetch origin
-  git worktree add ../MySports-Leon -b feat/accounts-profile origin/main
+  git worktree add ../Peluit-Leon -b feat/accounts-profile origin/main
   ```
 
 - Di worktree masing-masing, stage hanya file pekerjaan sendiri, commit di branch tersebut, lalu push branch itu dan buka PR ke `main`. Jangan commit atau push langsung ke `main`.

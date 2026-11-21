@@ -18,7 +18,7 @@ Salin semua yang ada di bawah garis ini sebagai pesan pertama sesi baru (satu mo
 
 ---
 
-Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `jobs` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-a, dan kamu bekerja atas namanya.
+Kamu bekerja di monorepo Peluit, di bagian `yolo-service/` (Python 3.11, FastAPI, Ultralytics YOLO). Layanan ini dikembangkan dan diuji di laptop RTX, lalu dipasang di GPU sewa dengan Docker image yang sama. Tugasmu: mengerjakan modul `jobs` sampai memenuhi definisi selesai di bawah. Pemilik modul ini adalah dev-a, dan kamu bekerja atas namanya.
 
 ## Baca dulu, berurutan
 
@@ -32,6 +32,7 @@ Kamu bekerja di monorepo Open Play, di bagian `yolo-service/` (Python 3.11, Fast
 8. `yolo-service/app/worker.py` dan `app/modules/jobs/queue.py`
 9. `supabase/migrations/20261108001000_devices.sql` (`claim_next_segment`)
 10. `docs/deploy.md` (GPU hosting)
+11. `docs/environment.md` (variabel lintas host: BACKEND_URL, YOLO_SERVICE_KEY)
 
 ## Yang sudah ada di repo
 

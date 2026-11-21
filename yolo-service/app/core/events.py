@@ -73,4 +73,4 @@ def make_event_id(segment_id: UUID, event_type: str, timestamp_ms: int, index: i
     jadi backend yang menyimpan dengan kunci event_id tidak menggandakan skor.
     `index` membedakan dua kejadian bertipe sama pada milidetik yang sama.
     """
-    return uuid5(NAMESPACE_URL, f"openplay:{segment_id}:{event_type}:{timestamp_ms}:{index}")
+    return uuid5(NAMESPACE_URL, f"peluit:{segment_id}:{event_type}:{timestamp_ms}:{index}")

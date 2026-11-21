@@ -23,8 +23,13 @@ describe("server", () => {
     expect(names).toContain("vip");
   });
 
-  it("endpoint publik yang belum jadi menjawab 501", async () => {
-    const res = await app.inject({ method: "GET", url: "/api/v1/community/threads" });
+  it("endpoint service yang belum jadi menjawab 501", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/level/internal/play-activity",
+      headers: { "x-service-key": testEnv.YOLO_SERVICE_KEY },
+      payload: {},
+    });
     expect(res.statusCode).toBe(501);
     expect(res.json().error.code).toBe("NOT_IMPLEMENTED");
   });

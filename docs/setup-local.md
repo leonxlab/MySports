@@ -10,7 +10,7 @@
 ## Sekali setelah clone
 
 ```bash
-git clone <url-repo> openplay-app && cd openplay-app
+git clone <url-repo> peluit-app && cd peluit-app
 git config core.hooksPath .githooks      # cek format commit
 ```
 

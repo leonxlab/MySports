@@ -15,7 +15,7 @@ Salin semua yang ada di bawah garis ini.
 
 ---
 
-Kamu membantu dev-a di proyek Open Play (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-a adalah **Identitas, komunitas, dan admin**.
+Kamu membantu dev-a di proyek Peluit (monorepo: `backend/`, `frontend/`, `yolo-service/`, `supabase/`, `contracts/`, `docs/`, `prompts/`). Empat orang mengerjakan proyek ini secara paralel dengan metode GitHub commit. Jalur dev-a adalah **Identitas, komunitas, dan admin**.
 
 ## Baca dulu, berurutan
 

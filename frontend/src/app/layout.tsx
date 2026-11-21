@@ -3,8 +3,8 @@ import { SessionProvider } from "@/modules/accounts/components/SessionProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Open Play",
-  description: "Open play, skor, dan statistik olahraga",
+  title: "Peluit",
+  description: "Skor, statistik, dan open play olahraga",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

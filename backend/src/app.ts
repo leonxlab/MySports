@@ -30,6 +30,14 @@ export async function buildApp(ctx: AppContext) {
 
   app.get("/health", async () => ({ status: "ok" }));
 
+  // cek integrasi: dipakai operator untuk memastikan URL dan x-service-key benar
+  // (dipanggil dari yolo-service/GPU host dengan header service, lihat docs/environment.md)
+  app.get("/healthz", { preHandler: app.requireServiceKey }, async () => ({
+    status: "ok",
+    service: "backend",
+    app: "peluit",
+  }));
+
   for (const mod of modules) {
     await app.register(async (scope) => mod.register(scope), { prefix: `/api/v1/${mod.name}` });
   }

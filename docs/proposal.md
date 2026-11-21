@@ -1,5 +1,5 @@
-# Proposal Aplikasi MySports (nama belum fix ditentukan)
-Open Play, Skor & Statistik Olahraga
+# Proposal Aplikasi Peluit
+Skor, statistik & open play olahraga
 
 Nov 7, 2026 (diperbarui 8 Nov 2026) · @Jonathan
 
@@ -61,7 +61,7 @@ Level mengukur jam terbang yang terverifikasi, bukan skor atau kemenangan. Level
 | Aturan | Ketentuan |
 | --- | --- |
 | Yang dihitung | Hanya menit saat YOLO mendeteksi aktivitas main nyata, seperti dribble, lari, tembakan, atau interaksi dengan bola. Kamera menyala tanpa gerakan main tidak dihitung |
-| Open Play terdaftar (ada bracket dan pemain lain) | 2 XP per menit terverifikasi |
+| open play terdaftar (ada bracket dan pemain lain) | 2 XP per menit terverifikasi |
 | Main sendiri (hanya satu pemain terdeteksi) | 1 XP per menit terverifikasi |
 | Batas harian | Maksimal 180 menit terverifikasi per hari yang dihitung XP |
 | Anti-cheat | Rekaman yang diputar ulang atau pola gerakan identik berulang ditandai untuk review manual |
@@ -93,7 +93,7 @@ Level 1 dimulai di 0 XP, Level 2 butuh 50 XP, dan Level 3 butuh 100 XP tambahan.
 | 250 | 49.400 | 6.125.750 | ~68.064 jam | 46,6 tahun |
 | 300 | 59.400 | 8.850.750 | ~98.342 jam | 67,4 tahun |
 
-Kolom jam memakai rata-rata 1,5 XP per menit (campuran Open Play dan main sendiri). Kolom Tercepat mengasumsikan 180 menit Open Play setiap hari, yaitu 360 XP per hari. Dengan kurva ini Level 300 praktis tidak terjangkau; kurva dipakai apa adanya.
+Kolom jam memakai rata-rata 1,5 XP per menit (campuran open play dan main sendiri). Kolom Tercepat mengasumsikan 180 menit open play setiap hari, yaitu 360 XP per hari. Dengan kurva ini Level 300 praktis tidak terjangkau; kurva dipakai apa adanya.
 
 ## Olahraga yang Didukung
 
@@ -608,7 +608,7 @@ Jawabanmu sudah masuk ke dokumen ini. Tabel pertama mencatat keputusan, tabel ke
 
 | No | Topik | Keputusan |
 | --- | --- | --- |
-| 1 | Nama aplikasi dan role pengelola | Nama aplikasi belum ditentukan. Role pengelola bernama Admin: bisa melewati semua batasan fitur (termasuk verifikasi) dan dilihat user lain sebagai user biasa tanpa label khusus |
+| 1 | Nama aplikasi dan role pengelola | Nama aplikasi: Peluit (diputuskan 20 Nov 2026, sebelumnya MySports). Role pengelola bernama Admin: bisa melewati semua batasan fitur (termasuk verifikasi) dan dilihat user lain sebagai user biasa tanpa label khusus |
 | 2 | Satu akun banyak role | Boleh |
 | 3 | Alur pembayaran | Masuk ke aplikasi, lalu diteruskan ke tujuan dengan potongan. Model (persentase saat withdraw atau fee dibebankan ke pembayar) dan besaran persentasenya dipilih dan diatur oleh Admin lewat panel Admin |
 | 4 | Kurva Level | Dipakai apa adanya |
@@ -626,14 +626,14 @@ Jawabanmu sudah masuk ke dokumen ini. Tabel pertama mencatat keputusan, tabel ke
 | 16 | Lokasi YOLO | Di server |
 | 17 | Framework | Front end web Next.js (React + TypeScript) di Vercel; mobile React Native (Expo); layanan YOLO Python (FastAPI) |
 | 18 | VIP | Paket fitur premium; isinya masih dipikirkan (highlight salah satu kandidat) dan infrastruktur sedang disiapkan. Coming soon: hanya badge dan tombol nonaktif, belum ada langganan |
-| 19 | Nama aplikasi | Ditunda |
+| 19 | Nama aplikasi | Peluit (20 Nov 2026) |
 | 20 | Hosting dan testing | Back end API di Heroku, database dan file di Supabase, YOLO di server GPU sewa terpisah (folder yolo-service). Testing YOLO memakai laptop RTX. Kamera mengunggah segmen video ke Supabase, YOLO mengambil pekerjaan dari antrean dan mengirim kejadian ke back end |
 
 ### Masih terbuka
 
 | No | Pertanyaan | Asumsi sementara |
 | --- | --- | --- |
-| 1 | Apa nama aplikasi? | Ditunda |
+| 1 | Apa nama aplikasi? | Terjawab 20 Nov 2026: Peluit |
 | 2 | Padel tunggal memakai lapangan dan aturan skor yang sama dengan ganda? | Sama dengan ganda |
 | 3 | Penyedia GPU hosting mana yang dipakai, dan bagaimana jadwal nyala-matinya? | Belum dipilih; YOLO tetap di server (keputusan 16) dan hanya dinyalakan saat ada match |
 | 4 | Berapa batas antrean di device saat koneksi putus (menit atau MB), dan bagaimana skor manual Coach dipadukan dengan hasil AI yang menyusul? | Belum ditentukan |

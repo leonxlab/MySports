@@ -1,6 +1,6 @@
 # Modul level: Level dan jam main
 
-Level 0 sampai 300 dari menit main yang diverifikasi AI: Open Play terdaftar 2 XP/menit, main sendiri 1 XP/menit, batas 180 menit/hari. Rumus ada di service.ts dan sudah dites. Anti-cheat menandai rekaman yang dicurigai untuk review manual.
+Level 0 sampai 300 dari menit main yang diverifikasi AI: open play terdaftar 2 XP/menit, main sendiri 1 XP/menit, batas 180 menit/hari. Rumus ada di service.ts dan sudah dites. Anti-cheat menandai rekaman yang dicurigai untuk review manual.
 
 | | |
 | --- | --- |

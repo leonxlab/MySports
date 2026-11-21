@@ -58,7 +58,7 @@ export function LoginPage({ mode = "login" }: { mode?: "login" | "signup" }) {
         }}
       >
         <h1 id="login-title" style={{ color: "#0f172a", margin: "0 0 8px" }}>
-          {mode === "signup" ? "Daftar ke Open Play" : "Masuk ke Open Play"}
+          {mode === "signup" ? "Daftar ke Peluit" : "Masuk ke Peluit"}
         </h1>
         <p style={{ color: "#475569", margin: "0 0 24px" }}>
           Gunakan akun Google {mode === "signup" ? "untuk membuat akun atau" : "untuk"} melanjutkan.

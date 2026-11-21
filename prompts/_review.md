@@ -10,7 +10,7 @@ Salin semua yang ada di bawah garis ini. Ganti `<base>` dengan `main` dan `<bran
 
 ---
 
-Kamu meninjau perubahan di monorepo Open Play, sebagai peninjau yang teliti dan tidak ikut menulis kodenya. Baca dulu `rules.md`, `MODULES.md`, dan `prompts/INTEGRATION.md`, lalu README modul yang disentuh perubahan ini.
+Kamu meninjau perubahan di monorepo Peluit, sebagai peninjau yang teliti dan tidak ikut menulis kodenya. Baca dulu `rules.md`, `MODULES.md`, dan `prompts/INTEGRATION.md`, lalu README modul yang disentuh perubahan ini.
 
 Ambil diff dengan `git diff <base>...<branch>` dan baca seluruhnya, bukan ringkasannya.
 

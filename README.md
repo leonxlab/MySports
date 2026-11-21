@@ -1,6 +1,23 @@
-# MySports (nama aplikasi belum fix ditentukan)
+# Peluit
 
-Aplikasi untuk join MySports, menghitung skor otomatis dengan kamera AI (YOLO), dan melacak statistik di lima cabang: basket, padel, badminton, futsal, tennis. Detail produk: [`docs/proposal.md`](docs/proposal.md).
+| Dokumen | Isi |
+| --- | --- |
+| [`docs/proposal.md`](docs/proposal.md) | Proposal produk |
+| [`docs/architecture.md`](docs/architecture.md) | Arsitektur sistem |
+| [`docs/setup-local.md`](docs/setup-local.md) | Setup lokal |
+| [`docs/deploy.md`](docs/deploy.md) | Deploy per layanan |
+| [`docs/environment.md`](docs/environment.md) | Variabel env + integrasi antar host |
+| [`docs/branding.md`](docs/branding.md) | Logo, banner, aset (menyusul) |
+| [`docs/admin-bootstrap.md`](docs/admin-bootstrap.md) | Menunjuk admin pertama |
+| [`docs/benchmarks.md`](docs/benchmarks.md) | Pengukuran YOLO |
+| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Riwayat perubahan |
+
+> Nama sebelumnya: MySports / Open Play. Semua penyebutan lama di dokumen kini merujuk aplikasi Peluit.
+
+Aplikasi Peluit — join open play, skor otomatis AI (YOLO), dan statistik lima cabang: basket, padel, badminton, futsal, tennis.
+
+Detail produk: [`docs/proposal.md`](docs/proposal.md).
+
 
 ## Isi repo
 
@@ -39,4 +56,4 @@ cd yolo-service && uvicorn app.main:app --reload --port 8000
 
 ## Hal yang masih terbuka di proposal
 
-Nama aplikasi MySports tetapi belum fix ditentukan, penyedia GPU, gateway pembayaran (local), format segmen video, kejadian AI untuk tennis dan padel (karena masih dalam pencarian spesifik), pembeda basket 2/3 poin, isi paket VIP. Bagian yang bergantung pada itu ditandai `TODO(decision)` atau tertulis "belum diputuskan" di README modul.
+Penyedia GPU, gateway pembayaran (local), format segmen video, kejadian AI untuk tennis dan padel (karena masih dalam pencarian spesifik), pembeda basket 2/3 poin, isi paket VIP, dan library UI. Nama aplikasi sudah diputuskan: **Peluit** (20 Nov 2026, sebelumnya MySports / Open Play). Bagian yang bergantung pada keputusan itu ditandai `TODO(decision)` atau tertulis "belum diputuskan" di README modul.

@@ -1,6 +1,6 @@
 {
-  "name": "openplay-backend",
-  "description": "Back end API Open Play (lihat docs/deploy.md untuk setup Heroku dari subfolder)",
+  "name": "peluit-backend",
+  "description": "Back end API Peluit (lihat docs/deploy.md untuk setup Heroku dari subfolder)",
   "env": {
     "NODE_ENV": { "value": "production" },
     "SUPABASE_URL": { "description": "URL proyek Supabase" },
