@@ -12,6 +12,11 @@ export const testEnv: Env = {
   YOLO_SERVICE_KEY: "test-service-key-1234567890",
   PAYMENT_PROVIDER: "undecided",
   PAYMENT_WEBHOOK_SECRET: "",
+  RESEND_API_KEY: "",
+  RESEND_SMTP_HOST: "smtp.resend.com",
+  RESEND_SMTP_PORT: 465,
+  RESEND_FROM_EMAIL: "Peluit <test@example.com>",
+  OTP_PEPPER: "test-pepper",
 };
 
 export async function testApp() {

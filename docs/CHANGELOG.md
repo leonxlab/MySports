@@ -1,5 +1,16 @@
 # Perubahan
 
+## 2026-11-21 — OTP email via Resend (SMTP) untuk daftar & login
+
+- Modul baru `backend/src/modules/auth-otp/`: kode OTP 6 digit dikirim lewat **SMTP Resend** (`smtp.resend.com:465`, nodemailer; user `resend`, password `RESEND_API_KEY`), pengirim `otp@id.leonxlab.com`.
+- Login dengan **Google tetap jalur utama** (Supabase OAuth); OTP email hanya alur in-app di `/login/email` dan `/register/email`.
+- Migrasi baru `supabase/migrations/20261120090000_auth_otp_codes.sql`: tabel `auth_otp_codes` (kode disimpan sebagai hash + pepper, tanpa policy RLS — hanya service role).
+- Rate limit bertingkat: cooldown 60 detik per email, 5 kirim/email/jam, 30 kirim/IP/jam, 5 percobaan verifikasi lalu kode hangus. Verifikasi constant-time.
+- Env baru backend: `RESEND_API_KEY`, `RESEND_SMTP_HOST`, `RESEND_SMTP_PORT`, `RESEND_FROM_EMAIL`, `OTP_PEPPER` (lihat `docs/environment.md`).
+- Frontend: `OtpForm` dua langkah (email → kode), tautan dari halaman Google login/daftar, pertukaran sesi via `verifyOtp` magic link.
+- Kode berlaku 5 menit.
+- Dependensi backend: +`nodemailer`, +`@types/nodemailer` (dev).
+
 ## 2026-11-20 — Rebrand ke Peluit
 
 - Nama aplikasi ditetapkan: **Peluit** (sebelumnya MySports / Open Play). Penyebutan "open play" sebagai nama fitur tetap.
