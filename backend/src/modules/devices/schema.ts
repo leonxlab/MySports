@@ -110,3 +110,55 @@ export const calibrationSchema = z
   });
 
 export type Calibration = z.infer<typeof calibrationSchema>;
+
+// ---- Input endpoint devices ----
+
+export const deviceRoleSchema = z.enum(["camera_home", "camera_away", "controller"]);
+export type DeviceRole = z.infer<typeof deviceRoleSchema>;
+
+export const sessionParams = z.object({ id: z.string().uuid() });
+export const segmentParams = z.object({ id: z.string().uuid(), segmentId: z.string().uuid() });
+
+/** Buat sesi: dari match (cabang diambil dari match) atau sesi tanpa match dengan cabang eksplisit. */
+export const createSessionBody = z
+  .object({
+    matchId: z.string().uuid().optional(),
+    sport: z.enum(CALIBRATION_SPORTS).optional(),
+  })
+  .strict()
+  .refine((b) => b.matchId || b.sport, { message: "Isi matchId atau sport" });
+export type CreateSessionInput = z.infer<typeof createSessionBody>;
+
+export const joinSessionBody = z
+  .object({ code: z.string().trim().min(4).max(12), role: deviceRoleSchema })
+  .strict();
+export type JoinSessionInput = z.infer<typeof joinSessionBody>;
+
+export const capabilityBody = z
+  .object({
+    width: z.number().int().positive().max(8000),
+    height: z.number().int().positive().max(8000),
+    fps: z.number().positive().max(240),
+    webgpu: z.boolean().optional(),
+    connection: z.string().max(20).optional(),
+    batteryLevel: z.number().min(0).max(1).optional(),
+    charging: z.boolean().optional(),
+  })
+  .strict();
+export type CapabilityInput = z.infer<typeof capabilityBody>;
+
+/** Persetujuan pemain sebelum direkam. Dikirim layar kamera, disimpan sebagai waktu di sesi. */
+export const consentBody = z.object({ agreed: z.literal(true) }).strict();
+
+export const MAX_SEGMENT_BYTES = 50 * 1024 * 1024;
+
+export const signSegmentBody = z
+  .object({
+    seq: z.number().int().nonnegative(),
+    sizeBytes: z.number().int().positive().max(MAX_SEGMENT_BYTES),
+    mimeType: z.enum(["video/webm", "video/mp4"]),
+    startOffsetMs: z.number().int().nonnegative(),
+    durationMs: z.number().int().positive().max(10 * 60 * 1000),
+  })
+  .strict();
+export type SignSegmentInput = z.infer<typeof signSegmentBody>;

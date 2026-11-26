@@ -1,14 +1,15 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page } from "@/modules/payments";
+import { MatchResult } from "@/modules/scoring";
 import { GenerateHighlightButton } from "@/modules/vip";
 
-export default function Page() {
+export default async function MatchResultPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
-    <>
-      <ModuleStub module="scoring" title="Hasil match" route="/match/[id]/result" />
-      {/* TODO(integration): halaman hasil scoring belum menyediakan data match untuk fitur highlight. */}
-      <section aria-label="Fitur VIP" style={{ margin: "0 auto", maxWidth: 640, padding: 24 }}>
+    <Page title="Hasil match">
+      <MatchResult matchId={id} />
+      <section aria-label="Fitur VIP" style={{ marginTop: 24 }}>
         <GenerateHighlightButton />
       </section>
-    </>
+    </Page>
   );
 }

@@ -1,5 +1,10 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { Page } from "@/modules/payments";
+import { MyStats } from "@/modules/scoring";
 
-export default function Page() {
-  return <ModuleStub module="scoring" title="Statistik saya" route="/stats" />;
+export default function StatsPage() {
+  return (
+    <Page title="Statistik saya">
+      <MyStats />
+    </Page>
+  );
 }
