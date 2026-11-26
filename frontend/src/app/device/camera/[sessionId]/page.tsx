@@ -1,5 +1,11 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { CameraScreen } from "@/modules/devices";
+import { Page } from "@/modules/payments";
 
-export default function Page() {
-  return <ModuleStub module="devices" title="Layar kamera" route="/device/camera/[sessionId]" />;
+export default async function CameraPage({ params }: { params: Promise<{ sessionId: string }> }) {
+  const { sessionId } = await params;
+  return (
+    <Page title="Kamera">
+      <CameraScreen sessionId={sessionId} />
+    </Page>
+  );
 }

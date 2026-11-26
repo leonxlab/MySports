@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { WebSocket } from "ws";
+import { resolveUser } from "./auth";
+import type { AuthUser } from "./roles";
 
 /** Hub sederhana: kanal -> kumpulan socket. Cukup untuk satu dyno. Kalau scale >1 dyno, ganti ke Supabase Realtime atau Redis. */
 export class RealtimeHub {
@@ -17,17 +19,47 @@ export class RealtimeHub {
   }
 }
 
+/** Kode tutup WebSocket (rentang 4000-4999 bebas dipakai aplikasi), meniru 401/403 HTTP. */
+export const WS_CLOSE_UNAUTHORIZED = 4401;
+export const WS_CLOSE_FORBIDDEN = 4403;
+
+export interface LiveRouteOptions {
+  /**
+   * Cek akses tambahan per kanal setelah token valid, misalnya hanya peserta match.
+   * Tanpa ini, semua user yang login boleh subscribe.
+   * TODO(decision): siapa yang boleh menonton kanal match dan sesi device.
+   */
+  authorize?: (user: AuthUser, params: Record<string, string>) => boolean | Promise<boolean>;
+}
+
 /**
- * Pasang endpoint WebSocket untuk satu kanal.
- * TODO(auth): verifikasi token dari query ?token= sebelum subscribe.
+ * Pasang endpoint WebSocket untuk satu kanal. Klien mengirim token Supabase lewat `?token=`
+ * (browser tidak bisa memasang header Authorization di WebSocket). Token tidak valid = tutup 4401,
+ * ditolak `authorize` = tutup 4403. Token tidak pernah ditulis ke log.
  */
 export function liveRoute(
   app: FastifyInstance,
   path: string,
   channelOf: (params: Record<string, string>) => string,
+  options: LiveRouteOptions = {},
 ) {
-  app.get(path, { websocket: true }, (socket, req) => {
-    const channel = channelOf(req.params as Record<string, string>);
+  app.get(path, { websocket: true }, async (socket, req) => {
+    const params = req.params as Record<string, string>;
+    const token = (req.query as { token?: string } | undefined)?.token;
+
+    let user: AuthUser;
+    try {
+      user = await resolveUser(app, token);
+    } catch {
+      socket.close(WS_CLOSE_UNAUTHORIZED, "unauthorized");
+      return;
+    }
+    if (options.authorize && !(await options.authorize(user, params))) {
+      socket.close(WS_CLOSE_FORBIDDEN, "forbidden");
+      return;
+    }
+
+    const channel = channelOf(params);
     app.ctx.realtime.subscribe(channel, socket);
     socket.send(JSON.stringify({ type: "subscribed", channel }));
   });
