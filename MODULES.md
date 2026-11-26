@@ -46,7 +46,7 @@ Prompt pembuka: [`prompts/Jonathan/00-kickoff.md`](prompts/Jonathan/00-kickoff.m
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | venues | Lapangan | backend + frontend | 1 | 2 | Medium | accounts, role-requests | [prompt](prompts/Jonathan/venues.md) | kode selesai, migrasi belum diuji di DB |
 | open-play | Open play dan slot | backend + frontend | 1 | 2 | High | accounts, venues, payments | [prompt](prompts/Jonathan/open-play.md) | kode selesai, migrasi belum diuji di DB |
-| payments | Booking dan pembayaran | backend + frontend | 1 | 3 | High | accounts | [prompt](prompts/Jonathan/payments.md) | kode selesai, migrasi belum diuji di DB |
+| payments | Booking dan pembayaran | backend + frontend | 1 | 3 | High | accounts | [prompt](prompts/Jonathan/payments.md) | selesai (gateway LxPay), migrasi belum diuji di DB |
 | bracket | Bracket otomatis | backend + frontend | 2 | 3 | High | open-play | [prompt](prompts/Jonathan/bracket.md) | kode selesai, migrasi belum diuji di DB |
 | match | Setting match dan control menu | backend + frontend | 2 | 2 | Medium | bracket | [prompt](prompts/Jonathan/match.md) | kode selesai, migrasi belum diuji di DB |
 | equipment | Sewa alat | backend + frontend | 4 | 1 | Medium | accounts, payments | [prompt](prompts/Jonathan/equipment.md) | belum mulai |

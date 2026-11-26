@@ -68,7 +68,11 @@ function CourtSchedule({ court }: { court: CourtView }) {
       {checkout && (
         <p role="status">
           Booking dibuat. Total {rupiah(checkout.chargeAmount)}.{" "}
-          {checkout.redirectUrl ? <a href={checkout.redirectUrl}>Bayar sekarang</a> : "Menunggu instruksi pembayaran."}{" "}
+          {checkout.redirectUrl ? (
+            <a href={checkout.redirectUrl}>Bayar sekarang</a>
+          ) : (
+            "Selesaikan pembayaran (QR QRIS) di halaman status."
+          )}{" "}
           <Link href={`/checkout/${checkout.paymentId}`}>Lihat status</Link>
         </p>
       )}

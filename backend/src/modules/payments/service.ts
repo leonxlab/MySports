@@ -1,7 +1,7 @@
 import type { AppContext } from "../../core/context";
 import { AppError, forbidden, notFound } from "../../core/errors";
 import { computeFees, computeWithdrawFee, type FeeModel } from "./fees";
-import { createGateway, type PaymentGateway } from "./gateway";
+import { createGateway, type GatewayEvent, type PaymentGateway } from "./gateway";
 import type { PaymentStatus } from "./state";
 import { createVenuesApi, type VenuesApi } from "../venues";
 
@@ -18,6 +18,12 @@ export interface CheckoutResult {
   status: PaymentStatus;
   /** Rupiah bulat, dihitung server dari harga target. */
   chargeAmount: number;
+  /** Nominal persis yang harus dibayar pembayar (bisa berisi kode unik gateway). */
+  amountWithCode: number;
+  /** Payload QRIS siap render sebagai QR image (gateway LxPay). */
+  qrisPayload: string | null;
+  /** Sampai kapan instruksi bayar (QR) berlaku. */
+  expiresAt: string | null;
   /** Hanya untuk tampilan. Status akhir selalu dari webhook. */
   redirectUrl: string | null;
 }
@@ -53,6 +59,9 @@ interface PaymentRow {
   fee_amount: number | string;
   fee_model: FeeModel | null;
   gateway_ref: string | null;
+  qris_payload: string | null;
+  qris_amount_with_code: number | string | null;
+  qris_expires_at: string | null;
   status: PaymentStatus;
 }
 
@@ -191,6 +200,82 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
     return data as PaymentRow;
   }
 
+  async function applyEvent(event: GatewayEvent): Promise<WebhookResult> {
+    const { data: found, error } = await db
+      .from("payments")
+      .select("*")
+      .eq("gateway_ref", event.gatewayRef)
+      .maybeSingle();
+    if (error) throw error;
+    if (!found) return { outcome: "ignored" };
+    const payment = found as PaymentRow;
+
+    if (event.status === "paid" && event.amount !== chargeOf(payment)) {
+      throw new AppError(422, "AMOUNT_MISMATCH", "Jumlah yang dibayar tidak sesuai tagihan");
+    }
+
+    const patch =
+      event.status === "paid" ? { status: "paid", paid_at: new Date().toISOString() } : { status: "failed" };
+    const { data: changed, error: upErr } = await db
+      .from("payments")
+      .update(patch)
+      .eq("id", payment.id)
+      .eq("status", "pending")
+      .select("id");
+    if (upErr) throw upErr;
+    if ((changed ?? []).length === 0) return { outcome: "duplicate" };
+
+    if (event.status === "failed") {
+      if (payment.target_type === "court_booking") await cancelBooking(payment.target_id);
+      return { outcome: "failed" };
+    }
+
+    await service.dispatchPaid({
+      paymentId: payment.id,
+      payerId: payment.payer_id,
+      payeeId: payment.payee_id,
+      targetType: payment.target_type,
+      targetId: payment.target_id,
+      amount: money(payment.amount),
+    });
+    return { outcome: "paid" };
+  }
+
+  /**
+   * Cadangan bila webhook tidak sampai: tanyakan status transaksi ke gateway
+   * (getTransaction) dan terapkan hasilnya lewat applyEvent. Dipanggil saat
+   * GET pembayaran yang masih pending dan saat checkout ulang. Kegagalan
+   * jaringan diabaikan: webhook tetap sumber kebenaran utama.
+   */
+  async function reconcilePending(payment: PaymentRow): Promise<void> {
+    if (payment.status !== "pending" || !payment.gateway_ref) return;
+    let gw: PaymentGateway;
+    try {
+      gw = gateway();
+    } catch {
+      return; // gateway belum dikonfigurasi
+    }
+    if (!gw.getTransaction) return;
+    let tx;
+    try {
+      tx = await gw.getTransaction(payment.gateway_ref);
+    } catch {
+      return; // gateway tidak terjangkau, biarkan webhook
+    }
+    const chargeAmount = chargeOf(payment);
+    if (tx.status === "paid") {
+      if (tx.amount !== null && tx.amount !== chargeAmount) return; // data gateway tidak cocok, tunggu webhook
+      await applyEvent({
+        gatewayRef: payment.gateway_ref,
+        status: "paid",
+        amount: tx.amount ?? chargeAmount,
+        gatewayFee: 0,
+      });
+    } else if (tx.status === "expired") {
+      await applyEvent({ gatewayRef: payment.gateway_ref, status: "failed", amount: chargeAmount, gatewayFee: 0 });
+    }
+  }
+
   const service = {
     /** Dipanggil modul lain (open-play, equipment) untuk bereaksi saat pembayaran lunas. */
     onPaid(targetType: PaymentTargetType, handler: OnPaidHandler): void {
@@ -281,8 +366,35 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
         .maybeSingle();
       if (exErr) throw exErr;
       if (existing) {
-        const p = existing as PaymentRow;
-        return { paymentId: p.id, status: p.status, chargeAmount: chargeOf(p), redirectUrl: null };
+        let p = existing as PaymentRow;
+        // Tagihan lama masih ada: tanyakan hasilnya ke gateway (fallback webhook),
+        // pakai ulang bila QR masih berlaku, buat tagihan baru bila kedaluwarsa.
+        await reconcilePending(p);
+        p = (await loadPayment(p.id)) as PaymentRow;
+        const expired =
+          p.qris_expires_at != null && new Date(p.qris_expires_at as string).getTime() <= Date.now();
+        if (p.status === "pending" && !expired) {
+          return {
+            paymentId: p.id,
+            status: p.status,
+            chargeAmount: chargeOf(p),
+            amountWithCode: money(p.qris_amount_with_code ?? chargeOf(p)),
+            qrisPayload: (p.qris_payload as string | null) ?? null,
+            expiresAt: (p.qris_expires_at as string | null) ?? null,
+            redirectUrl: null,
+          };
+        }
+        const { data: failed, error: fErr } = await db
+          .from("payments")
+          .update({ status: "failed" })
+          .eq("id", p.id)
+          .eq("status", "pending")
+          .select("id");
+        if (fErr) throw fErr;
+        if ((failed ?? []).length > 0 && p.target_type === "court_booking") {
+          await cancelBooking(p.target_id);
+        }
+        // jatuh ke bawah: buat tagihan baru
       }
 
       const gw = gateway();
@@ -314,13 +426,21 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
         });
         const { error: upErr } = await db
           .from("payments")
-          .update({ gateway_ref: charge.gatewayRef })
+          .update({
+            gateway_ref: charge.gatewayRef,
+            qris_payload: charge.qris?.payload ?? null,
+            qris_amount_with_code: charge.qris?.amountWithCode ?? null,
+            qris_expires_at: charge.qris?.expiresAt ?? null,
+          })
           .eq("id", paymentId);
         if (upErr) throw upErr;
         return {
           paymentId,
           status: "pending",
           chargeAmount: fees.chargeAmount,
+          amountWithCode: charge.qris?.amountWithCode ?? fees.chargeAmount,
+          qrisPayload: charge.qris?.payload ?? null,
+          expiresAt: charge.qris?.expiresAt ?? null,
           redirectUrl: charge.redirectUrl,
         };
       } catch (e) {
@@ -345,45 +465,8 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       } catch {
         throw new AppError(400, "INVALID_EVENT", "Isi webhook tidak valid");
       }
-
-      const { data: found, error } = await db
-        .from("payments")
-        .select("*")
-        .eq("gateway_ref", event.gatewayRef)
-        .maybeSingle();
-      if (error) throw error;
-      if (!found) return { outcome: "ignored" };
-      const payment = found as PaymentRow;
-
-      if (event.status === "paid" && event.amount !== chargeOf(payment)) {
-        throw new AppError(422, "AMOUNT_MISMATCH", "Jumlah yang dibayar tidak sesuai tagihan");
-      }
-
-      const patch =
-        event.status === "paid" ? { status: "paid", paid_at: new Date().toISOString() } : { status: "failed" };
-      const { data: changed, error: upErr } = await db
-        .from("payments")
-        .update(patch)
-        .eq("id", payment.id)
-        .eq("status", "pending")
-        .select("id");
-      if (upErr) throw upErr;
-      if ((changed ?? []).length === 0) return { outcome: "duplicate" };
-
-      if (event.status === "failed") {
-        if (payment.target_type === "court_booking") await cancelBooking(payment.target_id);
-        return { outcome: "failed" };
-      }
-
-      await service.dispatchPaid({
-        paymentId: payment.id,
-        payerId: payment.payer_id,
-        payeeId: payment.payee_id,
-        targetType: payment.target_type,
-        targetId: payment.target_id,
-        amount: money(payment.amount),
-      });
-      return { outcome: "paid" };
+      if (!event) return { outcome: "ignored" }; // event gateway yang tidak menandai lunas/gagal
+      return applyEvent(event);
     },
 
     /**
@@ -489,11 +572,23 @@ export function createPaymentsService(ctx: AppContext, deps: Dependencies = {}) 
       };
     },
 
-    /** Pembayaran milik pemanggil saja. */
+    /** Pembayaran milik pemanggil saja. Pending dicek ulang ke gateway (fallback webhook). */
     async getPayment(userId: string, id: string) {
-      const p = await loadPayment(id);
+      let p = await loadPayment(id);
       if (p.payer_id !== userId) throw forbidden("Bukan pembayaranmu");
-      return { id: p.id, status: p.status, chargeAmount: chargeOf(p) };
+      if (p.status === "pending") {
+        await reconcilePending(p);
+        p = await loadPayment(id);
+      }
+      return {
+        id: p.id,
+        status: p.status,
+        chargeAmount: chargeOf(p),
+        amountWithCode: money(p.qris_amount_with_code ?? chargeOf(p)),
+        qrisPayload: (p.qris_payload as string | null) ?? null,
+        expiresAt: (p.qris_expires_at as string | null) ?? null,
+        redirectUrl: null,
+      };
     },
   };
 

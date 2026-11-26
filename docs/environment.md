@@ -17,8 +17,11 @@ Ringkasan semua variabel per layanan. Contoh siap salin ada di `.env.example` ti
 | `RESEND_SMTP_PORT` | tidak | default `465` |
 | `RESEND_FROM_EMAIL` | untuk OTP | `Peluit OTP <otp@id.leonxlab.com>` — ganti setelah domain terverifikasi di Resend |
 | `OTP_PEPPER` | ya (produksi) | pepper hash OTP, acak ≥32 karakter |
-| `PAYMENT_PROVIDER` | sementara | masih `undecided` |
-| `PAYMENT_WEBHOOK_SECRET` | sementara | kosong sampai gateway dipilih |
+| `PAYMENT_PROVIDER` | ya | `lxpay` (produksi) atau `fake` (dev) — keputusan di docs/decisions/payment-gateway.md |
+| `PAYMENT_WEBHOOK_SECRET` | ya | secret webhook gateway (bebas di dev `fake`) |
+| `LXPAY_API_KEY` | bila lxpay | API key merchant LxPay (`xpk_live_…`) dari dashboard LxPay |
+| `LXPAY_WEBHOOK_SECRET` | bila lxpay | secret webhook dari dashboard LxPay (header `X-Lxpay-Signature`) |
+| `LXPAY_BASE_URL` | tidak | default `https://leonxlab.app` |
 
 ## Frontend (Vercel) — `frontend/.env.local`
 

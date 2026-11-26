@@ -7,8 +7,14 @@ export type PaymentTargetType = "open_play" | "court_booking" | "equipment_renta
 export interface CheckoutResult {
   paymentId: string;
   status: PaymentStatus;
-  /** Total yang dibayar pembayar, dihitung server. */
+  /** Tagihan (harga + fee aplikasi), dihitung server. */
   chargeAmount: number;
+  /** Nominal persis yang harus dibayar: tagihan + kode unik gateway QRIS. */
+  amountWithCode: number;
+  /** Payload QRIS siap render sebagai QR image (gateway LxPay). */
+  qrisPayload: string | null;
+  /** Sampai kapan instruksi bayar berlaku. */
+  expiresAt: string | null;
   /** Hanya untuk tampilan. Status akhir selalu dari webhook. */
   redirectUrl: string | null;
 }
@@ -69,6 +75,11 @@ export interface PaymentStatusView {
   id: string;
   status: PaymentStatus | "settled";
   chargeAmount: number;
+  /** Nominal persis yang harus dibayar (termasuk kode unik gateway). */
+  amountWithCode: number;
+  qrisPayload: string | null;
+  expiresAt: string | null;
+  redirectUrl: string | null;
 }
 
 /** Contoh hitungan dari server. Frontend tidak menghitung biaya sendiri. */

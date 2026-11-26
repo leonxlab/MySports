@@ -70,7 +70,7 @@ export function OpenPlayDetail({ id }: { id: string }) {
           {joined.checkout.redirectUrl ? (
             <a href={joined.checkout.redirectUrl}>Bayar sekarang</a>
           ) : (
-            "Menunggu instruksi pembayaran."
+            "Selesaikan pembayaran (QR QRIS) di halaman status."
           )}{" "}
           <Link href={`/checkout/${joined.checkout.paymentId}`}>Lihat status</Link>
         </p>

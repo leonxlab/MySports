@@ -1,5 +1,16 @@
 # Perubahan
 
+## 2026-11-22 — Gateway pembayaran LxPay (QRIS) + rampungkan modul payments
+
+- Gateway ditetapkan: **LxPay** (QRIS LeonXLab, https://leonxlab.app/docs/lxpay) lewat `PAYMENT_PROVIDER=lxpay`. ADR `docs/decisions/payment-gateway.md` kini berstatus diputuskan.
+- Backend baru: `LxPayGateway` (`backend/src/modules/payments/gateway.ts`) — buat transaksi QRIS (reference = paymentId, idempoten), verifikasi webhook `X-Lxpay-Signature` (sha256, constant-time), dan poll `GET /transactions/:reference` sebagai cadangan webhook saat GET pembayaran masih pending.
+- Checkout dan `GET /payments/:id` kini membawa instruksi bayar: `amountWithCode` (tagihan + kode unik 3–4 digit QRIS), `qrisPayload`, `expiresAt`; disimpan di kolom baru `payments.qris_payload` / `qris_expires_at` (migrasi `20261122120000_payments_lxpay.sql`).
+- Tagihan QR kedaluwarsa otomatis ditandai gagal (dari poll atau checkout ulang), slot lapangan dilepas, lalu tagihan baru dibuat.
+- Frontend: halaman `/checkout/[id]` merender QR QRIS (pustaka `qrcode`) beserta nominal persis yang harus dibayar; CTA open play dan sewa lapangan mengarah ke halaman status.
+- Env baru backend: `LXPAY_API_KEY`, `LXPAY_WEBHOOK_SECRET`, `LXPAY_BASE_URL` (lihat `docs/environment.md` dan `backend/.env.example`). Dev/test tetap `PAYMENT_PROVIDER=fake`.
+- Dependensi frontend: +`qrcode`, +`@types/qrcode` (dev).
+- Checklist frontend payments di README modul kini tercentang; uji sandbox LxPay dengan merchant sungguhan masih menggantung.
+
 ## 2026-11-21 — OTP email via Resend (SMTP) untuk daftar & login
 
 - Modul baru `backend/src/modules/auth-otp/`: kode OTP 6 digit dikirim lewat **SMTP Resend** (`smtp.resend.com:465`, nodemailer; user `resend`, password `RESEND_API_KEY`), pengirim `otp@id.leonxlab.com`.

@@ -10,6 +10,10 @@ const schema = z.object({
   YOLO_SERVICE_KEY: z.string().min(16),
   PAYMENT_PROVIDER: z.string().default("undecided"),
   PAYMENT_WEBHOOK_SECRET: z.string().default(""),
+  // Gateway LxPay (QRIS LeonXLab, https://leonxlab.app/docs/lxpay). Aktif bila PAYMENT_PROVIDER=lxpay.
+  LXPAY_API_KEY: z.string().default(""),
+  LXPAY_WEBHOOK_SECRET: z.string().default(""),
+  LXPAY_BASE_URL: z.string().default("https://leonxlab.app"),
   // OTP email via SMTP Resend (modul auth-otp). Nonaktif bila API key kosong.
   RESEND_API_KEY: z.string().default(""),
   RESEND_SMTP_HOST: z.string().default("smtp.resend.com"),

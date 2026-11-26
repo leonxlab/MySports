@@ -1,26 +1,29 @@
 # Keputusan: Payment Gateway (ADR)
 
-Status: **belum diputuskan** — `PAYMENT_PROVIDER` masih `undecided` di `backend/.env.example` dan `backend/app.json`. Kode di `backend/src/modules/payments/` disiapkan agar gateway bisa ditukar tanpa mengubah pemanggil (`createCheckout`, `onPaid`, `settle`, `getFeeSettings`).
+Status: **diputuskan** (2026-11-22) - gateway = **LxPay** (QRIS, milik LeonXLab).
+Dokumentasi API: https://leonxlab.app/docs/lxpay. Implementasi: `backend/src/modules/payments/gateway.ts` (`LxPayGateway`), dipilih lewat `PAYMENT_PROVIDER=lxpay`.
 
-## Pertanyaan yang harus dijawab sebelum produksi
+## Keputusan
 
-| No | Pertanyaan | Dampak kalau belum |
-| --- | --- | --- |
-| 1 | Penyedia gateway lokal mana (mis. Midtrans, Xendit, QRIS statis/dinamis, transfer manual)? | Checkout open play berbayar dan sewa alat tidak bisa jalan; modul payments tetap stub |
-| 2 | Siapa target payout (owner lapangan / coach penyewa alat) dan lewat jalur apa? | Uang tidak bisa diteruskan; settle() tidak punya implementasi nyata |
-| 3 | Fee admin: persentase saat withdraw atau dibebankan ke pembayar? (proposal keputusan #3 — besaran diatur Admin lewat panel) | `getFeeSettings()` punya nilai default tapi tidak terverifikasi bisnis |
-| 4 | Kebijakan refund dan kapan payment dianggap hangus (`pending_payment` kedaluwarsa)? | Slot bisa terkunci permanen atau terlepas terlalu cepat |
-| 5 | Timing settle: saat webhook `paid` masuk atau batch berkala? | Konsistensi saldo vs latensi konfirmasi |
+- Penyedia: **LxPay** - QRIS dinamis. Satu akun QRIS melayani banyak transaksi lewat *unique code* (3-4 digit) yang ditambahkan ke nominal; pembayar membayar `amountWithCode`, bukan tagihan polos.
+- Metode aktif: **QRIS**. Alur: buat transaksi `POST /transactions` (reference = paymentId, idempoten) - tampilkan QR - webhook `transaction.paid` memverifikasi `X-Lxpay-Signature` (`sha256(secret + "." + body)`, constant-time) - status berubah di backend. Cadangan bila webhook tidak sampai: backend mem-poll `GET /transactions/:reference` saat pembayaran masih `pending` (dipanggil dari GET `/payments/:id` dan checkout ulang).
+- Fee: aplikasi memakai model sendiri (`fee_settings`, diatur Admin di `/admin/fees`). Fee merchant LxPay di-set **feeMode=platform** di dashboard merchant supaya tidak menambah beban pembayar; biaya LxPay ditanggung aplikasi (asumsi lama tetap berlaku).
+- Payout: saldo Coach/Owner tetap di wallet internal aplikasi (`wallets`), ditarik lewat `POST /payments/withdrawals` (status `requested`, diproses manual Admin). Endpoint `/withdrawals` milik LxPay hanya untuk saldo merchant aplikasi, bukan per pengguna.
+- Refund: masih `TODO(decision)` - tidak berubah dari rencana lama.
+- Webhook secret: `LXPAY_WEBHOOK_SECRET`. Webhook URL di dashboard merchant: `https://<backend>/api/v1/payments/webhook/lxpay`.
 
-## Dampak deploy
+## Env
 
-Main app (Supabase + Heroku + Vercel) bisa dideploy tanpa keputusan ini karena alur gratis (join open play gratis, statistik, feed) tidak menyentuh payments. Alur berbayar dibiarkan mati sampai keputusan jatuh, lalu isi kolom di bawah dan catat di docs/CHANGELOG.md.
+| Variabel | Isi |
+| --- | --- |
+| `PAYMENT_PROVIDER` | `lxpay` (produksi) atau `fake` (dev/test) |
+| `LXPAY_API_KEY` | API key merchant (`xpk_live_...`), ditampilkan sekali saat pendaftaran |
+| `LXPAY_WEBHOOK_SECRET` | secret webhook dari dashboard merchant |
+| `LXPAY_BASE_URL` | default `https://leonxlab.app` |
 
-## Template keputusan (isi nanti)
+## Catatan teknis
 
-- Penyedia: ...
-- Metode aktif: ...
-- Fee: ...
-- Payout: ...
-- Refund: ...
-- Webhook secret: `PAYMENT_WEBHOOK_SECRET` di-set saat itu juga.
+- Batas nominal LxPay Rp500 - Rp10.000.000; transaksi PENDING kedaluwarsa dalam 60 menit. Setelah itu tagihan ditandai `failed` (dari poll atau checkout ulang), slot lapangan dilepas, dan pembayar bisa menagih ulang (tagihan baru dengan reference baru).
+- Instruksi bayar (payload QRIS, `amountWithCode`, `expiresAt`) disimpan di kolom `payments.qris_payload` / `qris_expires_at` (migrasi `20261122120000_payments_lxpay.sql`) supaya halaman `/checkout/[id]` bisa menampilkan ulang QR tanpa transaksi baru.
+- `FakeGateway` tetap dipakai di dev/test (`PAYMENT_PROVIDER=fake`); verifikasi signature-nya tidak berubah.
+- Uji sandbox LxPay dengan merchant sungguhan masih menggantung (butuh pendaftaran merchant).

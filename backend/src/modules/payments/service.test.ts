@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AppContext } from "../../core/context";
 import { createFakeSupabase } from "../../../tests/fakeSupabase";
-import { FAKE_SIGNATURE_HEADER, FakeGateway, signFake } from "./gateway";
+import { FAKE_SIGNATURE_HEADER, FakeGateway, signFake, type PaymentGateway } from "./gateway";
 import { createPaymentsService, type PaidPayment } from "./service";
 
 const SECRET = "test-secret";
 
-function setup(opts: { feeModel?: "payer_fee" | "withdraw_percent"; percent?: number; price?: number } = {}) {
+function setup(
+  opts: { feeModel?: "payer_fee" | "withdraw_percent"; percent?: number; price?: number; gateway?: PaymentGateway } = {},
+) {
   const fake = createFakeSupabase(
     {
       fee_settings: [{ id: 1, model: opts.feeModel ?? "payer_fee", percent: opts.percent ?? 5 }],
@@ -42,8 +44,7 @@ function setup(opts: { feeModel?: "payer_fee" | "withdraw_percent"; percent?: nu
     { payments: { status: "pending" } },
   );
   const ctx = { supabase: fake.db, env: {} } as unknown as AppContext;
-  const gateway = new FakeGateway(SECRET);
-  const service = createPaymentsService(ctx, { gateway });
+  const service = createPaymentsService(ctx, { gateway: opts.gateway ?? new FakeGateway(SECRET) });
   const webhook = (body: object, secret = SECRET) => {
     const raw = JSON.stringify(body);
     return service.handleWebhook(raw, { [FAKE_SIGNATURE_HEADER]: signFake(raw, secret) });
@@ -312,5 +313,88 @@ describe("previewFees dan getPayment", () => {
     fake.tables.payments!.push({ id: "px", payer_id: "player", payee_id: "coach", target_type: "open_play", target_id: "op1", amount: 100_000, fee_amount: 5_000, fee_model: "payer_fee", status: "pending" });
     expect(await service.getPayment("player", "px")).toMatchObject({ id: "px", status: "pending", chargeAmount: 105_000 });
     await expect(service.getPayment("lain", "px")).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("checkout QRIS (LxPay) dan fallback poll status", () => {
+  /** Gateway mirip LxPay: createCharge mengembalikan QRIS, verifyWebhook selalu lolos. */
+  function qrisGateway(getTx?: (ref: string) => Promise<{ status: "pending" | "paid" | "expired"; amount: number | null }>) {
+    return {
+      name: "lxpay",
+      createCharge: vi.fn(async (input: { idempotencyKey: string; amount: number }) => ({
+        gatewayRef: `lxq_${input.idempotencyKey}`,
+        redirectUrl: null,
+        qris: { payload: "000201-QR", amountWithCode: input.amount + 417, expiresAt: "2099-01-01T10:00:00.000Z" },
+      })),
+      verifyWebhook: vi.fn(() => true),
+      parseEvent: vi.fn(() => null),
+      ...(getTx ? { getTransaction: vi.fn(getTx) } : {}),
+    };
+  }
+
+  it("checkout menyimpan dan mengembalikan instruksi QRIS", async () => {
+    const { service, fake } = setup({ gateway: qrisGateway() as unknown as PaymentGateway });
+    const r = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    expect(r.chargeAmount).toBe(105_000);
+    expect(r.amountWithCode).toBe(105_417);
+    expect(r.qrisPayload).toBe("000201-QR");
+    expect(r.expiresAt).toBe("2099-01-01T10:00:00.000Z");
+    expect(r.redirectUrl).toBeNull();
+    expect(fake.tables.payments![0]).toMatchObject({
+      gateway: "lxpay",
+      gateway_ref: `lxq_${fake.tables.payments![0]!.id}`,
+      qris_payload: "000201-QR",
+      qris_amount_with_code: 105_417,
+      qris_expires_at: "2099-01-01T10:00:00.000Z",
+    });
+  });
+
+  it("checkout ulang saat QR masih berlaku memakai tagihan yang sama", async () => {
+    const { service, fake } = setup({ gateway: qrisGateway() as unknown as PaymentGateway });
+    const a = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    const b = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    expect(b.paymentId).toBe(a.paymentId);
+    expect(b.qrisPayload).toBe("000201-QR");
+    expect(b.amountWithCode).toBe(105_417);
+    expect(fake.tables.payments).toHaveLength(1);
+  });
+
+  it("getPayment mengembalikan nominal QRIS berkode unik setelah instruksi disimpan", async () => {
+    const { service, fake } = setup({ gateway: qrisGateway() as unknown as PaymentGateway });
+    const checkout = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    const payment = await service.getPayment("player", checkout.paymentId);
+    expect(payment.amountWithCode).toBe(105_417);
+  });
+
+  it("getPayment pada tagihan pending bertanya ke gateway dan menerapkan paid", async () => {
+    const gw = qrisGateway(() => Promise.resolve({ status: "paid", amount: 105_000 }));
+    const { service, ctx, fake } = setup({ gateway: gw as unknown as PaymentGateway });
+    await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    const handler = vi.fn(async () => {});
+    createPaymentsService(ctx).onPaid("open_play", handler);
+    const view = await service.getPayment("player", fake.tables.payments![0]!.id as string);
+    expect(view.status).toBe("paid");
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("poll expired menandai tagihan gagal", async () => {
+    const gw = qrisGateway(() => Promise.resolve({ status: "expired", amount: null }));
+    const { service, fake } = setup({ gateway: gw as unknown as PaymentGateway });
+    await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    const view = await service.getPayment("player", fake.tables.payments![0]!.id as string);
+    expect(view.status).toBe("failed");
+  });
+
+  it("checkout ulang saat QR kedaluwarsa membuat tagihan baru, yang lama gagal", async () => {
+    const gw = qrisGateway(() => Promise.resolve({ status: "pending", amount: null }));
+    const { service, fake } = setup({ gateway: gw as unknown as PaymentGateway });
+    const a = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    fake.tables.payments![0]!.qris_expires_at = "2020-01-01T00:00:00.000Z"; // paksa kedaluwarsa
+    const b = await service.createCheckout({ payerId: "player", targetType: "open_play", targetId: "op1" });
+    expect(b.paymentId).not.toBe(a.paymentId);
+    expect(b.qrisPayload).toBe("000201-QR");
+    expect(fake.tables.payments).toHaveLength(2);
+    expect(fake.tables.payments![0]!.status).toBe("failed");
+    expect(fake.tables.payments![1]!.status).toBe("pending");
   });
 });
