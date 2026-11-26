@@ -1,10 +1,13 @@
 # contracts
 
-Bentuk data yang dipakai lebih dari satu layanan. Satu-satunya kontrak sekarang:
+Bentuk data yang dipakai lebih dari satu layanan.
 
 | File | Pengirim → penerima | Cermin di kode |
 | --- | --- | --- |
 | `detection-event.schema.json` | yolo-service → backend (`POST /api/v1/devices/events`) | `backend/src/modules/devices/schema.ts` (zod) dan `yolo-service/app/core/events.py` (pydantic) |
+| `calibration.schema.json` | controller Coach → backend (`POST /api/v1/devices/sessions/:id/calibration`) → yolo-service (`SegmentContext.calibration`) | `backend/src/modules/devices/schema.ts` (zod) dan `yolo-service/app/modules/calibration/contract.py` (pydantic) |
+
+Kalibrasi: titik dalam piksel frame acuan, per kamera (`home`, `away`). Cermin di kode menambah satu cek yang tidak bisa ditulis di JSON Schema: setiap titik harus berada di dalam `frame` (`x <= width`, `y <= height`).
 
 Cara mengubah:
 

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "calibration.schema.json",
+  "title": "Kontrak kalibrasi lapangan",
+  "description": "Disimpan backend di device_sessions.calibration (jsonb) lewat POST /api/v1/devices/sessions/:id/calibration, lalu dibawa ke detektor lewat SegmentContext.calibration. Titik ditandai Coach sekali saat setup, dalam piksel frame kamera acuan. Perubahan file ini = PR terpisah yang disetujui pemilik semua sisi yang terdampak (rules.md bagian 5). TODO(decision): titik wajib per cabang masih usulan (4 sudut lapangan ditambah ring atau gawang); kamera bergeser di tengah sesi = kalibrasi ulang manual.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Versi bentuk data. Naik bila bentuk berubah tidak kompatibel"
+    },
+    "sport": {
+      "enum": ["basketball", "badminton", "tennis", "padel", "futsal"]
+    },
+    "layout": {
+      "enum": ["full_court", "half_court", "singles", "doubles", "standard"],
+      "description": "Tata lapangan yang menentukan garis dan dimensi. basketball: full_court atau half_court. badminton dan tennis: singles atau doubles. padel dan futsal: standard"
+    },
+    "cameras": {
+      "type": "object",
+      "description": "Kalibrasi per kamera. Minimal satu kamera",
+      "properties": {
+        "home": { "$ref": "#/$defs/camera_calibration" },
+        "away": { "$ref": "#/$defs/camera_calibration" }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  },
+  "required": ["version", "sport", "layout", "cameras"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "sport": { "const": "basketball" } } },
+      "then": { "properties": { "layout": { "enum": ["full_court", "half_court"] } } }
+    },
+    {
+      "if": { "properties": { "sport": { "enum": ["badminton", "tennis"] } } },
+      "then": { "properties": { "layout": { "enum": ["singles", "doubles"] } } }
+    },
+    {
+      "if": { "properties": { "sport": { "enum": ["padel", "futsal"] } } },
+      "then": { "properties": { "layout": { "const": "standard" } } }
+    }
+  ],
+  "$defs": {
+    "point": {
+      "type": "object",
+      "description": "Titik dalam piksel frame acuan. Asal (0,0) di kiri atas",
+      "properties": {
+        "x": { "type": "number", "minimum": 0 },
+        "y": { "type": "number", "minimum": 0 }
+      },
+      "required": ["x", "y"],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "description": "Target diam. hoop: 2 titik, ujung kiri dan kanan bibir depan ring. goal: 4 titik mulut gawang, urutan tiang kiri bawah, tiang kanan bawah, mistar kanan atas, mistar kiri atas",
+      "oneOf": [
+        {
+          "properties": {
+            "kind": { "const": "hoop" },
+            "points": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/point" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": ["kind", "points"],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "kind": { "const": "goal" },
+            "points": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/point" },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": ["kind", "points"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "camera_calibration": {
+      "type": "object",
+      "properties": {
+        "frame": {
+          "type": "object",
+          "description": "Resolusi frame acuan saat titik ditandai. Detektor menskalakan titik bila resolusi segmen berbeda",
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["width", "height"],
+          "additionalProperties": false
+        },
+        "court_corners": {
+          "type": "array",
+          "description": "4 sudut bidang lapangan yang terlihat kamera, urutan: dekat kiri, dekat kanan, jauh kanan, jauh kiri (dilihat dari kamera). Untuk half_court, bidang setengah lapangan",
+          "items": { "$ref": "#/$defs/point" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "targets": {
+          "type": "array",
+          "description": "Ring atau gawang yang terlihat kamera ini. Kosong untuk cabang raket",
+          "items": { "$ref": "#/$defs/target" },
+          "maxItems": 2
+        },
+        "marked_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu Coach menandai titik"
+        }
+      },
+      "required": ["frame", "court_corners", "targets", "marked_at"],
+      "additionalProperties": false
+    }
+  }
+}
