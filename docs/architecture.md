@@ -25,7 +25,7 @@ Kamera (browser) ── upload segmen lewat signed URL ────────�
 
 ## Alur video dan deteksi
 
-1. Kamera Home dan Away merekam dan memecah video menjadi segmen (maksimal 50 MB). Format segmen masih terbuka (pertanyaan #13 di proposal; usulan: potongan MediaRecorder dulu).
+1. Kamera Home dan Away merekam dan memecah video menjadi segmen (maksimal 50 MB). Format segmen masih terbuka (pertanyaan #13 di proposal; usulan: potongan MediaRecorder dulu, lihat [memo format segmen](decisions/video-segment-format.md)).
 2. Kamera minta signed URL ke `POST /devices/sessions/:id/segments/sign`, lalu mengunggah **langsung ke Supabase Storage**. Tidak lewat Heroku karena router Heroku memutus request di 30 detik.
 3. Kamera memanggil `.../segments/:segmentId/uploaded`. Baris `video_segments` berstatus `queued`.
 4. Worker YOLO memanggil `claim_next_segment()`, mengunduh segmen, mendeteksi, lalu mengirim batch event ke `POST /devices/events` (header `x-service-key`, kontrak di `contracts/`).
