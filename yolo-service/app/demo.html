@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peluit Skor Basket</title>
+<style>
+  :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+  body { max-width: 960px; margin: 0 auto; padding: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0; }
+  button, select { font: inherit; padding: 6px 12px; }
+  button[aria-pressed="true"] { background: #ff9500; color: #000; border: 1px solid #ff9500; border-radius: 4px; }
+  canvas { width: 100%; height: auto; background: #111; border-radius: 8px; cursor: crosshair; }
+  #board { display: flex; justify-content: center; gap: 32px; text-align: center; }
+  #board strong { display: block; font-size: 56px; font-variant-numeric: tabular-nums; }
+  #status, #guide { font-weight: 600; }
+  #error { color: #d33; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<h1>Skor Basket (demo YOLO)</h1>
+<p id="status">Memeriksa server…</p>
+
+<div id="board" aria-live="polite">
+  <div>Home<strong id="home">0</strong></div>
+  <div>Away<strong id="away">0</strong></div>
+</div>
+
+<div class="row">
+  <button id="camera" type="button">Pakai webcam</button>
+  <label>Video <input id="file" type="file" accept="video/*"></label>
+</div>
+<div class="row" role="radiogroup" aria-label="Mode lapangan">
+  <span>Lapangan:</span>
+  <button class="mode" data-mode="half" type="button" aria-pressed="true">Half court (1 ring)</button>
+  <button class="mode" data-mode="full" type="button" aria-pressed="false">Full court (2 ring)</button>
+</div>
+<div class="row">
+  <button id="autoRim" type="button">Deteksi ring otomatis</button>
+  <button id="markRim" type="button">Tandai ring manual</button>
+  <button id="start" type="button">Mulai hitung</button>
+  <button id="stop" type="button">Stop</button>
+  <button id="reset" type="button">Reset skor</button>
+</div>
+<div class="row" id="halfTeams">
+  <span>Tim yang menyerang ring:</span>
+  <button class="team" data-team="home" type="button" aria-pressed="true">Home</button>
+  <button class="team" data-team="away" type="button" aria-pressed="false">Away</button>
+</div>
+<div class="row" id="fullTeams" hidden>
+  <span id="sides">Ring kiri: skor Home · Ring kanan: skor Away</span>
+  <button id="swap" type="button">Tukar sisi</button>
+</div>
+<div class="row">
+  <label>Nilai tembakan <select id="points"><option value="2">2 poin</option><option value="3">3 poin</option><option value="1">1 poin</option></select></label>
+  <button id="manualHome" type="button">+ Home manual</button>
+  <button id="manualAway" type="button">+ Away manual</button>
+  <label><input id="track" type="checkbox" checked> Ikuti ring tiap frame (kamera bergerak)</label>
+  <label>Keyakinan bola minimal <input id="conf" type="range" min="0.05" max="0.9" step="0.05" value="0.15">
+    <span id="confValue">0.15</span></label>
+</div>
+
+<p id="guide">1. Pilih webcam atau video.</p>
+<p id="error" role="alert"></p>
+<canvas id="view" width="640" height="360"></canvas>
+<p id="info"></p>
+<h2>Riwayat skor</h2>
+<ul id="log"></ul>
+<video id="video" muted playsinline hidden></video>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const view = $("view"), ctx = view.getContext("2d"), video = $("video");
+// Frame yang dikirim disalin ke canvas ini, jadi kotak digambar tepat di frame yang sama.
+const frame = document.createElement("canvas"), frameCtx = frame.getContext("2d");
+const MAX_SIDE = 1920;     // resolusi penuh: bola jauh hanya beberapa piksel
+const STEP_S = 1 / 15;      // video file diproses 15 frame per detik, tanpa tergantung kecepatan laptop
+const KEEP_MS = 3000;       // jejak bola yang dikirim ke aturan tembakan
+const COOLDOWN_MS = 1500;   // sama dengan ShotParams.cooldown_ms
+const NAME = { home: "Home", away: "Away" };
+const other = (t) => (t === "home" ? "away" : "home");
+
+let run = 0, stream = null, fileUrl = null, source = null; // source: "camera" | "file"
+let lastData = null, marking = null, counting = false;
+let mode = "half", halfTeam = "home", leftTeam = "home";
+// Ring: posisi saat ini + jejak bola RELATIF terhadap ring itu (satuan: lebar ring x 100),
+// jadi pan/zoom kamera tidak menggeser ring di mata aturan tembakan.
+let rims = []; // { x1, y1, x2, y2, w, from, lastMade, trail }
+const REL_RIM = { x1: -50, y1: 0, x2: 50, y2: 0 };
+// Pemilihan bola: posisi semua kandidat 15 frame terakhir (untuk menyaring benda diam seperti lampu) dan
+// posisi bola terakhir yang dipakai (bola harus bergerak menyambung, tidak melompat jauh).
+let recent = [], lastBall = null;
+const entries = [];
+
+const need = () => (mode === "half" ? 1 : 2);
+function guide(text) { $("guide").textContent = text; }
+
+// Tim pemilik poin untuk ring ke-i (ring diurutkan kiri ke kanan).
+function teamOf(i) { return mode === "half" ? halfTeam : (i === 0 ? leftTeam : other(leftTeam)); }
+
+function stop() {
+  run++;
+  counting = false;
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null;
+  video.pause();
+  video.srcObject = null;
+  video.removeAttribute("src");
+  if (fileUrl) URL.revokeObjectURL(fileUrl);
+  fileUrl = null;
+  source = null;
+}
+
+function newTrail() { recent = []; lastBall = null; for (const r of rims) { r.trail = []; r.lastMade = -Infinity; } }
+
+// Pilih satu bola dari kandidat frame ini, atau null.
+function chooseBall(balls, tMs) {
+  const unit = Math.min(...rims.map((r) => r.w));
+  const pts = balls.map((b) => ({ x: (b.box[0] + b.box[2]) / 2, y: (b.box[1] + b.box[3]) / 2, conf: b.confidence }));
+  // Diam: muncul di titik yang sama (< 0,3 lebar ring) pada >= 10 dari 75 frame sebelumnya (~5 detik).
+  // Jendela panjang menangkap benda yang hanya sesekali terdeteksi (lampu, tiang, kepala penonton).
+  const moving = pts.filter((p) => recent.filter((f) => f.some((q) => Math.hypot(p.x - q.x, p.y - q.y) < 0.3 * unit)).length < 10);
+  recent.push(pts);
+  if (recent.length > 75) recent.shift();
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  let ball = null;
+  if (lastBall && tMs - lastBall.t < 600) {
+    // Menyambung: paling dekat ke bola terakhir, maksimal 0,5 + 1 lebar ring per 66 ms (~7 m/s).
+    const reach = unit * (0.5 + (tMs - lastBall.t) / 66);
+    ball = moving.filter((p) => dist(p, lastBall) <= reach).sort((a, b) => dist(a, lastBall) - dist(b, lastBall))[0] || null;
+  } else {
+    const gap = (p) => Math.min(...rims.map((r) => Math.hypot(p.x - (r.x1 + r.x2) / 2, p.y - (r.y1 + r.y2) / 2) / r.w));
+    ball = moving.sort((a, b) => gap(a) - gap(b))[0] || null;
+  }
+  if (ball) lastBall = { ...ball, t: tMs };
+  return ball;
+}
+
+function setRims(list, from) {
+  rims = list.map((r) => ({ x1: r.x1, y1: r.y1, x2: r.x2, y2: r.y2, w: r.x2 - r.x1, from, lastMade: -Infinity, trail: [] }))
+    .sort((a, b) => a.x1 - b.x1);
+  newTrail();
+  draw();
+}
+
+function renderScore() {
+  for (const side of ["home", "away"]) {
+    $(side).textContent = entries.filter((e) => e.team === side).reduce((sum, e) => sum + e.points, 0);
+  }
+  $("log").replaceChildren(...entries.map((e) => {
+    const li = document.createElement("li");
+    li.textContent = NAME[e.team] + " +" + e.points + " (" + e.note + ") ";
+    const undo = document.createElement("button");
+    undo.type = "button";
+    undo.textContent = "Batalkan";
+    undo.onclick = () => { entries.splice(entries.indexOf(e), 1); renderScore(); };
+    li.append(undo);
+    return li;
+  }).reverse());
+}
+
+function addScore(team, note) {
+  entries.push({ team, points: Number($("points").value), note });
+  renderScore();
+}
+
+async function api(url, options) {
+  const res = await fetch(url, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Server error " + res.status);
+  return data;
+}
+
+function grabFrame() {
+  const scale = Math.min(1, MAX_SIDE / Math.max(video.videoWidth, video.videoHeight));
+  frame.width = Math.round(video.videoWidth * scale);
+  frame.height = Math.round(video.videoHeight * scale);
+  frameCtx.drawImage(video, 0, 0, frame.width, frame.height);
+  return new Promise((ok) => frame.toBlob(ok, "image/jpeg", 0.85));
+}
+
+// tMs = waktu frame (posisi video, atau jam perangkat untuk webcam)
+async function processFrame(tMs, mine) {
+  if (!video.videoWidth) return;
+  const tracking = $("track").checked && rims.length > 0;
+  const query = "/detect?conf=" + $("conf").value + (tracking ? "&rims=" + need() : "");
+  const data = await api(query, { method: "POST", body: await grabFrame() });
+  if (mine !== run) return;
+  lastData = data;
+  if (tracking) follow(data.rims.rims);
+  draw();
+  if (!counting || rims.length < need()) return;
+
+  const ball = chooseBall(data.detections.filter((d) => d.label === "sports ball"), tMs);
+  if (!ball) return;
+  const bx = ball.x, by = ball.y;
+
+  for (const [i, rim] of rims.entries()) {
+    rim.trail.push({
+      t_ms: Math.round(tMs),
+      x: (bx - (rim.x1 + rim.x2) / 2) / rim.w * 100,
+      y: (by - (rim.y1 + rim.y2) / 2) / rim.w * 100,
+      conf: ball.conf,
+    });
+    rim.trail = rim.trail.filter((o) => o.t_ms >= tMs - KEEP_MS);
+    if (rim.trail.length < 2) continue;
+    const made = await api("/shots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...REL_RIM, observations: rim.trail }),
+    });
+    if (mine !== run) return;
+    for (const shot of made) {
+      if (shot.t_ms - rim.lastMade < COOLDOWN_MS) continue;
+      rim.lastMade = shot.t_ms;
+      const when = source === "file" ? "detik " + (shot.t_ms / 1000).toFixed(1) : new Date().toLocaleTimeString("id-ID");
+      const where = mode === "full" ? (i === 0 ? "ring kiri" : "ring kanan") + ", " : "";
+      addScore(teamOf(i), "AI, " + where + when + ", keyakinan " + Math.round(shot.confidence * 100) + "%");
+    }
+  }
+}
+
+// Geser tiap ring ke deteksi yakin (>= 0,5) terdekat, maksimal 1 lebar ring per frame: kamera bergeser
+// sedikit demi sedikit, lompatan jauh hampir selalu benda lain. Tanpa yang cocok, ring tetap di tempat.
+function follow(found) {
+  for (const rim of rims) {
+    if (rim.from === "manual") continue; // ditandai pengguna: jangan digeser oleh tebakan otomatis
+    const cx = (rim.x1 + rim.x2) / 2;
+    const near = found
+      .map((f) => ({ f, d: Math.abs((f.x1 + f.x2) / 2 - cx) }))
+      .filter((c) => c.d < rim.w && c.f.conf >= 0.5 && Math.abs((c.f.x2 - c.f.x1) / rim.w - 1) < 0.4)
+      .sort((a, b) => a.d - b.d)[0];
+    if (!near) continue;
+    const f = near.f;
+    rim.w = 0.7 * rim.w + 0.3 * (f.x2 - f.x1); // lebar dihaluskan, deteksi bergoyang beberapa piksel
+    const ncx = (f.x1 + f.x2) / 2, ny = (f.y1 + f.y2) / 2, half = (f.y2 - f.y1) / 2;
+    Object.assign(rim, { x1: ncx - rim.w / 2, x2: ncx + rim.w / 2, y1: ny - half, y2: ny + half });
+  }
+}
+
+function draw() {
+  if (!frame.width) return;
+  view.width = frame.width;
+  view.height = frame.height;
+  ctx.drawImage(frame, 0, 0);
+  // garis dan teks ikut membesar di frame resolusi penuh
+  const unit = Math.max(1, frame.width / 960);
+  ctx.lineWidth = 3 * unit;
+  ctx.font = Math.round(16 * unit) + "px system-ui, sans-serif";
+  let balls = 0, people = 0;
+  for (const d of lastData ? lastData.detections : []) {
+    if (d.label !== "person" && d.label !== "sports ball") continue;
+    d.label === "person" ? people++ : balls++;
+    const [x1, y1, x2, y2] = d.box;
+    ctx.strokeStyle = d.label === "person" ? "#34c759" : "#ff9500";
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fillText((d.label === "person" ? "orang " : "bola ") + Math.round(d.confidence * 100) + "%", x1 + 2, Math.max(14, y1 - 5));
+  }
+  for (const [i, r] of rims.entries()) {
+    ctx.fillStyle = "#ffd60a"; // jejak bola, digambar relatif ke posisi ring sekarang
+    for (const o of r.trail) ctx.fillRect((r.x1 + r.x2) / 2 + o.x * r.w / 100 - 2, (r.y1 + r.y2) / 2 + o.y * r.w / 100 - 2, 5, 5);
+    const y = (r.y1 + r.y2) / 2;
+    ctx.strokeStyle = ctx.fillStyle = "#ff3b30";
+    ctx.lineWidth = 2 * unit;
+    ctx.strokeRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1);
+    ctx.lineWidth = 4 * unit;
+    ctx.beginPath(); ctx.moveTo(r.x1, y); ctx.lineTo(r.x2, y); ctx.stroke();
+    ctx.fillText("ring → " + NAME[teamOf(i)], r.x1, Math.max(14, r.y1 - 6));
+  }
+  ctx.fillStyle = "#ff3b30";
+  for (const p of marking || []) ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
+  if (lastData) {
+    $("info").textContent = "Orang: " + people + " · Bola: " + balls + " · " + lastData.model +
+      " di " + lastData.device + " · " + lastData.ms + " ms" + (counting ? " · MENGHITUNG" : "");
+  }
+}
+
+function seek(t) {
+  if (Math.abs(video.currentTime - t) < 0.001) return Promise.resolve();
+  return new Promise((ok) => {
+    video.addEventListener("seeked", ok, { once: true });
+    video.currentTime = t;
+  });
+}
+
+async function guard(fn) {
+  $("error").textContent = "";
+  const mine = run;
+  try {
+    await fn(mine);
+  } catch (e) {
+    if (mine === run) { counting = false; $("error").textContent = e.message; }
+  }
+}
+
+async function autoRims() {
+  if (!source || !video.videoWidth) return guide("Pilih webcam atau video dulu.");
+  counting = false;
+  marking = null;
+  await guard(async (mine) => {
+    const res = await api("/rims?count=" + need(), { method: "POST", body: await grabFrame() });
+    if (mine !== run) return;
+    setRims(res.rims, res.source);
+    if (res.rims.length < need()) {
+      guide("Hanya " + res.rims.length + " dari " + need() + " ring ditemukan (" + res.source +
+        "). Pakai Tandai ring manual, atau pindah ke frame yang ringnya terlihat jelas.");
+    } else {
+      guide("Ring ditemukan lewat " + res.source + ". Periksa kotak merah sudah tepat di ring, lalu klik Mulai hitung.");
+    }
+  });
+}
+
+async function afterSourceReady() {
+  guide("Mencari ring…");
+  await autoRims();
+}
+
+$("camera").onclick = () => { stop(); rims = []; lastData = null; newTrail(); guard(async (mine) => {
+  const media = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+  if (mine !== run) return media.getTracks().forEach((t) => t.stop());
+  stream = media;
+  source = "camera";
+  video.srcObject = media;
+  await video.play();
+  await new Promise((ok) => setTimeout(ok, 500)); // tunggu eksposur kamera stabil
+  await afterSourceReady();
+  const loopRun = run;
+  while (loopRun === run) {
+    await processFrame(performance.now(), loopRun);
+    await new Promise((ok) => setTimeout(ok, 5));
+  }
+}); };
+
+$("file").onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+  stop();
+  rims = []; lastData = null; newTrail();
+  guard(async (mine) => {
+    fileUrl = URL.createObjectURL(file);
+    source = "file";
+    video.src = fileUrl;
+    await new Promise((ok, fail) => {
+      video.onloadeddata = ok;
+      video.onerror = () => fail(new Error("Video tidak bisa dibuka browser ini (coba MP4 atau WebM)"));
+    });
+    // Sebagian rekaman WebM tidak mencantumkan durasi: loncat ke akhir supaya browser menghitungnya.
+    if (!Number.isFinite(video.duration)) { await seek(1e7); await seek(0); }
+    // Frame paling awal kadang belum ter-decode (hitam) atau ring tertutup pemain: coba beberapa titik waktu.
+    guide("Mencari ring…");
+    for (const t of [0.2, 1, 2, 3, 0]) {
+      if (mine !== run) return;
+      await seek(Math.min(t, video.duration || t));
+      await processFrame(video.currentTime * 1000, mine);
+      await autoRims();
+      if (rims.length >= need()) break;
+    }
+  });
+};
+
+$("autoRim").onclick = () => autoRims();
+
+$("markRim").onclick = () => {
+  if (!source) return guide("Pilih webcam atau video dulu.");
+  counting = false;
+  rims = []; marking = []; newTrail(); draw();
+  guide(mode === "half"
+    ? "Klik ujung KIRI bibir ring, lalu ujung KANAN."
+    : "Ring pertama: klik ujung kiri lalu kanan. Lalu ring kedua dengan cara yang sama.");
+};
+
+view.onclick = (e) => {
+  if (!marking) return;
+  const box = view.getBoundingClientRect();
+  marking.push({
+    x: (e.clientX - box.left) * view.width / box.width,
+    y: (e.clientY - box.top) * view.height / box.height,
+  });
+  if (marking.length === need() * 2) {
+    const list = [];
+    for (let i = 0; i < marking.length; i += 2) {
+      const [a, b] = [marking[i], marking[i + 1]];
+      if (Math.abs(a.x - b.x) < 5) { marking = null; draw(); return guide("Dua titik terlalu dekat. Klik Tandai ring manual lagi."); }
+      list.push({ x1: Math.min(a.x, b.x), x2: Math.max(a.x, b.x), y1: Math.min(a.y, b.y) - 3, y2: Math.max(a.y, b.y) + 3 });
+    }
+    marking = null;
+    setRims(list, "manual");
+    guide("Klik Mulai hitung.");
+    return;
+  }
+  draw();
+};
+
+$("start").onclick = () => {
+  if (!source) return guide("Pilih webcam atau video dulu.");
+  if (rims.length < need()) return guide("Butuh " + need() + " ring. Deteksi otomatis atau tandai manual dulu.");
+  if (counting) return;
+  newTrail();
+  $("error").textContent = "";
+  if (source === "camera") {
+    counting = true;
+    return guide("Menghitung… bola yang masuk dari atas ring akan menambah skor.");
+  }
+  run++;
+  counting = true;
+  guide("Menghitung video…");
+  guard(async (mine) => {
+    for (let t = 0; t < video.duration && mine === run; t += STEP_S) {
+      await seek(t);
+      await processFrame(t * 1000, mine);
+    }
+    if (mine !== run) return;
+    counting = false;
+    draw();
+    guide("Selesai. Periksa riwayat skor.");
+  });
+};
+
+$("stop").onclick = () => {
+  if (source === "camera" && counting) { counting = false; return guide("Hitungan dihentikan."); }
+  if (source === "file") { run++; counting = false; return guide("Hitungan dihentikan. Mulai hitung mengulang dari awal video."); }
+  stop();
+  guide("1. Pilih webcam atau video.");
+};
+$("reset").onclick = () => { entries.length = 0; newTrail(); renderScore(); };
+$("manualHome").onclick = () => addScore("home", "manual");
+$("manualAway").onclick = () => addScore("away", "manual");
+
+function press(selector, attr, value) {
+  for (const b of document.querySelectorAll(selector)) b.setAttribute("aria-pressed", String(b.dataset[attr] === value));
+}
+for (const button of document.querySelectorAll(".mode")) {
+  button.onclick = () => {
+    if (mode === button.dataset.mode) return;
+    mode = button.dataset.mode;
+    press(".mode", "mode", mode);
+    $("halfTeams").hidden = mode !== "half";
+    $("fullTeams").hidden = mode !== "full";
+    counting = false;
+    rims = []; marking = null; newTrail(); draw();
+    if (source) autoRims();
+  };
+}
+for (const button of document.querySelectorAll(".team")) {
+  button.onclick = () => { halfTeam = button.dataset.team; press(".team", "team", halfTeam); draw(); };
+}
+$("swap").onclick = () => {
+  leftTeam = other(leftTeam);
+  $("sides").textContent = "Ring kiri: skor " + NAME[leftTeam] + " · Ring kanan: skor " + NAME[other(leftTeam)];
+  draw();
+};
+$("conf").oninput = () => { $("confValue").textContent = Number($("conf").value).toFixed(2); };
+
+api("/status").then((s) => {
+  $("status").textContent = (s.modelReady ? "Siap: " + s.model + " di " + s.device : "Bobot " + s.model + " belum ada") +
+    " · Ring: " + (s.rimModel ? "model " + s.rimModel : "deteksi warna oranye (belum ada model ring)");
+}).catch(() => { $("status").textContent = "Server tidak bisa dihubungi"; });
+</script>
+</body>
+</html>
