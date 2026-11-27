@@ -27,6 +27,8 @@ venv/
 yolo-service/models/*
 !yolo-service/models/.gitkeep
 yolo-service/tmp/
+yolo-service/vendor/Yolo-and-TrackNet-Badminton-Analysis-main/results/
+yolo-service/vendor/Yolo-and-TrackNet-Badminton-Analysis-main/runs/
 
 # os / editor
 .DS_Store

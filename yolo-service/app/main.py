@@ -2,11 +2,13 @@ from fastapi import FastAPI
 
 from app.core.detector import registry
 from app.core.device import gpu_info
+from app.live import router as live_router
 from app.modules import load_all
 
 load_all()
 
 app = FastAPI(title="Peluit YOLO service")
+app.include_router(live_router)
 
 
 @app.get("/health")
