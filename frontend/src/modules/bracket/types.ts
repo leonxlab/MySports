@@ -10,6 +10,10 @@ export interface BracketMatchView {
   home: string[];
   away: string[];
 }
+export interface BracketMatchPlayers {
+  home: { id: string; name: string }[];
+  away: { id: string; name: string }[];
+}
 export interface BracketRoundView {
   id: string;
   round: number;

@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import type { BracketView, GenerateBracketBody, RegenerateBracketBody } from "./types";
+import type { BracketMatchPlayers, BracketView, GenerateBracketBody, RegenerateBracketBody } from "./types";
 
 // Panggilan API modul bracket. Daftar endpoint: backend/src/modules/bracket/README.md
 // Seluruh susunan bracket dihitung server. Frontend hanya menampilkan dan mengirim aksi.
@@ -11,6 +11,9 @@ export const bracketApi = {
     apiClient.request<BracketView>("GET", "/bracket/open-play/:openPlayId", { params: { openPlayId } }),
   /** Detail bracket */
   get: (id: string) => apiClient.request<BracketView>("GET", "/bracket/:id", { params: { id } }),
+  /** Pemain per sisi (dengan nama) dari satu bracket match */
+  getMatchPlayers: (matchId: string) =>
+    apiClient.request<BracketMatchPlayers>("GET", "/bracket/matches/:matchId/players", { params: { matchId } }),
   /** Koreksi manual susunan pemain [coach] */
   editMatch: (id: string, matchId: string, body: { home: string[]; away: string[] }) =>
     apiClient.request<BracketView>("PATCH", "/bracket/:id/matches/:matchId", { params: { id, matchId }, body }),

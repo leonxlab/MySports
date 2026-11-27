@@ -16,6 +16,12 @@ export async function routes(app: FastifyInstance) {
     { preHandler: app.requireRole() },
     (request) => bracket.getByOpenPlay(request.params.openPlayId),
   );
+  // GET /api/v1/bracket/matches/:matchId/players: Pemain per sisi satu bracket match [login]
+  app.get<{ Params: { matchId: string } }>(
+    "/matches/:matchId/players",
+    { preHandler: app.requireRole() },
+    (request) => bracket.getMatchPlayers(request.params.matchId),
+  );
   // GET /api/v1/bracket/:id: Detail bracket [login]
   app.get<{ Params: { id: string } }>("/:id", { preHandler: app.requireRole() }, (request) =>
     bracket.getBracket(request.params.id),
