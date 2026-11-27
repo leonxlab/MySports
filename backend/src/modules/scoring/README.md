@@ -64,4 +64,4 @@ Fungsi murni, skor selalu dihitung ulang dengan memutar ulang kejadian `confirme
 - [x] Frontend: `/match/[id]/result`, `/stats`, komponen `ScorerPicker`, `ManualActionPanel`, `FoulPanel`, `SuggestionQueue`
 - [ ] `npm run typecheck && npm test` (backend) dan `typecheck && build` (frontend) belum dijalankan di sesi penulisan (dependensi belum terpasang)
 - [ ] `supabase db reset` untuk migrasi belum dijalankan
-- [ ] Komponen control menu dipasang di `coach/match/[id]` oleh pemilik halaman (Jonathan)
+- [x] Komponen control menu dipasang di `coach/match/[id]` (`CoachScoringPanel` di modul match)

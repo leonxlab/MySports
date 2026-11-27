@@ -1,6 +1,7 @@
 import type { AppContext } from "../../core/context";
 import { AppError, forbidden, notFound } from "../../core/errors";
 import type { AuthUser } from "../../core/roles";
+import { createAccountsApi } from "../accounts";
 import { createOpenPlayApi } from "../open-play";
 import { generateBracket, BracketError, type Mode, type Sport } from "./algorithm";
 import { SwapError, swapPlayers, validateCorrection } from "./correction";
@@ -41,6 +42,12 @@ export interface BracketMatchDetail {
   court: number;
   home: string[];
   away: string[];
+}
+
+/** Pemain per sisi beserta nama, untuk control menu match. */
+export interface BracketMatchPlayers {
+  home: { id: string; name: string }[];
+  away: { id: string; name: string }[];
 }
 
 const isAdmin = (user: AuthUser) => user.roles.includes("admin");
@@ -394,6 +401,16 @@ export function createBracketService(ctx: AppContext) {
         }
       }
       return getBracket(bracketId);
+    },
+
+    /** Pemain per sisi beserta nama (pemilih pencetak skor dan pelanggaran). */
+    async getMatchPlayers(id: string): Promise<BracketMatchPlayers> {
+      const { home, away } = await this.getBracketMatch(id);
+      const profiles = await createAccountsApi(ctx).getProfileSummaries([...home, ...away]);
+      const names = new Map(profiles.map((p) => [p.id, p.display_name]));
+      const named = (ids: string[]) =>
+        ids.map((playerId) => ({ id: playerId, name: names.get(playerId) ?? `Pemain ${playerId.slice(0, 4)}` }));
+      return { home: named(home), away: named(away) };
     },
 
     /** Untuk match dan scoring: pemain per sisi dari satu bracket match. */

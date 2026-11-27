@@ -7,7 +7,7 @@ Membagi pemain yang sudah bayar ke lapangan dan ronde. Selisih jumlah main antar
 | Pemilik | dev-b (Open play end-to-end) |
 | Fase | 2 |
 | Prefix API | `/api/v1/bracket` |
-| Bergantung pada | open-play |
+| Bergantung pada | open-play, accounts (`getProfileSummaries`) |
 | Tabel | `brackets`, `bracket_rounds`, `bracket_matches`, `bracket_resting` |
 
 ## Endpoint
@@ -19,6 +19,7 @@ Semua endpoint backend sudah berjalan. Frontend belum. Ubah tabel ini bersamaan 
 | POST | `/generate` | Buat bracket dari jumlah pemain, lapangan, durasi | coach |
 | GET | `/open-play/:openPlayId` | Bracket milik satu open play | login |
 | GET | `/:id` | Detail bracket | login |
+| GET | `/matches/:matchId/players` | Pemain per sisi (dengan nama) dari satu bracket match | login |
 | PATCH | `/:id/matches/:matchId` | Koreksi manual susunan pemain | coach |
 | POST | `/:id/regenerate` | Buat ulang bracket | coach |
 | POST | `/:id/swap` | Tukar dua pemain dalam satu ronde (pilih-lalu-tukar) | coach |

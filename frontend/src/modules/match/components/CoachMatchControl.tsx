@@ -4,6 +4,7 @@ import { ErrorNote, Loading, useAction } from "@/modules/payments";
 import { matchApi } from "../api";
 import type { MatchView } from "../types";
 import { useLiveMatch } from "../useLiveMatch";
+import { CoachScoringPanel } from "./CoachScoringPanel";
 import { MatchPanel } from "./MatchTimer";
 import { MatchSettingsForm } from "./MatchSettingsForm";
 
@@ -40,6 +41,7 @@ export function CoachMatchControl({ id }: { id: string }) {
         {btn("finish", "Selesai", s === "running" || s === "paused")}
       </div>
       <ErrorNote message={action.error} />
+      <CoachScoringPanel match={match} />
       {s === "scheduled" && <MatchSettingsForm match={match} onSaved={(m: MatchView) => apply(m)} />}
     </>
   );
