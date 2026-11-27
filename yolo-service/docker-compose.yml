@@ -6,6 +6,9 @@ x-common: &common
   volumes:
     - ./models:/srv/models
     - ./tmp:/srv/tmp
+    - ./vendor/Yolo-and-TrackNet-Badminton-Analysis-main/Track_Model/yolo11:/srv/models/badminton-yolo11:ro
+  environment:
+    BADMINTON_YOLO_DIR: /srv/models/badminton-yolo11
   restart: unless-stopped
   logging:
     driver: json-file

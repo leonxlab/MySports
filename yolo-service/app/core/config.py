@@ -10,11 +10,13 @@ class Settings(BaseSettings):
     supabase_service_role_key: str = ""
     backend_url: str = "http://localhost:3001"
     yolo_service_key: str = ""
+    live_demo_enabled: bool = False
 
     segment_bucket: str = "segments"
     models_bucket: str = "models"
     models_dir: Path = Path("./models")
     tmp_dir: Path = Path("./tmp")
+    badminton_yolo_dir: Path | None = None
 
     device: str = "auto"  # cuda | cpu | auto
     poll_interval_seconds: float = 2.0
