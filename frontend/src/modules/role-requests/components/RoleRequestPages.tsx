@@ -24,7 +24,7 @@ const inputStyle = {
   padding: "10px 12px",
 } as const;
 const buttonStyle = {
-  background: "#0f172a",
+  background: "var(--color-primary)",
   border: 0,
   borderRadius: 8,
   color: "#fff",

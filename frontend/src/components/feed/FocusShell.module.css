@@ -1,0 +1,197 @@
+.shell {
+  --focus-bg: #0d1117;
+  --focus-panel: #151a22;
+  --focus-border: #242b35;
+  --focus-text: #e7edf5;
+  --focus-muted: #8d99a8;
+  --focus-accent: #38aef0;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  flex-direction: column;
+  color-scheme: dark;
+  background: var(--focus-bg);
+  color: var(--focus-text);
+}
+
+.header {
+  min-height: 60px;
+  padding: 10px clamp(14px, 4vw, 36px);
+  border-bottom: 1px solid var(--focus-border);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 38px;
+  margin: 0 auto;
+}
+
+.compactHeaderInner {
+  max-width: 540px;
+}
+
+.headerStart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.headingWithSubtitle {
+  display: grid;
+  align-items: start;
+  gap: 1px;
+}
+
+.heading h1 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.subtitle {
+  color: var(--focus-muted);
+  font-size: 11px;
+}
+
+.headerActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.back {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 36px;
+  color: var(--focus-text);
+  text-decoration: none;
+}
+
+.status {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--focus-accent) 15%, transparent);
+  color: var(--focus-accent);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.liveStatus {
+  background: rgb(220 38 38 / 14%);
+  color: #f87171;
+}
+
+.exit {
+  padding: 8px 13px;
+  border: 1px solid var(--focus-border);
+  border-radius: 999px;
+  color: var(--focus-text);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--focus-text);
+}
+
+.content {
+  width: min(100%, 900px);
+  flex: 1;
+  margin: 0 auto;
+  padding: clamp(14px, 4vw, 32px);
+}
+
+.content :global(.app-card) {
+  border-color: var(--focus-border);
+  background: var(--focus-panel);
+  color: var(--focus-text);
+}
+
+.actionBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--focus-border);
+  background: color-mix(in srgb, var(--focus-bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.actionInner {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.compactActionInner {
+  max-width: 540px;
+}
+
+.actionBar button,
+.actionBar a {
+  min-height: 44px;
+}
+
+.matchCard {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: clamp(22px, 5vw, 48px);
+  border: 1px solid var(--focus-border);
+  border-radius: 18px;
+  background: var(--focus-panel);
+  text-align: center;
+}
+
+.matchClock {
+  color: var(--focus-text);
+  font-size: clamp(56px, 12vw, 104px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.muted {
+  color: var(--focus-muted);
+}
+
+@media (prefers-color-scheme: light) {
+  .shell {
+    --focus-bg: #f3f9ff;
+    --focus-panel: #fff;
+    --focus-border: #d7e8f7;
+    --focus-text: #102a43;
+    --focus-muted: #52677d;
+    --focus-accent: #1687c9;
+    color-scheme: light;
+  }
+}

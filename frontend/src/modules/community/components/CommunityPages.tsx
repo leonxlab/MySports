@@ -10,6 +10,18 @@ import {
   type FormEvent,
   type SetStateAction,
 } from "react";
+import {
+  ChipFilter,
+  Composer,
+  EmptyState,
+  FeedShell,
+  PostCard,
+  RightPanel,
+  Skeleton,
+  TabBar,
+} from "@/components/feed";
+import pageStyles from "@/components/feed/FeedPage.module.css";
+import { sampleCommunityMembers, sampleCommunityOpenPlays } from "@/modules/feed/sampleData";
 import { useMe } from "@/modules/accounts/components/SessionProvider";
 import { communityApi } from "../api";
 import type {
@@ -31,23 +43,25 @@ const sports: { value: CommunitySport; label: string }[] = [
 ];
 
 const styles = {
-  main: { margin: "0 auto", maxWidth: 820, padding: 24 } as const,
   panel: {
-    background: "#fff",
-    border: "1px solid #e2e8f0",
+    background: "var(--feed-panel)",
+    border: "1px solid var(--feed-border)",
     borderRadius: 12,
     marginTop: 16,
     padding: 20,
+    color: "var(--feed-text)",
   } as const,
   field: { display: "grid", gap: 6, marginBottom: 14 } as const,
   input: {
-    border: "1px solid #cbd5e1",
+    border: "1px solid var(--feed-border)",
     borderRadius: 8,
     font: "inherit",
     padding: "10px 12px",
+    background: "var(--feed-bg)",
+    color: "var(--feed-text)",
   } as const,
   button: {
-    background: "#0f172a",
+    background: "var(--color-primary)",
     border: 0,
     borderRadius: 8,
     color: "#fff",
@@ -94,6 +108,20 @@ function MediaGallery({ media }: { media: CommunityMedia[] }) {
         ),
       )}
     </div>
+  );
+}
+
+function postMedia(media: CommunityMedia[]) {
+  return media.flatMap((item) =>
+    item.url
+      ? [
+          {
+            src: item.url,
+            alt: "Lampiran postingan komunitas",
+            type: item.type,
+          },
+        ]
+      : [],
   );
 }
 
@@ -214,17 +242,10 @@ function ReportForm({ targetType, targetId }: { targetType: "thread" | "post"; t
   );
 }
 
-function Author({ item }: { item: { author: CommunityThread["author"]; created_at: string } }) {
-  return (
-    <p style={{ color: "#475569", margin: "0 0 10px" }}>
-      {item.author?.display_name ?? "Pemain"} · {new Date(item.created_at).toLocaleString("id-ID")}
-    </p>
-  );
-}
-
 export function CommunityListPage() {
   const { user } = useMe();
   const [sport, setSport] = useState<CommunitySport | "">("");
+  const [groupTab, setGroupTab] = useState("posts");
   const [page, setPage] = useState<ThreadPage>({ items: [], next_cursor: null });
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -277,59 +298,119 @@ export function CommunityListPage() {
     }
   }
 
-  return (
-    <main style={styles.main}>
-      <header style={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}>
-        <h1>Komunitas</h1>
-        {user ? (
-          <Link href="/community/new">Buat thread</Link>
-        ) : (
-          <Link href="/login">Login untuk menulis</Link>
-        )}
-      </header>
-      <label style={styles.field}>
-        Filter olahraga
-        <select
-          onChange={(event) => setSport(event.target.value as CommunitySport | "")}
-          style={styles.input}
+  const header = (
+    <div className={pageStyles.headerInner}>
+      <div>
+        <h1 className={pageStyles.pageTitle}>Komunitas Peluit</h1>
+        <p className={pageStyles.inlineMessage}>
+          Ruang berbagi untuk pemain dan pencinta olahraga.
+        </p>
+      </div>
+      <TabBar
+        label="Bagian komunitas"
+        onChange={setGroupTab}
+        tabs={[
+          { value: "posts", label: "Postingan" },
+          { value: "open-play", label: "Open play" },
+          { value: "members", label: "Anggota" },
+        ]}
+        value={groupTab}
+      />
+      {groupTab === "posts" ? (
+        <ChipFilter
+          label="Filter olahraga"
+          onChange={(value) => setSport(value as CommunitySport | "")}
+          options={[{ value: "", label: "Semua" }, ...sports]}
           value={sport}
-        >
-          <option value="">Semua olahraga</option>
-          {sports.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
+        />
+      ) : null}
+    </div>
+  );
+  const rightPanel = (
+    <RightPanel title="Komunitas Peluit">
+      <p className={pageStyles.muted}>Berbagi cerita, tips, dan pengalaman olahraga.</p>
+      <Link className={pageStyles.panelAction} href={user ? "/community/new" : "/login"}>
+        {user ? "Buat postingan" : "Masuk untuk menulis"}
+      </Link>
+    </RightPanel>
+  );
+
+  return (
+    <FeedShell activeNav="community" header={header} hideCompose rightPanel={rightPanel}>
+      {groupTab === "posts" ? (
+        <>
+          <Composer
+            actionLabel={user ? "Tulis" : "Masuk"}
+            href={user ? "/community/new" : "/login"}
+            prompt={
+              user ? "Bagikan cerita atau pengalaman olahraga..." : "Masuk untuk menulis postingan"
+            }
+          />
+          {error ? <ErrorMessage message={error} /> : null}
+          {loading ? <Skeleton rows={3} /> : null}
+          {!loading && !error && !page.items.length ? (
+            <EmptyState
+              title="Belum ada postingan"
+              description="Jadilah yang pertama berbagi cerita di komunitas."
+              action={
+                <Link className={pageStyles.panelAction} href={user ? "/community/new" : "/login"}>
+                  {user ? "Buat postingan" : "Masuk untuk menulis"}
+                </Link>
+              }
+            />
+          ) : null}
+          {page.items.map((thread) => (
+            <PostCard
+              authorName={thread.author?.display_name ?? "Pemain"}
+              body={thread.body}
+              key={thread.id}
+              media={postMedia(thread.media)}
+              replyHref={`/community/${thread.id}`}
+              shareUrl={`/community/${thread.id}`}
+              sport={sports.find((item) => item.value === thread.sport)?.label}
+              time={new Date(thread.created_at).toLocaleString("id-ID")}
+              title={thread.title}
+            />
           ))}
-        </select>
-      </label>
-      <ErrorMessage message={error} />
-      {loading ? <p role="status">Memuat komunitas...</p> : null}
-      {!loading && !error && !page.items.length ? (
-        <p>Belum ada thread untuk olahraga ini.</p>
-      ) : null}
-      {page.items.map((thread) => (
-        <article key={thread.id} style={styles.panel}>
-          <Author item={thread} />
-          <p style={{ color: "#475569" }}>
-            {sports.find((item) => item.value === thread.sport)?.label}
+          {page.next_cursor && !loading ? (
+            <button
+              className={pageStyles.secondaryAction}
+              disabled={loadingMore}
+              onClick={() => void loadMore()}
+              style={{ margin: 16 }}
+              type="button"
+            >
+              {loadingMore ? "Memuat..." : "Muat lebih banyak"}
+            </button>
+          ) : null}
+        </>
+      ) : (
+        <>
+          <p className={pageStyles.inlineMessage} role="note">
+            Data contoh untuk pratinjau; bagian ini belum terhubung ke endpoint komunitas.
           </p>
-          <h2 style={{ marginTop: 6 }}>
-            <Link href={`/community/${thread.id}`}>{thread.title}</Link>
-          </h2>
-          {thread.body ? <p style={{ whiteSpace: "pre-wrap" }}>{thread.body}</p> : null}
-          <MediaGallery media={thread.media} />
-        </article>
-      ))}
-      {page.next_cursor && !loading ? (
-        <button
-          disabled={loadingMore}
-          onClick={() => void loadMore()}
-          style={{ ...styles.button, marginTop: 16 }}
-        >
-          {loadingMore ? "Memuat..." : "Muat lebih banyak"}
-        </button>
-      ) : null}
-    </main>
+          {groupTab === "open-play"
+            ? sampleCommunityOpenPlays.map((activity) => (
+                <PostCard
+                  authorName={activity.authorName}
+                  body={activity.body}
+                  key={activity.id}
+                  sport={activity.sport}
+                  time={activity.time}
+                  title={activity.title}
+                />
+              ))
+            : sampleCommunityMembers.map((member) => (
+                <PostCard
+                  authorName={member.name}
+                  body="Anggota komunitas"
+                  key={member.id}
+                  sport={member.sport}
+                />
+              ))}
+        </>
+      )}
+    </FeedShell>
   );
 }
 
@@ -361,15 +442,32 @@ export function CreateThreadPage() {
     }
   }
 
+  const header = (
+    <div className={pageStyles.headerInner}>
+      <Link className={pageStyles.inlineMessage} href="/community">
+        ← Kembali ke komunitas
+      </Link>
+      <h1 className={pageStyles.pageTitle}>Buat postingan</h1>
+    </div>
+  );
+  const rightPanel = (
+    <RightPanel title="Bagikan dengan komunitas">
+      <p className={pageStyles.muted}>
+        Ceritakan pengalaman olahraga dengan tetap menghormati pemain lain.
+      </p>
+    </RightPanel>
+  );
+
   if (isLoading || !user)
     return (
-      <main style={styles.main}>
-        <p role="status">Memeriksa sesi...</p>
-      </main>
+      <FeedShell activeNav="community" header={header} hideCompose rightPanel={rightPanel}>
+        <p className={pageStyles.inlineMessage} role="status">
+          Memeriksa sesi...
+        </p>
+      </FeedShell>
     );
   return (
-    <main style={styles.main}>
-      <h1>Buat thread</h1>
+    <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
       <form onSubmit={submit} style={styles.panel}>
         <label style={styles.field}>
           Olahraga
@@ -408,10 +506,10 @@ export function CreateThreadPage() {
         <MediaPicker media={media} onChange={setMedia} onError={setError} />
         <ErrorMessage message={error} />
         <button disabled={saving || media.length > 10} style={styles.button} type="submit">
-          {saving ? "Menerbitkan..." : "Terbitkan thread"}
+          {saving ? "Menerbitkan..." : "Terbitkan postingan"}
         </button>
       </form>
-    </main>
+    </FeedShell>
   );
 }
 
@@ -466,47 +564,63 @@ export function CommunityThreadPage() {
     }
   }
 
+  const header = (
+    <div className={pageStyles.headerInner}>
+      <Link className={pageStyles.inlineMessage} href="/community">
+        ← Kembali ke komunitas
+      </Link>
+      <h1 className={pageStyles.pageTitle}>Thread komunitas</h1>
+    </div>
+  );
+  const rightPanel = (
+    <RightPanel title="Komunitas">
+      <p className={pageStyles.muted}>Ikuti percakapan dan bagikan pengalaman olahraga.</p>
+    </RightPanel>
+  );
+
   if (loading)
     return (
-      <main style={styles.main}>
-        <p role="status">Memuat thread...</p>
-      </main>
+      <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
+        <Skeleton rows={2} />
+      </FeedShell>
     );
   if (error && !thread)
     return (
-      <main style={styles.main}>
+      <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
         <ErrorMessage message={error} />
-      </main>
+      </FeedShell>
     );
   if (!thread)
     return (
-      <main style={styles.main}>
-        <p>Thread tidak ditemukan.</p>
-      </main>
+      <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
+        <EmptyState title="Thread tidak ditemukan" />
+      </FeedShell>
     );
 
   return (
-    <main style={styles.main}>
-      <Link href="/community">← Kembali ke komunitas</Link>
-      <article style={styles.panel}>
-        <Author item={thread} />
-        <p style={{ color: "#475569" }}>
-          {sports.find((item) => item.value === thread.sport)?.label}
-        </p>
-        <h1>{thread.title}</h1>
-        {thread.body ? <p style={{ whiteSpace: "pre-wrap" }}>{thread.body}</p> : null}
-        <MediaGallery media={thread.media} />
+    <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
+      <PostCard
+        authorName={thread.author?.display_name ?? "Pemain"}
+        body={thread.body}
+        media={postMedia(thread.media)}
+        sport={sports.find((item) => item.value === thread.sport)?.label}
+        time={new Date(thread.created_at).toLocaleString("id-ID")}
+        title={thread.title}
+      >
         {user ? <ReportForm targetId={thread.id} targetType="thread" /> : null}
-      </article>
-      <section aria-labelledby="replies">
+      </PostCard>
+      <section aria-labelledby="replies" className={pageStyles.section}>
         <h2 id="replies">Balasan ({thread.posts.length})</h2>
         {thread.posts.map((post: CommunityPost) => (
-          <article key={post.id} style={styles.panel}>
-            <Author item={post} />
-            <p style={{ whiteSpace: "pre-wrap" }}>{post.body}</p>
-            <MediaGallery media={post.media} />
+          <PostCard
+            authorName={post.author?.display_name ?? "Pemain"}
+            body={post.body}
+            key={post.id}
+            media={postMedia(post.media)}
+            time={new Date(post.created_at).toLocaleString("id-ID")}
+          >
             {user ? <ReportForm targetId={post.id} targetType="post" /> : null}
-          </article>
+          </PostCard>
         ))}
         {user ? (
           <form onSubmit={submitPost} style={styles.panel}>
@@ -528,12 +642,17 @@ export function CommunityThreadPage() {
             </button>
           </form>
         ) : (
-          <p>
-            <Link href="/login">Login untuk membalas.</Link>
-          </p>
+          <EmptyState
+            title="Masuk untuk membalas"
+            action={
+              <Link className={pageStyles.panelAction} href="/login">
+                Masuk
+              </Link>
+            }
+          />
         )}
       </section>
-    </main>
+    </FeedShell>
   );
 }
 
@@ -589,22 +708,38 @@ export function CommunityReportsPage() {
     }
   }
 
+  const header = (
+    <div className={pageStyles.headerInner}>
+      <h1 className={pageStyles.pageTitle}>Moderasi komunitas</h1>
+    </div>
+  );
+  const rightPanel = (
+    <RightPanel title="Moderasi">
+      <p className={pageStyles.muted}>
+        Tinjau laporan dan tentukan tindak lanjut sesuai kebijakan.
+      </p>
+    </RightPanel>
+  );
+
   if (isLoading)
     return (
-      <main style={styles.main}>
-        <p role="status">Memeriksa akses...</p>
-      </main>
+      <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
+        <p className={pageStyles.inlineMessage} role="status">
+          Memeriksa akses...
+        </p>
+      </FeedShell>
     );
   if (!me?.roles.includes("admin"))
     return (
-      <main style={styles.main}>
-        <p role="alert">Halaman ini hanya untuk admin.</p>
-      </main>
+      <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
+        <p className={pageStyles.inlineMessage} role="alert">
+          Halaman ini hanya untuk admin.
+        </p>
+      </FeedShell>
     );
 
   return (
-    <main style={styles.main}>
-      <h1>Moderasi komunitas</h1>
+    <FeedShell activeNav="community" header={header} rightPanel={rightPanel}>
       <label style={styles.field}>
         Status laporan
         <select
@@ -626,42 +761,50 @@ export function CommunityReportsPage() {
         Sembunyikan konten saat menindak laporan
       </label>
       <ErrorMessage message={error} />
-      {loading ? <p role="status">Memuat laporan...</p> : null}
-      {!loading && reports.length === 0 ? <p>Tidak ada laporan pada status ini.</p> : null}
+      {loading ? <Skeleton rows={3} /> : null}
+      {!loading && reports.length === 0 ? (
+        <EmptyState title="Tidak ada laporan pada status ini" />
+      ) : null}
       {reports.map((report) => (
-        <article key={report.id} style={styles.panel}>
-          <p>
-            {report.target_type === "thread" ? "Thread" : "Balasan"} · oleh{" "}
-            {report.reporter?.display_name ?? "Pemain"} ·{" "}
-            {new Date(report.created_at).toLocaleString("id-ID")}
-          </p>
-          <p>Alasan: {report.reason || "Tidak disertakan"}</p>
-          <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12 }}>
-            {report.target?.title ? <strong>{report.target.title}</strong> : null}
-            <p style={{ whiteSpace: "pre-wrap" }}>
-              {report.target?.body ?? "Konten sudah tidak tersedia."}
-            </p>
-            {report.target?.media ? <MediaGallery media={report.target.media} /> : null}
-          </div>
+        <PostCard
+          authorName={report.reporter?.display_name ?? "Pemain"}
+          body={
+            <>
+              <p>Alasan: {report.reason || "Tidak disertakan"}</p>
+              {report.target?.title ? <strong>{report.target.title}</strong> : null}
+              <p style={{ whiteSpace: "pre-wrap" }}>
+                {report.target?.body ?? "Konten sudah tidak tersedia."}
+              </p>
+              {report.target?.media ? <MediaGallery media={report.target.media} /> : null}
+            </>
+          }
+          key={report.id}
+          recommendation={
+            report.target_type === "thread" ? "Thread dilaporkan" : "Balasan dilaporkan"
+          }
+          time={new Date(report.created_at).toLocaleString("id-ID")}
+        >
           {report.status === "open" ? (
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button
                 disabled={savingId === report.id}
                 onClick={() => void resolve(report, "resolved")}
                 style={styles.button}
+                type="button"
               >
                 Selesaikan
               </button>
               <button
                 disabled={savingId === report.id}
                 onClick={() => void resolve(report, "dismissed")}
+                type="button"
               >
                 Tolak laporan
               </button>
             </div>
           ) : null}
-        </article>
+        </PostCard>
       ))}
-    </main>
+    </FeedShell>
   );
 }

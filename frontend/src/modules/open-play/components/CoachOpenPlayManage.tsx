@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  Card,
   ErrorNote,
   formatTimeRange,
   Loading,
@@ -11,6 +10,7 @@ import {
   useAction,
   useLoad,
 } from "@/modules/payments";
+import { FocusShell, focusStyles } from "@/components/feed";
 import { openPlayApi } from "../api";
 import type { OpenPlayStatus } from "../types";
 
@@ -35,30 +35,58 @@ export function CoachOpenPlayManage({ id }: { id: string }) {
     }
   }
 
-  if (op.loading) return <Loading />;
-  if (op.error || !op.data) return <ErrorNote message={op.error ?? "Open play tidak ditemukan"} />;
+  if (op.loading)
+    return (
+      <FocusShell title="Sesi open play" exitHref={`/open-play/${id}`} status="Memuat">
+        <Loading />
+      </FocusShell>
+    );
+  if (op.error || !op.data)
+    return (
+      <FocusShell title="Sesi open play" exitHref={`/open-play/${id}`} status="Tidak tersedia">
+        <ErrorNote message={op.error ?? "Open play tidak ditemukan"} />
+      </FocusShell>
+    );
   const o = op.data;
+  const status =
+    o.status === "open"
+      ? "Pendaftaran terbuka"
+      : o.status === "closed"
+        ? "Pendaftaran ditutup"
+        : o.status === "finished"
+          ? "Selesai"
+          : "Dibatalkan";
 
   return (
-    <>
-      <Card>
+    <FocusShell
+      title="Sesi open play"
+      exitHref={`/open-play/${id}`}
+      status={status}
+      actions={
+        <>
+          {STATUS_ACTIONS.filter((a) => a.status !== o.status).map((a) => (
+            <button
+              key={a.status}
+              type="button"
+              disabled={busy}
+              onClick={() => setStatus(a.status)}
+            >
+              {a.label}
+            </button>
+          ))}
+          <Link href={`/coach/open-play/${id}/bracket`}>Atur bagan</Link>
+        </>
+      }
+    >
+      <section className={focusStyles.matchCard}>
         <strong>
           {SPORT_LABEL[o.sport]} di {o.venueName}
         </strong>
         <div>{formatTimeRange(o.startsAt, o.endsAt)}</div>
         <div>
-          {o.confirmed}/{o.quota} peserta · {o.price === 0 ? "Gratis" : rupiah(o.price)} · {o.status}
+          {o.confirmed}/{o.quota} peserta · {o.price === 0 ? "Gratis" : rupiah(o.price)} · {status}
         </div>
-      </Card>
-
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {STATUS_ACTIONS.filter((a) => a.status !== o.status).map((a) => (
-          <button key={a.status} type="button" disabled={busy} onClick={() => setStatus(a.status)}>
-            {a.label}
-          </button>
-        ))}
-        <Link href={`/coach/open-play/${id}/bracket`}>Atur bracket</Link>
-      </div>
+      </section>
       <ErrorNote message={error} />
 
       <h2>Peserta terkonfirmasi</h2>
@@ -66,12 +94,12 @@ export function CoachOpenPlayManage({ id }: { id: string }) {
       <ErrorNote message={people.error} />
       {people.data?.length === 0 && <p>Belum ada peserta.</p>}
       {people.data?.map((m) => (
-        <Card key={m.id}>
+        <p key={m.id}>
           {m.displayName}
           {m.age ? ` · ${m.age} th` : ""}
           {m.level !== undefined ? ` · Level ${m.level}` : ""}
-        </Card>
+        </p>
       ))}
-    </>
+    </FocusShell>
   );
 }

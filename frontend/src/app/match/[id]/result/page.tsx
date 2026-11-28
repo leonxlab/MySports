@@ -5,7 +5,7 @@ import { GenerateHighlightButton } from "@/modules/vip";
 export default async function MatchResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return (
-    <Page title="Hasil match">
+    <Page title="Hasil pertandingan">
       <MatchResult matchId={id} />
       <section aria-label="Fitur VIP" style={{ marginTop: 24 }}>
         <GenerateHighlightButton />

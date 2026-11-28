@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { EquipmentFeed } from "@/modules/equipment";
 
-export default function Page() {
-  return <ModuleStub module="equipment" title="Sewa alat" route="/equipment" />;
+export default function EquipmentPage() {
+  return <EquipmentFeed />;
 }

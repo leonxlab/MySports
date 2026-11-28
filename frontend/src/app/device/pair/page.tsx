@@ -1,11 +1,15 @@
 import { PairDevice } from "@/modules/devices";
-import { Page } from "@/modules/payments";
+import { FocusShell } from "@/components/feed";
 
-export default async function PairPage({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
+export default async function PairPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
   const { code } = await searchParams;
   return (
-    <Page title="Pasang device">
+    <FocusShell title="Pasang perangkat" exitHref="/open-play" status="Persiapan">
       <PairDevice initialCode={code ?? ""} />
-    </Page>
+    </FocusShell>
   );
 }

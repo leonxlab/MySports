@@ -1,5 +1,6 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { EquipmentFeed } from "@/modules/equipment";
 
-export default function Page() {
-  return <ModuleStub module="equipment" title="Detail alat" route="/equipment/[id]" />;
+export default async function EquipmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <EquipmentFeed itemId={id} mode="detail" />;
 }

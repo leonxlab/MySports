@@ -1,11 +1,66 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
+import { isLocalDemoMode } from "@/lib/demo-mode";
 
 export function LoginPage({ mode = "login" }: { mode?: "login" | "signup" }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  if (isLocalDemoMode()) {
+    return (
+      <main
+        style={{
+          alignItems: "center",
+          background: "#f8fafc",
+          display: "flex",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: 24,
+        }}
+      >
+        <section
+          aria-labelledby="demo-login-title"
+          style={{
+            background: "#fff",
+            border: "1px solid #d7e8f7",
+            borderRadius: 20,
+            maxWidth: 440,
+            padding: 32,
+            textAlign: "center",
+            width: "100%",
+          }}
+        >
+          <p style={{ color: "#1687c9", fontWeight: 700, margin: "0 0 8px" }}>Mode demo lokal</p>
+          <h1 id="demo-login-title" style={{ color: "#102a43", margin: "0 0 8px" }}>
+            Preview tanpa login
+          </h1>
+          <p style={{ color: "#52677d", lineHeight: 1.6 }}>
+            Login dilewati hanya untuk preview lokal. Otorisasi backend dan halaman aplikasi lain
+            tidak dinonaktifkan.
+          </p>
+          <Link
+            href="/demo/live-scoring"
+            style={{
+              alignItems: "center",
+              background: "#1687c9",
+              borderRadius: 12,
+              color: "#fff",
+              display: "flex",
+              fontWeight: 700,
+              justifyContent: "center",
+              minHeight: 50,
+              textDecoration: "none",
+            }}
+          >
+            Buka preview skor langsung
+          </Link>
+        </section>
+      </main>
+    );
+  }
 
   async function handleGoogleLogin() {
     setIsLoading(true);
@@ -105,8 +160,8 @@ export function LoginPage({ mode = "login" }: { mode?: "login" | "signup" }) {
           {isLoading
             ? "Menghubungkan ke Google..."
             : mode === "signup"
-            ? "Daftar dengan Google"
-            : "Lanjutkan dengan Google"}
+              ? "Daftar dengan Google"
+              : "Lanjutkan dengan Google"}
         </button>
         <p style={{ color: "#94a3b8", margin: "12px 0 0" }}>atau</p>
         <a

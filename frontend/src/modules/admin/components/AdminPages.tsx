@@ -21,7 +21,7 @@ const styles = {
     padding: "9px 10px",
   } as const,
   button: {
-    background: "#0f172a",
+    background: "var(--color-primary)",
     border: 0,
     borderRadius: 8,
     color: "#fff",

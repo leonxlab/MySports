@@ -4,7 +4,7 @@ import { Page } from "@/modules/payments";
 export default async function MatchSettingsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return (
-    <Page title="Setting match">
+    <Page title="Pengaturan pertandingan">
       <MatchSettingsEditor id={id} />
     </Page>
   );

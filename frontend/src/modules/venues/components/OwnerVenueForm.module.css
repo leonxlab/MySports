@@ -1,0 +1,147 @@
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.section {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--feed-accent);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--feed-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.form .field input:not([type="checkbox"]):not([type="radio"]) {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-color: var(--feed-border);
+  background: var(--feed-bg);
+  color: var(--feed-text);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.field input::placeholder {
+  color: var(--feed-muted);
+}
+
+.invalidInput,
+.invalidInput:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgb(220 38 38 / 14%);
+}
+
+.fieldError {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.coordinates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--feed-border);
+  border-radius: 10px;
+  background: var(--feed-soft);
+  color: var(--feed-text);
+  font-size: 10px;
+}
+
+.infoIcon {
+  flex: 0 0 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.submitButton {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 999px;
+  background: #38aef0;
+  font-size: 12px;
+}
+
+.mapPlaceholder {
+  display: grid;
+  height: 320px;
+  place-items: center;
+  border: 1px solid var(--feed-border);
+  border-radius: 12px;
+  background: var(--feed-panel);
+  color: var(--feed-muted);
+}
+
+.success {
+  display: grid;
+  gap: 12px;
+}
+
+.success h2,
+.success p {
+  margin: 0;
+}
+
+.success h2 {
+  color: var(--feed-accent);
+}
+
+.successActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid var(--feed-border);
+  border-radius: 8px;
+  color: var(--feed-accent);
+  text-decoration: none;
+}
+
+@media (max-width: 520px) {
+  .coordinates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .successActions {
+    display: grid;
+  }
+}
+
+.success {
+  padding: 16px;
+  border: 1px solid var(--feed-border);
+  border-radius: 12px;
+  background: var(--feed-panel);
+  color: var(--feed-text);
+}

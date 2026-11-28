@@ -46,7 +46,12 @@ export function FoulPanel({ matchId, players, onAdded }: Props) {
         </label>{" "}
         <label>
           Jenis{" "}
-          <input value={kind} maxLength={50} onChange={(e) => setKind(e.target.value)} placeholder="misal: blocking" />
+          <input
+            value={kind}
+            maxLength={50}
+            onChange={(e) => setKind(e.target.value)}
+            placeholder="Misalnya: menghalangi lawan"
+          />
         </label>{" "}
         <button type="submit">Catat</button>
         <ErrorNote message={run.error} />

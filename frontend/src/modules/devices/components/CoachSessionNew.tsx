@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ErrorNote, useAction } from "@/modules/payments";
+import { ErrorNote, SPORT_LABEL, useAction } from "@/modules/payments";
 import type { Sport } from "@/modules/venues";
 import { devicesApi } from "../api";
 import { useSessionLive } from "../useSessionLive";
@@ -38,7 +38,7 @@ export function CoachSessionNew({ matchId }: { matchId?: string }) {
             <select value={sport} onChange={(e) => setSport(e.target.value as Sport)}>
               {SPORTS.map((x) => (
                 <option key={x} value={x}>
-                  {x}
+                  {SPORT_LABEL[x]}
                 </option>
               ))}
             </select>
@@ -52,19 +52,28 @@ export function CoachSessionNew({ matchId }: { matchId?: string }) {
     );
   }
 
-  const pairUrl = s.code && typeof window !== "undefined" ? `${window.location.origin}/device/pair?code=${s.code}` : null;
+  const pairUrl =
+    s.code && typeof window !== "undefined"
+      ? `${window.location.origin}/device/pair?code=${s.code}`
+      : null;
   return (
     <>
       {s.code && (
         <section aria-label="Kode sesi" style={{ textAlign: "center", margin: "16px 0" }}>
-          <p>Masukkan kode ini di HP kamera:</p>
+          <p>Masukkan kode ini di ponsel kamera:</p>
           <p style={{ fontSize: 40, fontWeight: 700, letterSpacing: 8 }}>{s.code}</p>
           {pairUrl && <p style={{ wordBreak: "break-all" }}>{pairUrl}</p>}
           <p>Berlaku sampai {new Date(s.expiresAt).toLocaleTimeString()}</p>
         </section>
       )}
-      <p>Persetujuan pemain: {s.consentAt ? `dicatat ${new Date(s.consentAt).toLocaleTimeString()}` : "belum"}</p>
-      <p>Kalibrasi: {s.calibrated ? "sudah" : "belum"}</p>
+      <p>
+        Persetujuan pemain:{" "}
+        {s.consentAt ? `dicatat ${new Date(s.consentAt).toLocaleTimeString()}` : "belum"}
+      </p>
+      <p>
+        Kalibrasi kamera: {s.calibratedCameras.length ? s.calibratedCameras.join(" dan ") : "belum"}
+        {s.calibratedCameras.length < 2 && " (menunggu kamera lain)"}
+      </p>
       <DeviceList devices={s.devices} />
       <ErrorNote message={live.error} />
     </>

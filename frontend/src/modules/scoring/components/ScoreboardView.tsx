@@ -14,17 +14,29 @@ export function ScoreboardView({ board }: { board: Scoreboard }) {
 
   return (
     <section aria-label="Papan skor" style={{ textAlign: "center", margin: "16px 0" }}>
-      <div style={{ display: "flex", justifyContent: "center", gap: 24, fontSize: 40, fontWeight: 700 }}>
-        <span aria-label="Skor home">{label?.home ?? board.score.home}</span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 24,
+          fontSize: 40,
+          fontWeight: 700,
+        }}
+      >
+        <span aria-label="Skor tuan rumah">{label?.home ?? board.score.home}</span>
         <span aria-hidden>-</span>
-        <span aria-label="Skor away">{label?.away ?? board.score.away}</span>
+        <span aria-label="Skor tamu">{label?.away ?? board.score.away}</span>
       </div>
-      {Array.isArray(games) && games.length > 0 && <p>Game: {games.map((g) => `${g.home}-${g.away}`).join(", ")}</p>}
-      {!Array.isArray(games) && games && <p>Game set ini: {`${games.home}-${games.away}`}</p>}
+      {Array.isArray(games) && games.length > 0 && (
+        <p>Gim: {games.map((g) => `${g.home}-${g.away}`).join(", ")}</p>
+      )}
+      {!Array.isArray(games) && games && <p>Gim pada set ini: {`${games.home}-${games.away}`}</p>}
       {sets && sets.length > 0 && <p>Set: {sets.map((s) => `${s.home}-${s.away}`).join(", ")}</p>}
       {board.finished && <p role="status">Skor final</p>}
       {board.ignoredEventIds.length > 0 && (
-        <p role="note">{board.ignoredEventIds.length} kejadian tidak dihitung karena skor sudah final.</p>
+        <p role="note">
+          {board.ignoredEventIds.length} kejadian tidak dihitung karena skor sudah final.
+        </p>
       )}
     </section>
   );

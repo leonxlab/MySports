@@ -2,7 +2,15 @@ import { apiClient } from "@/lib/api-client";
 import { env } from "@/lib/env";
 import { getAccessToken, getSupabase } from "@/lib/supabase";
 import type { Sport } from "@/modules/venues";
-import type { Capability, DeviceRole, DeviceView, SessionView, SignedSegment, SignSegmentBody } from "./types";
+import type {
+  Calibration,
+  Capability,
+  DeviceRole,
+  DeviceView,
+  SessionView,
+  SignedSegment,
+  SignSegmentBody,
+} from "./types";
 
 // Panggilan API modul devices. Daftar endpoint: backend/src/modules/devices/README.md
 export const devicesApi = {
@@ -24,7 +32,7 @@ export const devicesApi = {
   recordConsent: (id: string) =>
     apiClient.request<SessionView>("POST", "/devices/sessions/:id/consent", { params: { id }, body: { agreed: true } }),
   /** Simpan kalibrasi (bentuk: contracts/calibration.schema.json) [coach] */
-  saveCalibration: (id: string, body: unknown) =>
+  saveCalibration: (id: string, body: Calibration) =>
     apiClient.request<SessionView>("POST", "/devices/sessions/:id/calibration", { params: { id }, body }),
   /** Minta signed URL upload segmen (maks 50 MB) */
   signSegmentUpload: (id: string, body: SignSegmentBody) =>

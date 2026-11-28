@@ -1,0 +1,182 @@
+.headerInner {
+  display: grid;
+}
+
+.pageTitle {
+  margin: 0;
+  padding: 14px 16px 8px;
+  color: var(--feed-text);
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--feed-border);
+}
+
+.filterField {
+  display: grid;
+  flex: 1 1 180px;
+  gap: 5px;
+  color: var(--feed-muted);
+  font-size: 12px;
+}
+
+.filterField input,
+.filterField select {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--feed-border);
+  border-radius: 8px;
+  background: var(--feed-bg);
+  color: var(--feed-text);
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 8px 14px;
+  margin: 12px 0;
+  color: var(--feed-muted);
+  font-size: 13px;
+}
+
+.detailGrid strong {
+  display: block;
+  color: var(--feed-text);
+  font-size: 12px;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--feed-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.secondaryAction {
+  border: 1px solid var(--feed-border);
+  background: transparent;
+  color: var(--feed-text);
+}
+
+.section {
+  padding: 14px 15px;
+  border-top: 1px solid var(--feed-border);
+}
+
+.section h2 {
+  margin: 0 0 10px;
+  color: var(--feed-text);
+  font-size: 15px;
+}
+
+.participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.participant {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--feed-border);
+  border-radius: 999px;
+  color: var(--feed-text);
+  font-size: 12px;
+}
+
+.participantAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--feed-soft);
+  color: var(--feed-accent);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.muted {
+  color: var(--feed-muted);
+  font-size: 13px;
+}
+
+.panelAction {
+  display: inline-flex;
+  margin-top: 7px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: var(--feed-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.inlineMessage {
+  margin: 8px 0;
+  color: var(--feed-muted);
+  font-size: 13px;
+}
+
+.error {
+  margin: 12px 15px;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.formCard {
+  display: grid;
+  gap: 14px;
+  margin: 12px;
+  padding: 16px;
+  border: 1px solid var(--feed-border);
+  border-radius: 12px;
+  background: var(--feed-panel);
+  color: var(--feed-text);
+}
+
+.formField {
+  display: grid;
+  gap: 6px;
+  color: var(--feed-muted);
+  font-size: 13px;
+}
+
+.formField input,
+.formField select,
+.formField textarea {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--feed-border);
+  border-radius: 8px;
+  background: var(--feed-bg);
+  color: var(--feed-text);
+}

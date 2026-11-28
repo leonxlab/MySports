@@ -17,10 +17,19 @@ export function ScorerPicker({ attacking, home, away, value, onChange, onAttacki
     <fieldset>
       <legend>Pencetak skor</legend>
       {onAttackingChange && (
-        <div role="radiogroup" aria-label="Sisi menyerang" style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+        <div
+          role="radiogroup"
+          aria-label="Sisi menyerang"
+          style={{ display: "flex", gap: 8, marginBottom: 8 }}
+        >
           {(["home", "away"] as const).map((t) => (
-            <button key={t} type="button" aria-pressed={attacking === t} onClick={() => onAttackingChange(t)}>
-              {t === "home" ? "Home menyerang" : "Away menyerang"}
+            <button
+              key={t}
+              type="button"
+              aria-pressed={attacking === t}
+              onClick={() => onAttackingChange(t)}
+            >
+              {t === "home" ? "Tuan rumah menyerang" : "Tim tamu menyerang"}
             </button>
           ))}
         </div>
@@ -30,7 +39,12 @@ export function ScorerPicker({ attacking, home, away, value, onChange, onAttacki
           Tanpa pencetak
         </button>
         {players.map((p) => (
-          <button key={p.id} type="button" aria-pressed={value === p.id} onClick={() => onChange(p.id)}>
+          <button
+            key={p.id}
+            type="button"
+            aria-pressed={value === p.id}
+            onClick={() => onChange(p.id)}
+          >
             {p.name}
           </button>
         ))}

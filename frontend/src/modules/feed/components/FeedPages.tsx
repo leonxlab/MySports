@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useMe } from "@/modules/accounts/components/SessionProvider";
+import {
+  ChipFilter,
+  Composer,
+  EmptyState,
+  FeedShell,
+  PostCard,
+  RightPanel,
+  Skeleton,
+  TabBar,
+} from "@/components/feed";
 import { feedApi } from "../api";
 import type { FeedContentKind, FeedFilters, FeedFormat, FeedItem, FeedPage } from "../types";
 import type { CommunitySport } from "@/modules/community/types";
@@ -13,6 +23,14 @@ const sports: { value: CommunitySport; label: string }[] = [
   { value: "tennis", label: "Tennis" },
   { value: "padel", label: "Padel" },
   { value: "futsal", label: "Futsal" },
+];
+
+const sportChips: { value: CommunitySport; label: string }[] = [
+  { value: "badminton", label: "Badminton" },
+  { value: "futsal", label: "Futsal" },
+  { value: "tennis", label: "Tennis" },
+  { value: "basketball", label: "Basket" },
+  { value: "padel", label: "Padel" },
 ];
 
 const contentKinds: { value: FeedContentKind; label: string }[] = [
@@ -30,31 +48,68 @@ const formats: { value: FeedFormat; label: string }[] = [
   { value: "video", label: "Video" },
 ];
 
-const styles = {
-  main: { margin: "0 auto", maxWidth: 900, padding: 24 } as const,
-  panel: {
-    background: "#fff",
-    border: "1px solid #e2e8f0",
-    borderRadius: 12,
-    marginTop: 16,
-    padding: 20,
-  } as const,
-  input: {
-    border: "1px solid #cbd5e1",
-    borderRadius: 8,
-    font: "inherit",
-    padding: "9px 10px",
-  } as const,
-  button: {
-    background: "#0f172a",
-    border: 0,
-    borderRadius: 8,
-    color: "#fff",
-    cursor: "pointer",
-    font: "inherit",
-    padding: "10px 14px",
-  } as const,
+type IconName = "home" | "community" | "bell" | "message" | "profile" | "location" | "comment";
+
+const iconPaths: Record<IconName, ReactNode> = {
+  home: (
+    <>
+      <path d="m3 10 9-7 9 7" />
+      <path d="M5 9v11h14V9M9 20v-6h6v6" />
+    </>
+  ),
+  community: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20v-1a6 6 0 0 1 12 0v1M16 5.5a3 3 0 0 1 0 5.8M18 14a5 5 0 0 1 3 5v1" />
+    </>
+  ),
+  bell: (
+    <>
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+    </>
+  ),
+  message: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m4 7 8 6 8-6" />
+    </>
+  ),
+  profile: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  location: (
+    <>
+      <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </>
+  ),
+  comment: (
+    <>
+      <path d="M21 11.5a8.5 8.5 0 0 1-9 8.5 9 9 0 0 1-4-.9L3 21l1.5-4A8 8 0 1 1 21 11.5Z" />
+    </>
+  ),
 };
+
+function Icon({ name }: { name: IconName }) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="20"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+      width="20"
+    >
+      {iconPaths[name]}
+    </svg>
+  );
+}
 
 interface Location {
   latitude: number;
@@ -62,69 +117,52 @@ interface Location {
 }
 
 function FeedCard({ item, personalized }: { item: FeedItem; personalized: boolean }) {
+  const authorName = item.author?.display_name ?? item.city ?? "Komunitas";
+  const itemHref = {
+    thread: `/community/${item.id}`,
+    open_play: `/open-play/${item.id}`,
+    venue: `/venues/${item.id}`,
+    equipment: `/equipment/${item.id}`,
+  }[item.content_type];
+
   return (
-    <article style={styles.panel}>
-      <header style={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}>
-        <p style={{ color: "#475569", margin: 0 }}>
-          {item.author?.display_name ?? item.city ?? "Komunitas"}
-          {item.sport
-            ? ` · ${sports.find((sport) => sport.value === item.sport)?.label ?? item.sport}`
-            : ""}
-        </p>
-        <time dateTime={item.created_at}>
-          {new Date(item.created_at).toLocaleDateString("id-ID")}
-        </time>
-      </header>
-      <p style={{ color: "#475569", marginBottom: 4 }}>
-        {contentKinds.find((kind) => kind.value === item.content_kind)?.label ?? item.content_kind}
-        {item.distance_km === null ? "" : ` · ${item.distance_km.toFixed(1)} km`}
-      </p>
-      <h2 style={{ marginTop: 4 }}>
-        {item.content_type === "thread" ? (
-          <Link href={`/community/${item.id}`}>{item.title}</Link>
-        ) : (
-          item.title
-        )}
-      </h2>
-      {item.body ? <p style={{ whiteSpace: "pre-wrap" }}>{item.body}</p> : null}
-      {item.media.length ? (
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          }}
-        >
-          {item.media.map((media) =>
-            media.type === "image" ? (
-              <img
-                alt="Media dari feed"
-                key={media.path}
-                src={media.url}
-                style={{ borderRadius: 8, maxHeight: 420, maxWidth: "100%", objectFit: "contain" }}
-              />
-            ) : (
-              <video
-                aria-label="Video dari feed"
-                controls
-                key={media.path}
-                src={media.url}
-                style={{ borderRadius: 8, maxHeight: 420, maxWidth: "100%" }}
-              />
-            ),
-          )}
-        </div>
-      ) : null}
-      {personalized && item.reasons.length ? (
-        <p style={{ color: "#475569" }}>Kenapa ditampilkan: {item.reasons.join("; ")}</p>
-      ) : null}
-    </article>
+    <PostCard
+      authorName={authorName}
+      body={item.body}
+      media={item.media.flatMap((media) =>
+        media.url
+          ? [
+              {
+                src: media.url,
+                alt: "Lampiran postingan",
+                type: media.type === "image" ? "image" : "video",
+              },
+            ]
+          : [],
+      )}
+      recommendation={
+        personalized && item.reasons.length
+          ? `Direkomendasikan karena ${item.reasons.join(", ")}.`
+          : undefined
+      }
+      replyHref={itemHref}
+      sport={
+        item.sport ? (sports.find((sport) => sport.value === item.sport)?.label ?? item.sport) : ""
+      }
+      time={new Date(item.created_at).toLocaleString("id-ID", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+      title={item.title}
+    />
   );
 }
 
 function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; showTabs: boolean }) {
   const { user } = useMe();
-  const [tab, setTab] = useState<"home" | "explore">(initialTab);
+  const [tab, setTab] = useState<"home" | "following" | "explore">(initialTab);
   const [sport, setSport] = useState<CommunitySport | "">("");
   const [contentKind, setContentKind] = useState<FeedContentKind | "">("");
   const [format, setFormat] = useState<FeedFormat | "">("");
@@ -138,9 +176,9 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
 
   const loadPage = useCallback(
     async (filters: FeedFilters) => {
-      return tab === "home" ? feedApi.getHomeFeed(filters) : feedApi.getExplore(filters);
+      return tab === "home" && user ? feedApi.getHomeFeed(filters) : feedApi.getExplore(filters);
     },
-    [tab],
+    [tab, user],
   );
 
   const makeFilters = useCallback(
@@ -159,13 +197,14 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
 
   useEffect(() => {
     let active = true;
-    if (tab === "home" && !user) {
-      setLoading(false);
+    if (tab === "following") {
       setPage({ items: [], next_cursor: null });
+      setLoading(false);
       setError(null);
-      return;
+      return () => {
+        active = false;
+      };
     }
-
     setLoading(true);
     setError(null);
     loadPage(makeFilters())
@@ -229,71 +268,64 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
     );
   }
 
-  return (
-    <main style={styles.main}>
-      <header style={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}>
-        <h1>{showTabs ? "Peluit" : "Jelajahi"}</h1>
-        <Link href="/community">Komunitas</Link>
-      </header>
-      {showTabs ? (
-        <nav aria-label="Jenis feed" style={{ display: "flex", gap: 8 }}>
-          <button
-            aria-pressed={tab === "home"}
-            onClick={() => setTab("home")}
-            style={tab === "home" ? styles.button : undefined}
-            type="button"
-          >
-            Let me choose for you
-          </button>
-          <button
-            aria-pressed={tab === "explore"}
-            onClick={() => setTab("explore")}
-            style={tab === "explore" ? styles.button : undefined}
-            type="button"
-          >
-            Semua olahraga
-          </button>
-        </nav>
-      ) : null}
-      <section
-        aria-label="Filter feed"
-        style={{ ...styles.panel, display: "flex", flexWrap: "wrap", gap: 12 }}
-      >
+  const header = showTabs ? (
+    <>
+      <TabBar
+        label="Tab beranda"
+        onChange={(value) => setTab(value as "home" | "following")}
+        tabs={[
+          { value: "home", label: "Untuk saya" },
+          { value: "following", label: "Mengikuti" },
+          { value: "community", label: "Komunitas", href: "/community" },
+        ]}
+        value={tab}
+      />
+      <ChipFilter
+        label="Filter olahraga"
+        onChange={(value) => setSport(value as CommunitySport | "")}
+        options={[
+          { value: "", label: "Semua olahraga" },
+          ...sportChips.map((item) => ({ value: item.value, label: item.label })),
+        ]}
+        value={sport}
+      />
+    </>
+  ) : (
+    <>
+      <h1 className="home-explore-heading">Jelajahi olahraga</h1>
+      <ChipFilter
+        label="Filter olahraga"
+        onChange={(value) => setSport(value as CommunitySport | "")}
+        options={[
+          { value: "", label: "Semua olahraga" },
+          ...sportChips.map((item) => ({ value: item.value, label: item.label })),
+        ]}
+        value={sport}
+      />
+    </>
+  );
+
+  const rightPanel = (
+    <>
+      <RightPanel title="Filter cepat">
         <label>
-          Olahraga{" "}
-          <select
-            onChange={(event) => setSport(event.target.value as CommunitySport | "")}
-            style={styles.input}
-            value={sport}
-          >
-            <option value="">Semua</option>
-            {sports.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Jenis{" "}
+          Jenis
           <select
             onChange={(event) => setContentKind(event.target.value as FeedContentKind | "")}
-            style={styles.input}
             value={contentKind}
           >
             <option value="">Semua</option>
-            {contentKinds.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
+            {contentKinds.map((kind) => (
+              <option key={kind.value} value={kind.value}>
+                {kind.label}
               </option>
             ))}
           </select>
         </label>
         <label>
-          Format{" "}
+          Format
           <select
             onChange={(event) => setFormat(event.target.value as FeedFormat | "")}
-            style={styles.input}
             value={format}
           >
             <option value="">Semua</option>
@@ -305,11 +337,10 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
           </select>
         </label>
         <label>
-          Jarak{" "}
+          Jarak
           <select
             disabled={!location}
             onChange={(event) => setRadius(event.target.value ? Number(event.target.value) : "")}
-            style={styles.input}
             value={radius}
           >
             <option value="">Semua jarak</option>
@@ -320,11 +351,13 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
             ))}
           </select>
         </label>
-        <button onClick={requestLocation} type="button">
+        <button className="home-location-primary" onClick={requestLocation} type="button">
+          <Icon name="location" />
           Gunakan lokasi
         </button>
         {location ? (
           <button
+            className="home-clear-location"
             onClick={() => {
               setLocation(null);
               setRadius("");
@@ -335,44 +368,109 @@ function FeedPage({ initialTab, showTabs }: { initialTab: "home" | "explore"; sh
             Hapus lokasi
           </button>
         ) : null}
-      </section>
-      {locationMessage ? <p role="status">{locationMessage}</p> : null}
-      {tab === "home" && !user ? (
-        <p>
-          <Link href="/login">Login untuk melihat feed personal.</Link> Kamu tetap dapat menjelajahi
-          semua olahraga.
+      </RightPanel>
+      <RightPanel title="Komunitas untukmu">
+        <p>Temukan teman latihan dan diskusi olahraga yang kamu minati.</p>
+        <Link className="home-community-link" href="/community">
+          Jelajahi komunitas
+        </Link>
+        <div className="home-community-sports">
+          {sportChips.slice(0, 3).map((item) => (
+            <button
+              className="home-community-sport"
+              key={item.value}
+              onClick={() => setSport(item.value)}
+              type="button"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </RightPanel>
+    </>
+  );
+
+  return (
+    <FeedShell
+      activeNav={initialTab === "home" ? "home" : undefined}
+      header={header}
+      rightPanel={rightPanel}
+    >
+      <main className="home-main">
+        {tab === "home" ? (
+          <Composer
+            href={user ? "/community/new" : "/login"}
+            prompt={
+              user
+                ? "Lagi cari teman main apa hari ini?"
+                : "Login untuk berbagi cerita atau mencari teman main"
+            }
+          >
+            {user ? (
+              <button className="home-location-button" onClick={requestLocation} type="button">
+                <Icon name="location" />
+                Tambah lokasi
+              </button>
+            ) : null}
+          </Composer>
+        ) : null}
+
+        {locationMessage ? (
+          <p className="home-notice" role="status">
+            {locationMessage}
+          </p>
+        ) : null}
+        {tab === "home" && !user ? (
+          <p className="home-login-note">
+            <Link href="/login">Login untuk melihat feed personal.</Link> Kamu tetap dapat
+            menjelajahi olahraga.
+          </p>
+        ) : null}
+        {tab === "following" ? (
+          <EmptyState
+            description="Feed Mengikuti belum tersedia karena layanan untuk akun yang diikuti belum disediakan."
+            title="Belum ada feed Mengikuti"
+          />
+        ) : null}
+        {error ? (
+          <p className="home-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {loading ? <Skeleton /> : null}
+        {!loading && !error && !page.items.length && tab !== "following" ? (
+          <EmptyState
+            description="Coba ubah filter olahraga atau jelajahi postingan terbaru."
+            title="Belum ada konten yang cocok"
+          />
+        ) : null}
+        {!loading && tab !== "following" ? (
+          <section aria-label="Feed postingan" className="home-feed-list">
+            {page.items.map((item) => (
+              <FeedCard
+                item={item}
+                key={`${item.content_type}:${item.id}`}
+                personalized={tab === "home" && !!user}
+              />
+            ))}
+          </section>
+        ) : null}
+        {page.next_cursor && !loading && tab !== "following" ? (
+          <button
+            className="home-load-more"
+            disabled={loadingMore}
+            onClick={() => void loadMore()}
+            type="button"
+          >
+            {loadingMore ? "Memuat…" : "Muat lebih banyak"}
+          </button>
+        ) : null}
+        <p className="home-footnote">
+          Feed saat ini menampilkan thread komunitas. Integrasi open play dan lapangan menunggu API
+          sumber dari pemilik modulnya.
         </p>
-      ) : null}
-      {error ? (
-        <p role="alert" style={{ color: "#b91c1c" }}>
-          {error}
-        </p>
-      ) : null}
-      {loading ? <p role="status">Memuat feed...</p> : null}
-      {!loading && !error && !page.items.length ? (
-        <p>Belum ada konten yang cocok dengan filter ini.</p>
-      ) : null}
-      {page.items.map((item) => (
-        <FeedCard
-          item={item}
-          key={`${item.content_type}:${item.id}`}
-          personalized={tab === "home"}
-        />
-      ))}
-      {page.next_cursor && !loading ? (
-        <button
-          disabled={loadingMore}
-          onClick={() => void loadMore()}
-          style={{ ...styles.button, marginTop: 16 }}
-        >
-          {loadingMore ? "Memuat..." : "Muat lebih banyak"}
-        </button>
-      ) : null}
-      <p style={{ color: "#64748b", fontSize: 13, marginTop: 20 }}>
-        Feed saat ini menampilkan thread komunitas. Integrasi open play dan lapangan menunggu API
-        sumber dari pemilik modulnya.
-      </p>
-    </main>
+      </main>
+    </FeedShell>
   );
 }
 
