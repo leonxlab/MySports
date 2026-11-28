@@ -136,7 +136,7 @@ export function OtpForm({ purpose }: { purpose: OtpPurpose }) {
             <button
               disabled={isLoading || !email.trim()}
               style={{
-                background: "#0f172a",
+                background: "var(--color-primary)",
                 border: "none",
                 borderRadius: 8,
                 color: "#fff",
@@ -179,7 +179,7 @@ export function OtpForm({ purpose }: { purpose: OtpPurpose }) {
             <button
               disabled={isLoading || code.length !== 6}
               style={{
-                background: "#0f172a",
+                background: "var(--color-primary)",
                 border: "none",
                 borderRadius: 8,
                 color: "#fff",

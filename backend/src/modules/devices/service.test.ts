@@ -152,7 +152,62 @@ describe("kalibrasi", () => {
     expect(await code(svc.saveCalibration(coach, session.id, { ...cal, sport: "futsal", layout: "standard" }))).toBe(
       "CALIBRATION_SPORT_MISMATCH",
     );
-    expect(await code(svc.saveCalibration(cam, session.id, cal))).toBe("FORBIDDEN");
+    const otherCamera = {
+      ...cal,
+      cameras: {
+        away: {
+          ...cal.cameras.home,
+          court_corners: [
+            { x: 120, y: 1000 },
+            { x: 1780, y: 1000 },
+            { x: 1480, y: 300 },
+            { x: 420, y: 300 },
+          ],
+        },
+      },
+    };
+    expect(await code(svc.saveCalibration(cam, session.id, otherCamera))).toBe("FORBIDDEN");
+  });
+
+  it("kamera hanya menyimpan sisi sendiri dan kalibrasi kedua menggabungkan layout yang sama", async () => {
+    const { svc, session } = await sessionWithCamera();
+    const away = await svc.joinSession(cam2, { code: session.code!, role: "camera_away" });
+    const cameraCalibration = (xOffset: number) => ({
+      frame: { width: 1920, height: 1080 },
+      court_corners: [
+        { x: 100 + xOffset, y: 1000 },
+        { x: 1800 - xOffset, y: 1000 },
+        { x: 1500 - xOffset, y: 300 },
+        { x: 400 + xOffset, y: 300 },
+      ],
+      targets: [],
+      marked_at: "2026-11-12T08:00:00Z",
+    });
+    const home = {
+      version: 1,
+      sport: "basketball",
+      layout: "full_court",
+      cameras: { home: cameraCalibration(0) },
+    };
+    const savedHome = await svc.saveCalibration(cam, session.id, home);
+    expect(savedHome.calibratedCameras).toEqual(["home"]);
+
+    const savedBoth = await svc.saveCalibration(cam2, session.id, {
+      ...home,
+      cameras: { away: cameraCalibration(20) },
+    });
+    expect(savedBoth.calibratedCameras).toEqual(["home", "away"]);
+    expect(savedBoth.calibrationLayout).toBe("full_court");
+    expect(
+      await code(
+        svc.saveCalibration(cam2, session.id, {
+          ...home,
+          layout: "half_court",
+          cameras: { away: cameraCalibration(20) },
+        }),
+      ),
+    ).toBe("CALIBRATION_LAYOUT_MISMATCH");
+    expect(away.session.calibratedCameras).toEqual([]);
   });
 });
 

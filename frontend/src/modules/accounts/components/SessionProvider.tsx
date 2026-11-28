@@ -3,6 +3,7 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ApiError } from "@/lib/api-client";
+import { isLocalDemoMode } from "@/lib/demo-mode";
 import { getSupabase } from "@/lib/supabase";
 import { accountsApi } from "../api";
 import type { MeProfile } from "../types";
@@ -103,6 +104,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     mounted.current = true;
+    if (isLocalDemoMode()) {
+      setUser(null);
+      setMe(null);
+      setError(null);
+      setIsLoading(false);
+      return () => {
+        mounted.current = false;
+        requestId.current += 1;
+      };
+    }
+
     const supabase = getSupabase();
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       window.setTimeout(() => {

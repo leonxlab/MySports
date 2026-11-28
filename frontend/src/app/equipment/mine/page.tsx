@@ -1,5 +1,5 @@
-import { ModuleStub } from "@/components/ModuleStub";
+import { EquipmentFeed } from "@/modules/equipment";
 
-export default function Page() {
-  return <ModuleStub module="equipment" title="Alat saya" route="/equipment/mine" />;
+export default function MyEquipmentPage() {
+  return <EquipmentFeed mode="mine" />;
 }

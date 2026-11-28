@@ -7,6 +7,7 @@ import type { IngestResult } from "../scoring/service";
 import { AttemptLimiter, CODE_TTL_MINUTES, generateSessionCode, isValidSessionCode, normalizeSessionCode } from "./code";
 import {
   calibrationSchema,
+  type Calibration,
   type CapabilityInput,
   type CreateSessionInput,
   type DetectionEvent,
@@ -87,6 +88,8 @@ export interface SessionView {
   expiresAt: string;
   consentAt: string | null;
   calibrated: boolean;
+  calibrationLayout: Calibration["layout"] | null;
+  calibratedCameras: ("home" | "away")[];
   devices: DeviceView[];
 }
 
@@ -205,6 +208,8 @@ export function createDevicesService(ctx: AppContext, deps?: Partial<Dependencie
 
   function sessionView(s: SessionRow, devices: DeviceRow[], viewer?: AuthUser): SessionView {
     const isCoach = !!viewer && (viewer.id === s.coach_id || isAdmin(viewer));
+      const parsedCalibration = calibrationSchema.safeParse(s.calibration);
+      const calibration = parsedCalibration.success ? parsedCalibration.data : null;
     return {
       id: s.id,
       matchId: s.match_id,
@@ -214,7 +219,11 @@ export function createDevicesService(ctx: AppContext, deps?: Partial<Dependencie
       status: s.status,
       expiresAt: s.expires_at,
       consentAt: s.consent_at,
-      calibrated: s.calibration !== null && s.calibration !== undefined,
+      calibrated: calibration !== null,
+      calibrationLayout: calibration?.layout ?? null,
+      calibratedCameras: calibration
+        ? (["home", "away"] as const).filter((camera) => calibration.cameras[camera] !== undefined)
+        : [],
       devices: devices.map(deviceView),
     };
   }
@@ -363,15 +372,36 @@ export function createDevicesService(ctx: AppContext, deps?: Partial<Dependencie
 
     async saveCalibration(user: AuthUser, sessionId: string, raw: unknown): Promise<SessionView> {
       const s = await loadSession(sessionId);
-      assertCoach(user, s);
-      const calibration = calibrationSchema.parse(raw);
-      if (s.sport && calibration.sport !== s.sport) {
+      const devices = await loadDevices(sessionId);
+      const coach = s.coach_id === user.id || isAdmin(user);
+      const device = deviceOf(user, devices);
+      const camera = device?.role === "camera_home" ? "home" : device?.role === "camera_away" ? "away" : null;
+      if (!coach && !camera) throw forbidden("Hanya Coach sesi atau kamera yang terpasang");
+      const input = calibrationSchema.parse(raw);
+      if (s.sport && input.sport !== s.sport) {
         throw new AppError(400, "CALIBRATION_SPORT_MISMATCH", "Cabang kalibrasi berbeda dengan cabang sesi");
+      }
+      let calibration = input;
+      if (!coach && camera) {
+        const submittedCameras = Object.keys(input.cameras);
+        if (submittedCameras.length !== 1 || !input.cameras[camera]) {
+          throw forbidden("Kamera hanya boleh mengirim kalibrasi untuk sisinya sendiri");
+        }
+        if (s.calibration) {
+          const previous = calibrationSchema.parse(s.calibration);
+          if (previous.sport !== input.sport || previous.layout !== input.layout) {
+            throw new AppError(409, "CALIBRATION_LAYOUT_MISMATCH", "Layout harus sama untuk semua kamera");
+          }
+          calibration = calibrationSchema.parse({
+            ...input,
+            cameras: { ...previous.cameras, ...input.cameras },
+          });
+        }
       }
       const { error } = await db.from("device_sessions").update({ calibration }).eq("id", sessionId);
       if (error) throw error;
       await publishStatus(sessionId);
-      return sessionView({ ...s, calibration }, await loadDevices(sessionId), user);
+      return sessionView({ ...s, calibration }, devices, user);
     },
 
     /** Simpan waktu persetujuan pemain. Coach atau kamera sesi ini yang boleh mencatat. Idempoten. */

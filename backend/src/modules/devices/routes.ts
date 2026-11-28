@@ -39,8 +39,8 @@ export async function routes(app: FastifyInstance) {
     consentBody.parse(req.body);
     return devices.recordConsent(req.user!, sid(req.params));
   });
-  // POST /api/v1/devices/sessions/:id/calibration: Simpan kalibrasi ring, gawang, atau garis [coach]
-  app.post("/sessions/:id/calibration", { preHandler: app.requireRole("coach") }, (req) =>
+  // POST /api/v1/devices/sessions/:id/calibration: Coach atau kamera menyimpan kalibrasi lapangannya
+  app.post("/sessions/:id/calibration", { preHandler: app.requireRole() }, (req) =>
     devices.saveCalibration(req.user!, sid(req.params), req.body),
   );
   // POST /api/v1/devices/sessions/:id/segments/sign: Minta signed URL upload segmen (maks 50 MB) [login]

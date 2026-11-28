@@ -10,3 +10,4 @@ Cara ukur: `python -m scripts.run_detector <cabang> <klip.mp4>` dengan klip 1 me
 
 Anti-cheat belum diukur pada klip nyata atau GPU; hasil tes sintetis bukan metrik performa.
 Worker belum diukur pada laptop RTX atau klip uji; jangan mengisi angka sebelum pengukuran dilakukan.
+Badminton YOLO11 sudah terhubung ke worker, tetapi checkpoint dan heuristik landing belum dijalankan pada klip/GPU di sesi ini; belum ada klaim akurasi atau FPS.

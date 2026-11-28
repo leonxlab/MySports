@@ -1,5 +1,5 @@
 import { CoachSessionNew } from "@/modules/devices";
-import { Page } from "@/modules/payments";
+import { FocusShell } from "@/components/feed";
 
 export default async function CoachSessionNewPage({
   searchParams,
@@ -8,8 +8,8 @@ export default async function CoachSessionNewPage({
 }) {
   const { matchId } = await searchParams;
   return (
-    <Page title="Sesi device">
+    <FocusShell title="Sesi perangkat" exitHref="/open-play" status="Persiapan">
       <CoachSessionNew matchId={matchId} />
-    </Page>
+    </FocusShell>
   );
 }

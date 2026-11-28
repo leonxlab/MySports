@@ -46,14 +46,14 @@ export function ManualActionPanel({ matchId, sport, team, scorerId, onScored }: 
     }
   }
 
-  const teamLabel = team === "home" ? "Home" : "Away";
+  const teamLabel = team === "home" ? "Tuan rumah" : "Tamu";
   return (
     <fieldset disabled={run.busy}>
       <legend>Input skor ({teamLabel})</legend>
       <label>
         Jenis aksi{" "}
         <select value={action} onChange={(e) => setAction(e.target.value)}>
-          <option value="">(tidak dicatat)</option>
+          <option value="">Tidak dicatat</option>
           {ACTIONS[sport].map((a) => (
             <option key={a} value={a}>
               {a}

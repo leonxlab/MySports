@@ -14,7 +14,7 @@ export function ErrorNote({ message }: { message: string | null }) {
 
 export function Page({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
+    <main className="app-page">
       <h1>{title}</h1>
       {children}
     </main>
@@ -22,9 +22,5 @@ export function Page({ title, children }: { title: string; children: React.React
 }
 
 export function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ border: "1px solid #8884", borderRadius: 8, padding: 12, margin: "8px 0" }}>
-      {children}
-    </div>
-  );
+  return <div className="app-card">{children}</div>;
 }

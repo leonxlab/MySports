@@ -2,6 +2,31 @@
 import type { Sport } from "@/modules/venues";
 
 export type DeviceRole = "camera_home" | "camera_away" | "controller";
+export type CameraSide = "home" | "away";
+export type CourtLayout = "full_court" | "half_court" | "singles" | "doubles" | "standard";
+
+export interface CalibrationPoint {
+  x: number;
+  y: number;
+}
+
+export interface CameraCalibration {
+  frame: { width: number; height: number };
+  court_corners: CalibrationPoint[];
+  targets: CalibrationTarget[];
+  marked_at: string;
+}
+
+export type CalibrationTarget =
+  | { kind: "hoop"; points: CalibrationPoint[] }
+  | { kind: "goal"; points: CalibrationPoint[] };
+
+export interface Calibration {
+  version: 1;
+  sport: Sport;
+  layout: CourtLayout;
+  cameras: Partial<Record<CameraSide, CameraCalibration>>;
+}
 
 export interface Capability {
   width: number;
@@ -35,6 +60,8 @@ export interface SessionView {
   expiresAt: string;
   consentAt: string | null;
   calibrated: boolean;
+  calibrationLayout: CourtLayout | null;
+  calibratedCameras: CameraSide[];
   devices: DeviceView[];
 }
 

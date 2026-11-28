@@ -20,7 +20,7 @@ Pairing sampai 3 device per sesi (kamera home, kamera away, controller) lewat QR
 | POST | `/sessions/:id/capability` | Laporkan resolusi, FPS, baterai; balikan berisi peringatan | device | `{ width, height, fps, webgpu?, connection?, batteryLevel?, charging? }` |
 | POST | `/sessions/:id/heartbeat` | Isi `last_seen_at` (status online) | device | - |
 | POST | `/sessions/:id/consent` | Catat persetujuan pemain (`consent_at`), idempoten | Coach sesi atau kamera | `{ agreed: true }` |
-| POST | `/sessions/:id/calibration` | Simpan kalibrasi (`contracts/calibration.schema.json`) | coach (pemilik sesi) | kalibrasi |
+| POST | `/sessions/:id/calibration` | Simpan kalibrasi (`contracts/calibration.schema.json`) | Coach pemilik sesi atau kamera yang terpasang (hanya sisi sendiri) | kalibrasi |
 | POST | `/sessions/:id/segments/sign` | Signed URL unggah segmen, path `{sessionId}/{deviceId}/{seq}` | kamera | `{ seq, sizeBytes, mimeType, startOffsetMs, durationMs }` |
 | POST | `/sessions/:id/segments/:segmentId/uploaded` | Cek file ada di Storage, lalu status `queued`; idempoten | kamera | - |
 | POST | `/events` | Terima batch kejadian dari yolo-service, hasil per event | x-service-key | `ingestEventsBody` |
@@ -32,6 +32,7 @@ Aturan:
 - Satu peran hanya satu device per sesi; controller hanya Coach pemilik sesi.
 - Kamera tidak bisa minta signed URL sebelum persetujuan pemain dicatat.
 - Peringatan kemampuan kamera: `RESOLUTION_BELOW_1080P`, `FPS_BELOW_30`, `NOT_CHARGING`. Angka dari syarat awal proposal, belum hasil uji (`TODO(decision)` #12).
+- Kamera menandai empat sudut lapangan pada pratinjau lokal setelah consent; sesi mengembalikan `calibrationLayout` dan `calibratedCameras` agar kedua sisi memakai layout yang sama.
 - Ingest: `basket_made`, `goal`, `ball_landed` ke scoring (status `suggested`, idempoten lewat `event_id`); `play_activity` ke level.
 
 ## Untuk modul lain
@@ -55,6 +56,7 @@ Aturan:
 - [x] `schema.ts`, `code.ts`, `service.ts` dengan test (`code.test.ts`, `service.test.ts`, `calibration.test.ts`)
 - [x] `routes.ts` (tidak ada `todo(...)` tersisa)
 - [x] Frontend: `/coach/session/new`, `/device/pair`, `/device/camera/[sessionId]`
+- [x] Kalibrasi lapangan via preview kamera dan simpan kalibrasi per sisi
 - [ ] Typecheck, test, build belum dijalankan di sesi penulisan (dependensi belum terpasang)
 - [ ] `supabase db reset` belum dijalankan
 - [ ] Uji layar kamera di HP Android dan iPhone (rencana di memo format segmen)

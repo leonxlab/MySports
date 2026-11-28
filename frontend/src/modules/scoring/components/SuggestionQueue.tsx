@@ -11,9 +11,17 @@ const KIND_LABEL: Record<ScoreEventView["kind"], string> = {
   point: "Bola/kok mendarat",
 };
 
-function Suggestion({ event, onChange }: { event: ScoreEventView; onChange: (b: Scoreboard) => void }) {
+function Suggestion({
+  event,
+  onChange,
+}: {
+  event: ScoreEventView;
+  onChange: (b: Scoreboard) => void;
+}) {
   const [team, setTeam] = useState<Team | null>(event.team);
-  const [points, setPoints] = useState<2 | 3 | null>(event.pointsConfirmed ? (event.points as 2 | 3) : null);
+  const [points, setPoints] = useState<2 | 3 | null>(
+    event.pointsConfirmed ? (event.points as 2 | 3) : null,
+  );
   const run = useAction();
   const needsPoints = event.kind === "basket_made";
   const ready = team !== null && (!needsPoints || points !== null);
@@ -21,7 +29,11 @@ function Suggestion({ event, onChange }: { event: ScoreEventView; onChange: (b: 
   async function confirm() {
     if (!team) return;
     const board = await run.run(() =>
-      scoringApi.reviewScoreEvent(event.id, { action: "confirm", team, ...(needsPoints && points ? { points } : {}) }),
+      scoringApi.reviewScoreEvent(event.id, {
+        action: "confirm",
+        team,
+        ...(needsPoints && points ? { points } : {}),
+      }),
     );
     if (board) onChange(board);
   }
@@ -40,12 +52,17 @@ function Suggestion({ event, onChange }: { event: ScoreEventView; onChange: (b: 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {(["home", "away"] as const).map((t) => (
             <button key={t} type="button" aria-pressed={team === t} onClick={() => setTeam(t)}>
-              {t === "home" ? "Home" : "Away"}
+              {t === "home" ? "Tuan rumah" : "Tamu"}
             </button>
           ))}
           {needsPoints &&
             ([2, 3] as const).map((p) => (
-              <button key={p} type="button" aria-pressed={points === p} onClick={() => setPoints(p)}>
+              <button
+                key={p}
+                type="button"
+                aria-pressed={points === p}
+                onClick={() => setPoints(p)}
+              >
                 {p} poin
               </button>
             ))}
@@ -66,7 +83,13 @@ function Suggestion({ event, onChange }: { event: ScoreEventView; onChange: (b: 
  * Antrean usulan AI untuk Coach: konfirmasi (pilih tim dan, untuk basket, 2 atau 3 poin) atau tolak.
  * Dipasang di halaman control menu match (milik modul match).
  */
-export function SuggestionQueue({ suggestions, onChange }: { suggestions: ScoreEventView[]; onChange: (b: Scoreboard) => void }) {
+export function SuggestionQueue({
+  suggestions,
+  onChange,
+}: {
+  suggestions: ScoreEventView[];
+  onChange: (b: Scoreboard) => void;
+}) {
   if (suggestions.length === 0) return <p>Tidak ada usulan AI yang menunggu.</p>;
   return (
     <section aria-label="Usulan AI">
